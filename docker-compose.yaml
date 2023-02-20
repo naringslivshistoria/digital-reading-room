@@ -20,7 +20,7 @@ services:
     ports:
     - 14000:4000
     volumes:
-    - thumbnails:/thumbnails
+    - ./packages/thumbnails:/thumbnails
 
   reading-room-frontend:
     build:
@@ -49,7 +49,7 @@ services:
     ports:
     - 14001:4001
     volumes:
-    - thumbnails:/thumbnails
+    - ./packages/thumbnails:/thumbnails
 
   elasticsearch:
     container_name: elastic-container
@@ -82,4 +82,3 @@ networks:
 
 volumes:
   elasticsearch:
-  thumbnails:
