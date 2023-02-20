@@ -1,0 +1,85 @@
+version: "3.8"
+
+services:
+
+  comprima-adapter:
+    build: ./packages/comprima-adapter
+    container_name: comprima-adapter
+    environment:
+    - COMPRIMA_SERVICE_URL_TEST
+    - COMPRIMA_USER_TEST
+    - COMPRIMA_PASSWORD_TEST
+    - COMPRIMA_SERVICE_URL
+    - COMPRIMA_USER
+    - COMPRIMA_PASSWORD
+    - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+    - elasticsearch
+    networks:
+    - ek-net
+    ports:
+    - 14000:4000
+    volumes:
+    - thumbnails:/thumbnails
+
+  reading-room-frontend:
+    build:
+      context: ./reading-room-frontend
+      args:
+      - COMPRIMA_ADAPTER_URL=http://localhost:14000
+      - SEARCH_URL=http://localhost:14001
+    container_name: reading-room-frontend
+    depends_on:
+    - comprima-adapter
+    - reading-room-search
+    networks:
+    - ek-net
+    ports:
+    - 14002:80
+
+  reading-room-search:
+    build: ./packages/reading-room-search
+    container_name: reading-room-search
+    environment:
+    - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+    - elasticsearch
+    networks:
+    - ek-net
+    ports:
+    - 14001:4001
+    volumes:
+    - thumbnails:/thumbnails
+
+  elasticsearch:
+    container_name: elastic-container
+    environment:
+    - xpack.security.enabled=false
+    - "discovery.type=single-node"
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1
+    networks:
+    - ek-net
+    ports:
+    - 9200:9200
+    volumes:
+    - elasticsearch:/usr/share/elasticsearch/data
+
+  kibana:
+    container_name: kibana-container
+    depends_on:
+    - elasticsearch
+    environment:
+    - ELASTICSEARCH_HOSTS=http://elastic-container:9200
+    image: docker.elastic.co/kibana/kibana:8.4.1
+    networks:
+    - ek-net
+    ports:
+    - 5601:5601
+
+networks:
+  ek-net:
+    driver: bridge
+
+volumes:
+  elasticsearch:
+  thumbnails:

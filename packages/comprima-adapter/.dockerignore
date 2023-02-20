@@ -1,0 +1,13 @@
+.dockerignore
+Dockerfile
+
+.github
+.gitignore
+
+.jest.config.js
+.nvmrc
+.prettierrc
+
+node_modules
+
+README.md

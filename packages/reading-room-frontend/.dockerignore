@@ -1,0 +1,12 @@
+.dockerignore
+Dockerfile
+
+.github
+.gitignore
+
+.eslintcache
+
+.vscode
+
+dist
+node_modules
