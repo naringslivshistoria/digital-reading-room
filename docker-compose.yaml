@@ -24,7 +24,7 @@ services:
 
   reading-room-frontend:
     build:
-      context: ./reading-room-frontend
+      context: ./packages/reading-room-frontend
       args:
       - COMPRIMA_ADAPTER_URL=http://localhost:14000
       - SEARCH_URL=http://localhost:14001
