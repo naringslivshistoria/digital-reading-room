@@ -3,11 +3,14 @@ import { describe, expect, it } from 'vitest';
 import App from './App';
 import { render, screen } from './test/test.utils';
 
-describe('Simple working test', () => {
-  it('the title is visible', () => {
+describe('Search page', () => {
+  it('Shows result headings', () => {
     render(<App />);
-    expect(
-      screen.getByText(/Hello Iteam \+ React \+ Typescript!/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Titel/i)).toBeInTheDocument();
+    expect(screen.getByText(/Arkiv/i)).toBeInTheDocument();
+    expect(screen.getByText(/Serie/i)).toBeInTheDocument();
+    expect(screen.getByText(/Beskrivning/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tidsperiod/i)).toBeInTheDocument();
+    expect(screen.getByText(/Bilaga/i)).toBeInTheDocument();
   });
 });
