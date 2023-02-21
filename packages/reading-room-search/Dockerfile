@@ -1,10 +1,10 @@
-FROM node:16 AS builder
+FROM node:18.14.1 AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm install --omit=dev
 
-FROM node:16-alpine AS runner
+FROM node:18.14.1-alpine AS runner
 WORKDIR /app
 
 COPY . .

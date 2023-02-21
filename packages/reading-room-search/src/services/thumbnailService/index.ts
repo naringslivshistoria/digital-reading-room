@@ -20,5 +20,5 @@ export const routes = (router: KoaRouter) => {
       ctx.status = 500
       ctx.body = { results: 'error: ' + err}
     }
-  });
+  })
 }
