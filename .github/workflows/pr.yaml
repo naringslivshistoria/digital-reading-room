@@ -7,7 +7,6 @@ on:
 
 jobs:
   lint:
-    name: Code linting
     runs-on: ubuntu-latest
 
     strategy:
@@ -26,12 +25,13 @@ jobs:
         with:
           node-version: 16
 
-      - name: 💾 NPM Install ${{ matrix.context }}
-        uses: bahmutov/npm-install@v1
-        with:
-          working-directory: ./packages/${{ matrix.context }}
+      # - name: 💾 NPM Install ${{ matrix.context }}
+      #   uses: bahmutov/npm-install@v1
+      #   with:
+      #     working-directory: ./packages/${{ matrix.context }}
 
       - name: 🔎 Lint ${{ matrix.context }}
         run: |
           cd ./packages/${{ matrix.context }}
+          npm ci
           npm run lint
