@@ -3,7 +3,7 @@ name: Run code linting and tests
 on:
   pull_request:
     branches:
-      - main
+    - main
 
 jobs:
   lint:
@@ -18,20 +18,25 @@ jobs:
         - reading-room-search
 
     steps:
-      - name: 🛎️ Checkout
-        uses: actions/checkout@v3
+    - name: 🛎️ Checkout
+      uses: actions/checkout@v3
 
-      - name: 🔧 Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
+    - name: 🔧 Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
 
-      - name: 💾 NPM Install ${{ matrix.context }}
-        uses: bahmutov/npm-install@v1
-        with:
-          working-directory: ./packages/${{ matrix.context }}
+    - name: 💾 NPM Install ${{ matrix.context }}
+      uses: bahmutov/npm-install@v1
+      with:
+        working-directory: ./packages/${{ matrix.context }}
 
-      - name: 🔎 Lint ${{ matrix.context }}
-        run: |
-          cd ./packages/${{ matrix.context }}
-          npm run lint
+    - name: 🔎 Lint ${{ matrix.context }}
+      run: |
+        cd ./packages/${{ matrix.context }}
+        npm run lint
+
+    - name: 🤖 Test ${{ matrix.context }}
+      run: |
+        cd ./packages/${{ matrix.context }}
+        npm run test
