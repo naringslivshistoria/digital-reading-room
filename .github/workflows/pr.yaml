@@ -13,9 +13,9 @@ jobs:
     strategy:
       matrix:
         context:
-        # - comprima-adapter TODO: Enable when there are tests.
+        - comprima-adapter
         - reading-room-frontend
-        # - reading-room-search TODO: Enable when there are tests.
+        - reading-room-search
 
     steps:
     - name: 🛎️ Checkout
@@ -36,7 +36,8 @@ jobs:
         cd ./packages/${{ matrix.context }}
         npm run lint
 
-    - name: 🤖 Test ${{ matrix.context }}
+    # TODO: Enable the other packages when there are tests for them.
+    - name: 🤖 Test reading-room-frontend
       run: |
-        cd ./packages/${{ matrix.context }}
+        cd ./packages/reading-room-frontend
         npm run test
