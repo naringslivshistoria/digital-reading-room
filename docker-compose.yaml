@@ -64,6 +64,20 @@ services:
     volumes:
     - elasticsearch:/usr/share/elasticsearch/data
 
+  postgres:
+    container_name: postgres-container
+    environment:
+    - POSTGRES_USER
+    - POSTGRES_PASSWORD
+    - POSTGRES_DB=readingroom
+    image: postgres:15.2
+    networks:
+    - ek-net
+    ports:
+    - 5433:5432
+    volumes:
+    - postgres:/var/lib/postgresql/data
+
   kibana:
     container_name: kibana-container
     depends_on:
@@ -82,3 +96,4 @@ networks:
 
 volumes:
   elasticsearch:
+  postgres:
