@@ -36,8 +36,7 @@ jobs:
         cd ./packages/${{ matrix.context }}
         npm run lint
 
-    # TODO: Enable the other packages when there are tests for them.
-    - name: 🤖 Test reading-room-frontend
+    - name: 🤖 Test ${{ matrix.context }}
       run: |
-        cd ./packages/reading-room-frontend
+        cd ./packages/${{ matrix.context }}
         npm run test
