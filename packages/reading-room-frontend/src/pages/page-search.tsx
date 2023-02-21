@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 
 import { Search, SearchResult, SearchService } from '../features/search'
 import { Document } from '../common/types'
-
 import library from '../../assets/library.jpg'
 
 export const PageSearch = () => {

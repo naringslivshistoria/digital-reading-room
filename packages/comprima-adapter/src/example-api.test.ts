@@ -1,11 +1,9 @@
 import request from 'supertest';
 import Koa from 'koa';
-import exampleApi from './example-api';
 import bodyParser from 'koa-bodyparser';
 
 const app = new Koa();
 app.use(bodyParser());
-app.use(exampleApi.routes());
 
 describe('app', () => {
   describe('GET /', () => {

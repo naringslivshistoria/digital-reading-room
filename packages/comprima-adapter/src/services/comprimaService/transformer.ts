@@ -138,7 +138,7 @@ const getIndexName = (indexName: string) : string => {
 }
 
 const transformDocument = (xmlDocument : any) : Document => {
-  let fields : Fields = {}
+  const fields : Fields = {}
 
   xmlDocument.Indices.Index.forEach((index : any) => {
     const translationKey = index.FieldName?.toLowerCase().replace(' ', '-') ?? index.Number
