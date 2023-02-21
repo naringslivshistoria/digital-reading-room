@@ -6,8 +6,8 @@ on:
     - main
 
 jobs:
-  lint:
-    name: Lint
+  check:
+    name: Check
     runs-on: ubuntu-latest
 
     strategy:
