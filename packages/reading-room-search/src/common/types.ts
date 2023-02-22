@@ -21,8 +21,19 @@ interface Document {
   pages: [Page]
 }
 
+interface User {
+  id: number
+  username: string
+  locked: boolean
+  disabled: boolean
+  passwordHash: string
+  salt: string
+  failedLoginAttempts: number
+}
+
 export {
   Document,
   Field,
   Fields,
+  User,
 }

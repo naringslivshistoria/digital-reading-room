@@ -1,9 +1,10 @@
 import KoaRouter from '@koa/router'
 import { Client } from '@elastic/elasticsearch'
 import { Document } from '../../common/types'
+import config from '../../common/config'
 
 const client = new Client({
-  node: process.env.ELASTICSEARCH_URL || 'http://localhost:9200'
+  node: config.elasticSearchUrl
 })
 
 const search = async (query: string | string[]) : Promise<Document[]> => {
