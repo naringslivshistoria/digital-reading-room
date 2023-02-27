@@ -47,6 +47,7 @@ describe('app', () => {
 
       const res = await request(app.callback()).get('/search?query=searchQuery')
 
+      expect(res.status).toEqual(200)
       expect(res.body).toEqual({
         query: 'searchQuery',
         results: [ searchResultMock.hits.hits[0]._source ],
