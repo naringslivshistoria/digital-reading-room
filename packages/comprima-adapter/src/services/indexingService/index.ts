@@ -17,7 +17,7 @@ const saveThumbnail = async (document: Document) => {
 const indexDocument = async (document: Document) => {
   try {
     await client.index({
-      index: 'comprima-prod-3',
+      index: 'comprima',
       id: document.id.toString(),
       document
     })

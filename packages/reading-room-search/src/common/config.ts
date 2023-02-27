@@ -16,7 +16,10 @@ export interface Config {
     expiresIn: string
     maxFailedLoginAttempts: number
   }
-  elasticSearchUrl: string
+  elasticSearch: {
+    url: string
+    indexName: string
+  }
 }
 
 const config = configPackage({
@@ -36,7 +39,10 @@ const config = configPackage({
       expiresIn: '3h', // format allowed by https://github.com/zeit/ms
       maxFailedLoginAttempts: 3,
     },
-    elasticSearchUrl: 'http://localhost:9200'
+    elasticSearch: {
+      url: 'http://localhost:9200',
+      indexName: 'comprima',
+    }
   },
 })
 
@@ -44,5 +50,5 @@ export default {
   auth: config.get('auth'),
   port: config.get('port'),
   postgres: config.get('postgres'),
-  elasticSearchUrl: config.get('elasticSearchUrl'),
+  elasticSearch: config.get('elasticSearch'),
 } as Config
