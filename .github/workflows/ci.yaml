@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+    - chore/push-images # Remove before merging.
 
 jobs:
 
@@ -21,16 +22,19 @@ jobs:
       - name: 🛎️ Checkout
         uses: actions/checkout@v3
 
-      # TODO: Login to registry
-      # - name: 🔐 Login to Docker Registry
-      #   uses: docker/login-action@v2
-      #   with:
+      - name: 🔐 Login to Docker Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🔧 Build and push to Docker Registry
         uses: docker/build-push-action@v4
         with:
           context: ./packages/${{ matrix.context }}
-          # TODO: Push
+          push: true
+          tags: ghcr.io/naringslivshistoria/digital-reading-room/${{ matrix.context }}:latest
           # TODO: Build args for frontend image
 
       # TODO: Deploy to kubernetes
