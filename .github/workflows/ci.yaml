@@ -51,6 +51,6 @@ jobs:
           context: ./packages/${{ matrix.context }}
           push: true
           tags: |
-            naringslivshistoria/${{ matrix.context }}:${{ steps.prep.outputs.BUILD_ID }}
-            naringslivshistoria/${{ matrix.context }}:${{ steps.prep.outputs.LATEST_ID }}  
+            ghcr.io/naringslivshistoria/${{ matrix.context }}:${{ steps.prep.outputs.BUILD_ID }}
+            ghcr.io/naringslivshistoria/${{ matrix.context }}:${{ steps.prep.outputs.LATEST_ID }}  
           # TODO: Build args for frontend image
