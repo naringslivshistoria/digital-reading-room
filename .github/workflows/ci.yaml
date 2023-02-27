@@ -34,7 +34,7 @@ jobs:
         with:
           context: ./packages/${{ matrix.context }}
           push: true
-          tags: ghcr.io/naringslivshistoria/digital-reading-room/${{ matrix.context }}:latest
+          tags: ghcr.io/naringslivshistoria/${{ matrix.context }}:latest
           # TODO: Build args for frontend image
 
       # TODO: Deploy to kubernetes
