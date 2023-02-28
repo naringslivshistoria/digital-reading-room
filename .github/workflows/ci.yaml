@@ -36,6 +36,7 @@ jobs:
             CHANNEL_ID=latest
           fi
           BUILD_ID="${CHANNEL_ID}.${BUILD_ID}"
+          echo "Meow"
           echo ::set-output name=BUILD_DATE::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
           echo ::set-output name=BUILD_ID::${BUILD_ID}
           echo ::set-output name=CHANNEL_ID::${CHANNEL_ID} 
