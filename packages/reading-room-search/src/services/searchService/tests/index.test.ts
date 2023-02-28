@@ -42,7 +42,7 @@ describe('app', () => {
     })
 
     it('returns documents', async () => {
-      elasticSpy = jest.spyOn(Client.prototype, 'search').mockResolvedValue(searchResultMock)
+      jest.spyOn(Client.prototype, 'search').mockResolvedValue(searchResultMock)
 
       const res = await request(app.callback()).get('/search?query=searchQuery')
 
