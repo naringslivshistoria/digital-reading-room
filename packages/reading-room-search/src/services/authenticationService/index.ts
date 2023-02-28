@@ -85,7 +85,7 @@ export const routes = (router: KoaRouter) => {
    * /auth/refresh-token:
    *  get:
    *    summary: Renews a jwt token
-   *    description: Validates username + password and returns a valid token to be used in authorization header.
+   *    description: Creates a new token based on a previous one.
    *    parameters:
    *      - in: header
    *        name: authorization
@@ -107,7 +107,7 @@ export const routes = (router: KoaRouter) => {
    *      '401':
    *        description: 'Unauthorized'
    */
-  /*app.get(
+  router.get(
     '/auth/refresh-token',
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
@@ -118,5 +118,5 @@ export const routes = (router: KoaRouter) => {
       }
     }),
     errorHandler
-  )*/
+  )
 }

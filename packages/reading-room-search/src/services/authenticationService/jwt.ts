@@ -4,7 +4,7 @@ import knex from 'knex'
 import config from '../../common/config'
 
 import hash from './hash'
-import { User } from '../../common/types'
+import { User, UserTokenInfo } from '../../common/types'
 
 const db = knex({
   client: 'pg',
@@ -114,7 +114,7 @@ export const createToken = async (
   }
 }
 
-/*export const refreshToken = async (token: UserTokenInfo): Promise<JWT> => {
+export const refreshToken = async (token: UserTokenInfo) => {
   try {
     const { username } = token
     const user = await getUser(username)
@@ -131,7 +131,6 @@ export const createToken = async (
       throw new Error(`User disabled: ${user.id}.`)
     }
 
-    // Welcome in, here is your token
     const freshToken = jwt.sign(
       {
         sub: user.id,
@@ -145,36 +144,9 @@ export const createToken = async (
 
     return { token: freshToken }
   } catch (error) {
-    // How do we log this?
     console.error(error)
     const err = createHttpError('Invalid credentials')
     err.status = 401
     throw err
   }
 }
-
-export const authorize = ({ authorization }: any = {}) => {
-  const authHeader: string | undefined = authorization
-
-  try {
-    if (authHeader) {
-      const user:
-        | string
-        | {
-            sub?: number
-            username?: string
-          } = jwt.verify(authHeader.replace('Bearer ', ''), secret)
-
-      if (user && typeof user !== 'string' && user.sub) {
-        return { auth: user }
-      }
-    }
-  } catch (error) {
-    error.status = 401
-    throw error
-  }
-
-  const err = createHttpError('Unauthorized')
-  err.status = 401
-  throw err
-}*/
