@@ -31,13 +31,6 @@ interface User {
   failedLoginAttempts: number
 }
 
-export interface UserTokenInfo {
-  sub: string
-  username: string
-  iat?: number
-  exp?: number
-}
-
 export {
   Document,
   Field,

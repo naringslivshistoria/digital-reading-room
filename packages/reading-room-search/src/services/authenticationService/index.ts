@@ -79,44 +79,4 @@ export const routes = (router: KoaRouter) => {
     const token = await createToken(username, password)
     ctx.body = token
   })
-
-  /**
-   * @swagger
-   * /auth/refresh-token:
-   *  get:
-   *    summary: Renews a jwt token
-   *    description: Creates a new token based on a previous one.
-   *    parameters:
-   *      - in: header
-   *        name: authorization
-   *        schema:
-   *          type: string
-   *        required: true
-   *    security:
-   *      type: http
-   *      scheme: bearer
-   *      bearerFormat: JWT
-   *    responses:
-   *      '200':
-   *        description: 'A valid token'
-   *        schema:
-   *            type: object
-   *            properties:
-   *              token:
-   *                type: string
-   *      '401':
-   *        description: 'Unauthorized'
-   */
-  router.get(
-    '/auth/refresh-token',
-    authMiddleware,
-    asyncHandler(async (req: Request, res: Response) => {
-      if (!req.auth) {
-        res.status(401).send('Unauthorized, token missing')
-      } else {
-        res.json(await refreshToken(req.auth))
-      }
-    }),
-    errorHandler
-  )
 }

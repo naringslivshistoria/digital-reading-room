@@ -38,13 +38,13 @@ describe('app', () => {
     it('reads a file from disk', async () => {
       const fsSpy = jest.spyOn(fs, 'createReadStream').mockReturnValue(getMockedStream() as ReadStream)
 
-      const res = await request(app.callback()).get('/thumbnail/123')
+      await request(app.callback()).get('/thumbnail/123')
 
       expect(fsSpy).toBeCalled()
     })
 
     it('returns', async () => {
-      const fsSpy = jest.spyOn(fs, 'createReadStream').mockReturnValue(getMockedStream() as ReadStream)
+      jest.spyOn(fs, 'createReadStream').mockReturnValue(getMockedStream() as ReadStream)
 
       const res = await request(app.callback()).get('/thumbnail/123')
 

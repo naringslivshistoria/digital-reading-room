@@ -29,7 +29,7 @@ describe('app', () => {
     it('searches in elastic search', async () => {
       const elasticSpy = jest.spyOn(Client.prototype, 'search')
 
-      const res = await request(app.callback()).get('/search?query=searchQuery')
+      await request(app.callback()).get('/search?query=searchQuery')
 
       expect(elasticSpy).toBeCalledWith({
         index: 'svejs',
@@ -41,9 +41,8 @@ describe('app', () => {
       })
     })
 
-    it('returns', async () => {
-      const elasticSpy = jest.spyOn(Client.prototype, 'search')
-        .mockResolvedValue(searchResultMock)
+    it('returns documents', async () => {
+      elasticSpy = jest.spyOn(Client.prototype, 'search').mockResolvedValue(searchResultMock)
 
       const res = await request(app.callback()).get('/search?query=searchQuery')
 

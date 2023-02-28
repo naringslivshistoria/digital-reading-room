@@ -1,10 +1,9 @@
-import createHttpError from 'http-errors'
 import jwt from 'jsonwebtoken'
 import knex from 'knex'
 import config from '../../common/config'
 
 import hash from './hash'
-import { User, UserTokenInfo } from '../../common/types'
+import { User } from '../../common/types'
 
 const db = knex({
   client: 'pg',
@@ -18,8 +17,6 @@ const db = knex({
     dateStrings: true,
   },
 })
-
-const { secret } = config.auth
 
 const getUser = async (username : string) => {
   console.log('looking for', username)
@@ -114,39 +111,3 @@ export const createToken = async (
   }
 }
 
-export const refreshToken = async (token: UserTokenInfo) => {
-  try {
-    const { username } = token
-    const user = await getUser(username)
-
-    if (!user) {
-      throw new Error(`No such user: ${username}.`)
-    }
-
-    if (user.locked === true) {
-      throw new Error(`User locked: ${user.id}.`)
-    }
-
-    if (user.disabled === true) {
-      throw new Error(`User disabled: ${user.id}.`)
-    }
-
-    const freshToken = jwt.sign(
-      {
-        sub: user.id,
-        username: user.username,
-      },
-      config.auth.secret,
-      {
-        expiresIn: config.auth.expiresIn,
-      }
-    )
-
-    return { token: freshToken }
-  } catch (error) {
-    console.error(error)
-    const err = createHttpError('Invalid credentials')
-    err.status = 401
-    throw err
-  }
-}
