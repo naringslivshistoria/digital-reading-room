@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import knex from 'knex'
-import * as createHttpError from 'http-errors'
+import createHttpError from 'http-errors'
 
 import hash from './hash'
 import { User } from '../../common/types'
