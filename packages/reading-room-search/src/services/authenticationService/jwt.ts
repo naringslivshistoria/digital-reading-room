@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken'
 import knex from 'knex'
-import config from '../../common/config'
-import createHttpError from 'http-errors'
+import * as createHttpError from 'http-errors'
 
 import hash from './hash'
 import { User } from '../../common/types'
+import config from '../../common/config'
 
 const db = knex({
   client: 'pg',
