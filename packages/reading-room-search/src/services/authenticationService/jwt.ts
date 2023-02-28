@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import knex from 'knex'
 import config from '../../common/config'
+import createHttpError from 'http-errors'
 
 import hash from './hash'
 import { User } from '../../common/types'
@@ -63,15 +64,15 @@ export const createToken = async (
     const user = await getUser(username)
 
     if (!user) {
-      throw new Error(`No such user: ${username}.`)
+      throw createHttpError(401, new Error(`Unknown user or invalid password.`))
     }
 
     if (user.locked === true) {
-      throw new Error(`User locked: ${user.id}.`)
+      throw createHttpError(403, new Error(`User locked: ${username}.`))
     }
 
     if (user.disabled === true) {
-      throw new Error(`User disabled: ${user.id}.`)
+      throw createHttpError(403, new Error(`User disabled: ${username}.`))
     }
 
     if (user.passwordHash !== (await hash.hashPassword(password, user.salt))) {
@@ -83,7 +84,7 @@ export const createToken = async (
         await setUserLocked(user.id, true)
       }
 
-      throw new Error(`Invalid password: ${user.id}.`)
+      throw createHttpError(401, new Error(`Unknown user or invalid password.`))
     }
 
     // Clear failed login attempts
@@ -103,11 +104,7 @@ export const createToken = async (
 
     return { token }
   } catch (error) {
-    // How do we log this?
     console.error(error)
-    const err = createHttpError('Invalid credentials')
-    err.status = 401
-    throw err
+    throw error
   }
 }
-

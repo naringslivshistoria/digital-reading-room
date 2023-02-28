@@ -2,6 +2,7 @@ import KoaRouter from '@koa/router'
 
 import hash from './hash'
 import { createToken } from './jwt'
+import createHttpError from 'http-errors'
 
 export const routes = (router: KoaRouter) => {
   /**
@@ -76,7 +77,17 @@ export const routes = (router: KoaRouter) => {
       return
     }
 
-    const token = await createToken(username, password)
-    ctx.body = token
+    try {
+      const token = await createToken(username, password)
+      ctx.body = token
+    } catch (error) {
+      if (createHttpError.isHttpError(error)) {
+        ctx.status = (error as createHttpError.HttpError).statusCode
+        ctx.body = { message: (error as createHttpError.HttpError).message }
+      } else {
+        ctx.status = 500
+        ctx.body = { message: (error as Error).message }
+      }
+    }
   })
 }
