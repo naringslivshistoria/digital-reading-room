@@ -1,23 +1,21 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
-import { Search, SearchResult, SearchService } from '../features/search'
+import { Search, SearchResult, useSearch } from '../features/search'
 import { Document } from '../common/types'
 import library from '../../assets/library.jpg'
 
 export const PageSearch = () => {
-  const[isLoading, setIsLoading] = useState<boolean>(false)
-  const[documents, setDocuments] = useState<Document[]>([])
+  const[query, setQuery] = useState<string>('')
 
-  const onSearchInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value.length > 2) {
-      setIsLoading(true)
-      const documents = (await SearchService.search(e.target.value)).results
-      setDocuments(documents)
-      setIsLoading(false)
-    } else {
-      setDocuments([])
-    }
-  };
+  const { data, isLoading, isFetching, refetch } = useSearch({ query })
+
+  const onSearchInputChange = async (searchQuery: string) => {
+    setQuery(searchQuery)
+  }
+
+  useEffect(() => {
+    refetch()
+  }, [query])
 
   return (
     <div>
@@ -25,7 +23,7 @@ export const PageSearch = () => {
         <Search onChange={onSearchInputChange} placeholder={"Sök efter dokument"} />
       </div>
       <div style={{ padding: '30px' }}>
-        <SearchResult isLoading={isLoading} documents={documents} />
+        <SearchResult isLoading={isLoading} documents={data?.results} />
       </div>
     </div>
   )

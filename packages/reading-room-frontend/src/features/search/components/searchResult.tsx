@@ -1,7 +1,7 @@
 import { Document } from '../../../common/types'
 
 interface Props {
-  documents: Document[]
+  documents: Document[] | undefined
   isLoading: boolean
 }
 
@@ -25,7 +25,7 @@ export function SearchResult({
         </tr>
       </thead>
       <tbody>
-        {!isLoading && documents.map((document) => { 
+        {documents && documents.map((document) => { 
           return (
           <tr key={document.id} style={{ height: "40px" }}>
             <td className="border border-slate-300">

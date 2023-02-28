@@ -1,9 +1,15 @@
+import { QueryClient, QueryClientProvider } from 'react-query'
+
 import { PageSearch } from './pages/page-search'
+
+const queryClient = new QueryClient()
 
 function App() {
   return (
-    <PageSearch />
-  );
+    <QueryClientProvider client={queryClient}>
+      <PageSearch />
+    </QueryClientProvider>
+  )
 }
 
-export default App;
+export default App

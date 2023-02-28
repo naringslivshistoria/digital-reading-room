@@ -10,7 +10,9 @@ const search = async (query: string | string[]) : Promise<Document[]> => {
   const queryString = Array.isArray(query) ? query[0] : query
 
   const searchResults = await client.search({
-    index: 'comprima-prod-3',
+    index: 'comprima',
+    from: 0,
+    size: 100,
     query: {
       query_string: {
         query: queryString
