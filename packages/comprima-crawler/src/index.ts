@@ -33,4 +33,7 @@ const crawlerStream = from(levels).pipe(
     ),
 )
 
+/*
+ * Start the crawler.
+ */
 crawlerStream.subscribe()
