@@ -7,6 +7,7 @@ console.log('Comprima Crawler');
 /*
  * Prepare the crawler.
  */
+const concurrency = 2; // Number of concurrent requests.
 const retryDelay = 1; // Seconds.
 
 const levels: number[] = [];
@@ -23,7 +24,7 @@ const crawlerStream = from(levels).pipe(
   mergeMap(level => indexSearch(level.toString()).then(result => {
     console.log(`Result (level ${level}):`, result)
     return result
-  }), 2),
+  }), concurrency),
   retryWhen((errors) =>
       errors.pipe(
         tap((err) => console.error(`Crawler streams error, retrying in ${retryDelay} s...`, err)),
