@@ -6,7 +6,6 @@ import cors from '@koa/cors'
 import jwt from 'koa-jwt'
 
 import api from './api'
-import errorHandler from './middlewares/error-handler'
 import { routes as authRoutes } from './services/authenticationService'
 import config from './common/config'
 
@@ -21,8 +20,6 @@ app.on('error', (err) => {
   console.log('on:error')
   logger.logger.error(err)
 });
-
-app.use(errorHandler());
 
 // TODO: Remove me. koa-pino-logger uses standard log levels
 app.use(async (ctx, next) => {
