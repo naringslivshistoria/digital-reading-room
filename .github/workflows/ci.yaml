@@ -38,8 +38,8 @@ jobs:
       matrix:
         context:
         - comprima-adapter
-        # - reading-room-frontend
-        # - reading-room-search
+        - reading-room-frontend
+        - reading-room-search
 
     steps:
     - name: 🛎️ Checkout
