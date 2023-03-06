@@ -42,6 +42,8 @@ jobs:
         # - reading-room-search
 
     steps:
+    - name: 🛎️ Checkout
+      uses: actions/checkout@v3
 
     - name: 📝 Get Current Version
       id: package-version
