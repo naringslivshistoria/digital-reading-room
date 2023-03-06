@@ -1,6 +1,8 @@
 import KoaRouter from '@koa/router'
 
 import hash from './hash'
+import { createToken } from './jwt'
+import createHttpError from 'http-errors'
 
 export const routes = (router: KoaRouter) => {
   /**
@@ -32,10 +34,60 @@ export const routes = (router: KoaRouter) => {
     if (!query.password) {
       ctx.status = 400
       ctx.body = { message: 'Needs password query parameter' }
-    } else {
-      const saltAndHash = await hash.createSaltAndHash(query.password as string)
-      console.log('sending stuff', saltAndHash)
-      ctx.body = saltAndHash
+      return
+    } 
+
+    const saltAndHash = await hash.createSaltAndHash(query.password as string)
+    ctx.body = saltAndHash
+  })
+
+  /**
+   * @swagger
+   * /auth/generate-token:
+   *  post:
+   *    summary: Generates a jwt
+   *    description: Validates username + password and returns a valid token to be used in authorization header.
+   *    requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            type: object
+   *            properties:
+   *              username:
+   *                type: string
+   *              password:
+   *                type: string
+   *    responses:
+   *      '200':
+   *        description: 'A valid token'
+   *        schema:
+   *            type: object
+   *            properties:
+   *              token:
+   *                type: string
+   */
+  router.post('/auth/generate-token', async (ctx) => {
+    const username = ctx.request.body?.username as string
+    const password = ctx.request.body?.password as string
+
+    if (!username || !password) {
+      ctx.status = 400
+      ctx.body = { message: 'username and password must be provided' }
+      return
+    }
+
+    try {
+      const token = await createToken(username, password)
+      ctx.body = token
+    } catch (error) {
+      if (createHttpError.isHttpError(error)) {
+        ctx.status = (error as createHttpError.HttpError).statusCode
+        ctx.body = { message: (error as createHttpError.HttpError).message }
+      } else {
+        ctx.status = 500
+        ctx.body = { message: (error as Error).message }
+      }
     }
   })
 }
