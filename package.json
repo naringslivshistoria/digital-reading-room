@@ -1,0 +1,12 @@
+{
+  "author": "",
+  "name": "digital-reading-room",
+  "description": "Digital Reading Room Monorepo",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naringslivshistoria/digital-reading-room.git"
+  },
+  "scripts": {},
+  "version": "0.0.1"
+}
