@@ -68,5 +68,5 @@ jobs:
         context: ./packages/comprima-adapter
         push: true
         tags: |
-          ghcr.io/naringslivshistoria/${{ matrix.context }}:${{ steps.prep.outputs.BUILD_ID }}
+          ghcr.io/naringslivshistoria/${{ matrix.context }}:${{ steps.prep.outputs.VERSION }}
         # TODO: Build args for frontend image
