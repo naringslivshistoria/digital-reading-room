@@ -44,6 +44,8 @@ jobs:
     steps:
     - name: 🛎️ Checkout
       uses: actions/checkout@v3
+    
+    - run: git pull
 
     - name: 📝 Get Current Version
       id: package-version
