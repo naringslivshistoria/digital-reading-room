@@ -4,13 +4,35 @@ on:
   push:
     branches:
     - main
-    - chore/push-images
+    - chore/push-images # TODO: Remove before merge.
     # TODO: Also run for tags (or make a separate workflow).
 
 jobs:
 
+  version:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🛎️ Checkout
+      uses: actions/checkout@v3
+
+    - name: 🎫 Update patch verision
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        if [[ $GITHUB_REF == refs/tags/production* ]]; then
+          npm version major
+        elif [[ $GITHUB_REF == refs/tags/staging* ]]; then
+          npm version minor
+        else
+          npm version patch
+        fi
+        git push origin chore/push-images 
+      # TODO: Change branch to main
+
   ci:
     runs-on: ubuntu-latest
+    needs: version
 
     strategy:
       matrix:
@@ -20,17 +42,8 @@ jobs:
         # - reading-room-search
 
     steps:
-    - name: 🛎️ Checkout
-      uses: actions/checkout@v3
 
-    - name: 🎫 Update Patch Verision
-      run: |
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git config --global user.name "github-actions[bot]"
-        npm version patch
-        git push
-
-    - name: 📝 Get current version
+    - name: 📝 Get Current Version
       id: package-version
       uses: martinbeentjes/npm-get-version-action@main
 
@@ -38,19 +51,7 @@ jobs:
       id: prep
       run: |
         VERSION="v${{ steps.package-version.outputs.current-version}}"
-        TS=$(date +%s)
-        BUILD_ID="${TS}"
-        CHANNEL_ID=canary
-        if [[ $GITHUB_REF == refs/tags/* ]]; then
-          BUILD_ID=${GITHUB_REF/refs\/tags\//}
-          CHANNEL_ID=latest
-        fi
-        BUILD_ID="${CHANNEL_ID}.${BUILD_ID}"
-        echo ::set-output name=BUILD_DATE::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-        echo ::set-output name=BUILD_ID::${BUILD_ID}
-        echo ::set-output name=CHANNEL_ID::${CHANNEL_ID} 
         echo ::set-output name=VERSION::${VERSION} 
-
 
     - name: 🔐 Login to Docker Registry
       uses: docker/login-action@v2
@@ -59,13 +60,11 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: 🔧 Build and push to Docker Registry
+    - name: 🔧 Build and push Docker Image
       uses: docker/build-push-action@v4
       with:
-        context: ./packages/${{ matrix.context }}
+        context: ./packages/comprima-adapter
         push: true
         tags: |
           ghcr.io/naringslivshistoria/${{ matrix.context }}:${{ steps.prep.outputs.BUILD_ID }}
-          ghcr.io/naringslivshistoria/${{ matrix.context }}:${{ steps.prep.outputs.CHANNEL_ID }}  
-          ghcr.io/naringslivshistoria/${{ matrix.context }}:${{ steps.prep.outputs.VERSION }}
         # TODO: Build args for frontend image
