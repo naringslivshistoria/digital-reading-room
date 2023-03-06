@@ -41,7 +41,7 @@ services:
     build: ./packages/reading-room-search
     container_name: reading-room-search
     environment:
-    - ELASTICSEARCH_URL=http://elasticsearch:9200
+    - ELASTIC_SEARCH__URL=http://elasticsearch:9200
     depends_on:
     - elasticsearch
     networks:

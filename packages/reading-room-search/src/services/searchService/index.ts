@@ -1,16 +1,17 @@
 import KoaRouter from '@koa/router'
 import { Client } from '@elastic/elasticsearch'
 import { Document } from '../../common/types'
+import config from '../../common/config'
 
 const client = new Client({
-  node: process.env.ELASTICSEARCH_URL || 'http://localhost:9200'
+  node: config.elasticSearch.url
 })
 
 const search = async (query: string | string[]) : Promise<Document[]> => {
   const queryString = Array.isArray(query) ? query[0] : query
 
   const searchResults = await client.search({
-    index: 'comprima-prod-3',
+    index: config.elasticSearch.indexName,
     query: {
       query_string: {
         query: queryString
@@ -42,5 +43,5 @@ export const routes = (router: KoaRouter) => {
       ctx.status = 500
       ctx.body = { results: 'error: ' + err}
     }
-  });
+  })
 }
