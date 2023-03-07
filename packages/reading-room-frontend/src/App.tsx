@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Routes, Route, NavLink, useNavigate, Navigate } from "react-router-dom"
-import { useState, createContext, useContext, Context } from 'react'
+import { createTheme, Box, CssBaseline, ThemeProvider } from '@mui/material'
 
 import { PageSearch } from './pages/page-search'
 import { PageLogin } from './pages/login'
@@ -8,20 +8,43 @@ import { AuthProvider, useAuth } from './hooks/useAuth'
 
 const queryClient = new QueryClient()
 
+const mdTheme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+})
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Navigation />
-        <Routes>
-          <Route path="/" element={
-            <ProtectedRoute>
-              <PageSearch />
-            </ProtectedRoute>
-          }/>
-          <Route path="/login" element={<PageLogin />} />
-        </Routes>
-      </AuthProvider>
+      <ThemeProvider theme={mdTheme}>
+        <AuthProvider>
+          <Box
+            component="main"
+            sx={{
+              backgroundColor: (theme) =>
+                theme.palette.mode === 'light'
+                  ? theme.palette.grey[100]
+                  : theme.palette.grey[900],
+              flexGrow: 1,
+              height: '100vh',
+              overflow: 'auto',
+              p: 2,
+            }}
+          >
+            <CssBaseline />
+            <Navigation />
+            <Routes>
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <PageSearch />
+                </ProtectedRoute>
+              }/>
+              <Route path="/login" element={<PageLogin />} />
+            </Routes>
+          </Box>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }

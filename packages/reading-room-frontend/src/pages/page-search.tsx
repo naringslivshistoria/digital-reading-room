@@ -14,7 +14,10 @@ export const PageSearch = () => {
   }
 
   useEffect(() => {
-    refetch()
+    if (query) {
+      console.log('query is', query)
+      refetch()
+    }
   }, [query])
 
   return (

@@ -14,16 +14,22 @@ export const useSearch = ({ query }: { query: string}) =>
   useQuery<SearchResponse, AxiosError>({
     queryKey: ['search'], 
     queryFn: async () => {
-      if (query) {}
-      const { data, status } = await axios.get<SearchResponse>(
-        `${searchUrl}/search?query=*` + query.replace(' ', '* *') + '*',
-        {
-          headers: {
-            Accept: 'application/json',
+      if (query) {
+        const { data, status } = await axios.get<SearchResponse>(
+          `${searchUrl}/search?query=*` + query.replace(' ', '* *') + '*',
+          {
+            headers: {
+              Accept: 'application/json',
+            },
           },
-        },
-      )
+        )
 
-      return data
+        return data
+      } else {
+        return {
+          query: query,
+          results: []
+        }
+      }
     }
   })
