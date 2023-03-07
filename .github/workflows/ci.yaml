@@ -61,8 +61,10 @@ jobs:
     - name: 🔧 Build and push Docker Image
       uses: docker/build-push-action@v4
       with:
+        build-args: |
+          COMPRIMA_ADAPTER_URL="https://search.dev.cfn.iteam.se"
+          SEARCH_URL="https://search.dev.cfn.iteam.se"
         context: ./packages/${{ matrix.context }}
         push: true
         tags: |
           ghcr.io/naringslivshistoria/${{ matrix.context }}:${{ steps.package-version.outputs.current-version}}
-        # TODO: Build args for frontend image
