@@ -62,8 +62,8 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         build-args: |
-          COMPRIMA_ADAPTER_URL="https://search.dev.cfn.iteam.se"
-          SEARCH_URL="https://search.dev.cfn.iteam.se"
+          COMPRIMA_ADAPTER_URL=https://comprima.dev.cfn.iteam.se
+          SEARCH_URL=https://search.dev.cfn.iteam.se
         context: ./packages/${{ matrix.context }}
         push: true
         tags: |
