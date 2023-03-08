@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import { useQuery } from 'react-query'
 
-import { Document } from '../../common/types'
+import { Document } from '../common/types'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
@@ -14,6 +14,7 @@ export const useSearch = ({ query }: { query: string}) =>
   useQuery<SearchResponse, AxiosError>({
     queryKey: ['search'], 
     queryFn: async () => {
+      console.log(query)
       if (query) {
         const { data, status } = await axios.get<SearchResponse>(
           `${searchUrl}/search?query=*` + query.replace(' ', '* *') + '*',
@@ -33,3 +34,4 @@ export const useSearch = ({ query }: { query: string}) =>
       }
     }
   })
+  

@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Routes, Route, NavLink, useNavigate, Navigate } from "react-router-dom"
-import { createTheme, Box, CssBaseline, ThemeProvider } from '@mui/material'
+import { createTheme, Button, Box, CssBaseline, ThemeProvider, AppBar, Toolbar } from '@mui/material'
 
 import { PageSearch } from './pages/page-search'
 import { PageLogin } from './pages/login'
@@ -53,16 +53,18 @@ const Navigation = () => {
   const { token, onLogout } = useAuth()
 
   return (
-    <nav>
-      <NavLink to="/">Home</NavLink>
-      <NavLink to="/login">Login</NavLink>
+    <AppBar position="static">
+      <Toolbar>
+        <NavLink to="/"><Button color="inherit">Home</Button></NavLink>
+        <NavLink to="/login"><Button color="inherit">Login</Button></NavLink>
 
       {token && (
-        <button type="button" onClick={onLogout}>
+        <Button color onClick={onLogout}>
           Sign Out
         </button>
       )}
-    </nav>
+      </Toolbar>
+    </AppBar>
   )
 }
 

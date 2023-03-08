@@ -1,5 +1,24 @@
 import { useNavigate } from 'react-router-dom'
 import { createContext, useState, useContext, Context } from 'react'
+import axios, { AxiosError } from 'axios'
+
+const loginUrl = import.meta.env.VITE_LOGIN_URL || 'http://localhost:4001'
+
+export interface LoginResponse {
+  token: string
+}
+
+const getToken = async (username: string, password: string) => {
+  const { data, status } = await axios.post<LoginResponse>(
+    `${loginUrl}/auth/generate-token`,
+    {
+      username,
+      password
+    },
+  )
+
+  return data
+}
 
 const fakeAuth = async () : Promise<string> =>
   new Promise((resolve) => {
@@ -7,7 +26,7 @@ const fakeAuth = async () : Promise<string> =>
   })
 
 interface ContextSettings {
-  onLogin: () => Promise<void>
+  onLogin: (username: string, password: string) => Promise<boolean>
   onLogout: () => Promise<void>
   token: string | null
 }
@@ -18,13 +37,20 @@ export const AuthProvider = ({ children } : { children: any }) => {
   const [token, setToken] = useState<string|null>(null)
   const navigate = useNavigate()
 
-  const handleLogin = async () => {
-    const token = await fakeAuth()
+  const handleLogin = async (username: string, password: string) => {
+    try {
+      const { token } = await getToken(username, password)
 
-    console.log('setting token', token)
+      if (token) {
+        setToken(token)
+        navigate('/')
+        return true
+      }
+    } catch (error) {
+      return false
+    }
 
-    setToken(token)
-    navigate('/')
+    return false
   }
 
   const handleLogout = async () => {

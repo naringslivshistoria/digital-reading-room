@@ -1,4 +1,5 @@
-import * as React from 'react';
+import { useState } from 'react'
+import { Button } from '@mui/material'
 
 interface ChangeFunc {
   (query: string) : void
@@ -13,11 +14,20 @@ export const Search = ({
   onChange,
   placeholder,
 }: ISearchProps) => {
+  const [query, setQuery] = useState<string|null>(null)
+
+  const search = () => {
+    if (query) {
+      onChange(query)
+    }
+  }
+  
   const onSubmit = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault()
       event.stopPropagation()
-      onChange((event.target as HTMLInputElement).value)
+      setQuery((event.target as HTMLInputElement).value)
+      search()
     }
   }
 
@@ -29,6 +39,7 @@ export const Search = ({
         type="text"
         onKeyDown={onSubmit}
       />
+      <Button variant="contained" onClick={() => search()}>Sök</Button>
     </div>
   );
 };
