@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - main
-    - chore/workflow # TODO: Remove before merge.
     tags:
     - production*
     - staging*
@@ -21,8 +20,8 @@ jobs:
     - name: 🎫 Update patch verision
       run: |
         git fetch
-        git checkout chore/workflow # TODO: Change branch to main
-        git pull origin chore/workflow # TODO: Change branch to main
+        git checkout main
+        git pull origin main
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
         if [[ $GITHUB_REF == refs/tags/production* ]]; then
@@ -33,7 +32,7 @@ jobs:
           npm version patch
         fi
         git fetch --all
-        git push origin chore/workflow # TODO: Change branch to main
+        git push origin main
 
   ci:
     runs-on: ubuntu-latest
