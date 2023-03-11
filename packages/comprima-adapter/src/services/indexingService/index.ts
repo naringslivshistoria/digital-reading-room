@@ -5,8 +5,7 @@ import axios from 'axios'
 import { Document } from '../../common/types'
 
 const client = new Client({
-  node: process.env.ELASTICSEARCH_URL || 'http://localhost:9200',
-  tls: { rejectUnauthorized: false }
+  node: process.env.ELASTICSEARCH_URL || 'http://localhost:9200'
 })
 
 const saveThumbnail = async (document: Document) => {

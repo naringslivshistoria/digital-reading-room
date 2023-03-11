@@ -4,8 +4,7 @@ import { Document } from '../../common/types'
 import config from '../../common/config'
 
 const client = new Client({
-  node: config.elasticSearch.url,
-  tls: { rejectUnauthorized: false }
+  node: config.elasticSearch.url
 })
 
 const search = async (query: string | string[]) : Promise<Document[]> => {
