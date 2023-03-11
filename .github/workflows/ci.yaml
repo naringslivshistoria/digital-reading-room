@@ -6,6 +6,9 @@ on:
     - main
     - chore/push-images # TODO: Remove before merge.
     # TODO: Also run for tags (or make a separate workflow).
+    tags:
+    - production*
+    - staging*
 
 jobs:
 
