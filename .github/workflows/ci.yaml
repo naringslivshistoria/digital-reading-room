@@ -30,6 +30,7 @@ jobs:
         else
           npm version patch
         fi
+        git fetch --all
         git push origin chore/push-images 
       # TODO: Change branch to main
 
