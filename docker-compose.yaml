@@ -22,6 +22,20 @@ services:
     volumes:
     - ./packages/thumbnails:/thumbnails
 
+  comprima-crawler:
+    build: ./packages/comprima-crawler
+    container_name: comprima-crawler
+    environment:
+    - LEVELS=41000-41080
+    - COMPRIMA_URL=http://comprima-adapter:4000
+    - CONCURRENCY=1
+    - RETRY_COUNT=1
+    - RETRY_DELAY=5
+    depends_on:
+    - comprima-adapter
+    networks:
+    - ek-net
+
   reading-room-frontend:
     build:
       context: ./packages/reading-room-frontend
