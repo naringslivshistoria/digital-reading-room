@@ -1,6 +1,6 @@
 import axios from 'axios'
-import config from '../common/config'
-import log from '../common/log'
+import config from '../../common/config'
+import log from '../../common/log'
 
 export const indexSearch = async (level: string) => {
   const query = 'ignored' // NOTE: This value is not used.
