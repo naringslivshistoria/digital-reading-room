@@ -31,10 +31,10 @@ log.info('Configured levels', levels)
 
 const crawlerStream = from(levels).pipe(
   mergeMap(level => indexSearch(level.toString()).then(result => {
-    log.info(`Result (level ${level}):`, result)
+    log.info(`✅ Level ${level}`, result)
     return result
   }).catch(error => {
-    log.error(`Crawler error, level ${level}`, level, error)
+    log.error(`Crawler was unable to process level ${level}!`)
     return error
   }), config.concurrency),
   retry({count: config.retryCount, delay: config.retryDelay * 1000})

@@ -1,17 +1,17 @@
 import axios from 'axios'
 import config from '../common/config'
+import log from '../common/log'
 
 export const indexSearch = async (level: string) => {
-  console.log('Call', level)
+  const url = `${config.comprimaUrl}/indexSearch?query=scania&levels=${level}`
+  log.debug(`Calling comprima adapter on ${url}`)
   return axios
-  .get(`${config.comprimaUrl}/indexSearch?query=scania&levels=${level}`, {})
+  .get(url, {})
   .then(({ data }) => {
     return data;
   })
   .catch((e) => {
-    // console.error(
-    //   `Failed to call Comprima Adapter: ${e.toString()}`,
-    // );
+    log.error('Error', e)
     throw e;
   });
 }
