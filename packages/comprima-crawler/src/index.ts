@@ -2,22 +2,35 @@ import { indexSearch } from './services/indexSearch';
 import { from, map, mergeMap, retryWhen, tap } from 'rxjs';
 import { delay, retry } from 'rxjs/operators';
 import config from './common/config';
+import log from './common/log';
 
-console.log('Comprima Crawler');
+log.info('Comprima Crawler', config);
 
+/*
+ * Setup levels.
+ */
 const levels: number[] = [];
-for (let i = 41080; i > 41000; i--) {
-  levels.push(i);
-}
 
-console.log('Levels', levels)
+const ranges = config.levels.split(',');
+ranges.forEach(range => {
+  log.info('Parse range', range)
+
+  const extremes = range.split('-');
+  const start = parseInt(extremes[0], 10);
+  const end = parseInt(extremes[1], 10);
+  for (let i = start; i < end; i++) {
+    levels.push(i);
+  }
+});
+
+log.info('Levels', levels)
 
 /*
  * Crawl.
  */
 const crawlerStream = from(levels).pipe(
   mergeMap(level => indexSearch(level.toString()).then(result => {
-    console.log(`Result (level ${level}):`, result)
+    log.info(`Result (level ${level}):`, result)
     return result
   }), config.concurrency),
   retryWhen((errors) =>
