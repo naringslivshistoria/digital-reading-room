@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+    - feature/comprima-crawler
     tags:
     - production*
     - staging*
@@ -20,8 +21,8 @@ jobs:
     - name: 🎫 Update patch verision
       run: |
         git fetch
-        git checkout main
-        git pull origin main
+        git checkout feature/comprima-crawler
+        git pull origin feature/comprima-crawler
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
         if [[ $GITHUB_REF == refs/tags/production* ]]; then
@@ -32,7 +33,7 @@ jobs:
           npm version patch
         fi
         git fetch --all
-        git push origin main
+        git push origin feature/comprima-crawler
 
   ci:
     runs-on: ubuntu-latest
