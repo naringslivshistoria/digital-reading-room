@@ -23,11 +23,12 @@ ranges.forEach(range => {
   }
 });
 
-log.info('Levels', levels)
 
 /*
  * Crawl.
  */
+log.info('Configured levels', levels)
+
 const crawlerStream = from(levels).pipe(
   mergeMap(level => indexSearch(level.toString()).then(result => {
     log.info(`Result (level ${level}):`, result)
