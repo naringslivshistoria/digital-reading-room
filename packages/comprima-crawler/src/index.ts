@@ -1,6 +1,6 @@
 import { indexSearch } from './services/indexSearch';
-import { from, mergeMap, retryWhen, tap } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { from, mergeMap } from 'rxjs';
+import { retry } from 'rxjs/operators';
 import config from './common/config';
 import log from './common/log';
 
@@ -36,12 +36,8 @@ const crawlerStream = from(levels).pipe(
     log.error(`Crawler error, level ${level}`, level, error)
     return error
   }), config.concurrency),
-  retryWhen((errors) =>
-      errors.pipe(
-        tap((err) => console.error(`Crawler streams error, retrying in ${config.retryDelay} s...`, err)),
-        delay(config.retryDelay * 1000)
-      )
-    ),
+  retry({count: config.retryCount, delay: config.retryDelay * 1000})
+  // TODO: What happens when retry counts are exhausted?
 )
 
 /*
