@@ -2,19 +2,19 @@ import chalk from 'chalk';
 import config from './config';
 
 export interface Log {
-  debug: (message: string, data?: Object, ...rest: any[]) => void;
-  error: (title: string, error?: Error, ...rest: any[]) => void;
-  info: (message: string, data?: Object, ...rest: any[]) => void;
+  debug: (message: string, data?: object, ...rest: string[]) => void;
+  error: (title: string, error?: Error) => void;
+  info: (message: string, data?: object, ...rest: string[]) => void;
 }
 
 const logLevelIsAtLeastDebug = config.logLevel.toUpperCase() === 'DEBUG';
 const logLevelIsAtLeastInfo =
   config.logLevel.toUpperCase() === 'INFO' || logLevelIsAtLeastDebug;
-const logLevelIsAtLeastWarn =
-  config.logLevel.toUpperCase() === 'WARN' || logLevelIsAtLeastInfo;
+// const logLevelIsAtLeastWarn =
+//   config.logLevel.toUpperCase() === 'WARN' || logLevelIsAtLeastInfo;
 
   export default {
-    debug: (message: string, data?: Object, ...rest: any[]) => {
+    debug: (message: string, data?: object, ...rest: string[]) => {
       if (!logLevelIsAtLeastDebug) {
         return;
       }
@@ -29,13 +29,13 @@ const logLevelIsAtLeastWarn =
         console.error(JSON.stringify(data, null, 2), ...rest);
       }
     },
-    error: (title: string, error?: Error, ...rest: any[]) => {
+    error: (title: string, error?: Error) => {
       console.error(`${chalk.redBright.bold('ERROR')} ${chalk.red(title)}`);
-      if (!!error) {
+      if (error) {
         console.error(error);
       }
     },
-    info: (message: string, data = '', ...rest: any[]) => {
+    info: (message: string, data?: object, ...rest: string[]) => {
       if (!logLevelIsAtLeastInfo) {
         return;
       }
@@ -51,7 +51,7 @@ const logLevelIsAtLeastWarn =
   } as Log
 
 // module.exports = {
-//   info: (title: string, message: string, data = '', ...rest: any[]) => {
+//   info: (title: string, message: string, data = '', ...rest: string[]) => {
 //     if (!logLevelIsAtLeastInfo) {
 //       return;
 //     }
@@ -64,7 +64,7 @@ const logLevelIsAtLeastWarn =
 //       ...rest
 //     );
 //   },
-//   warn: (title: string, message: string, data = '', ...rest: any[]) => {
+//   warn: (title: string, message: string, data = '', ...rest: string[]) => {
 //     if (!logLevelIsAtLeastWarn) {
 //       return;
 //     }
