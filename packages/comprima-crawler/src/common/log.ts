@@ -2,8 +2,8 @@ import chalk from 'chalk';
 import config from './config';
 
 export interface Log {
-  debug: (title: string, message: string, data: Object, ...rest: any[]) => void;
-  error: (title: string, data: Object, error: Error, ...rest: any[]) => void;
+  debug: (message: string, data?: Object, ...rest: any[]) => void;
+  error: (title: string, error?: Error, ...rest: any[]) => void;
   info: (message: string, data?: Object, ...rest: any[]) => void;
 }
 
@@ -14,13 +14,13 @@ const logLevelIsAtLeastWarn =
   config.logLevel.toUpperCase() === 'WARN' || logLevelIsAtLeastInfo;
 
   export default {
-    debug: (title: string, message: string, data = '', ...rest: any[]) => {
+    debug: (message: string, data?: Object, ...rest: any[]) => {
       if (!logLevelIsAtLeastDebug) {
         return;
       }
   
       console.debug(
-        `${chalk.whiteBright.bold('DEBUG')} ${chalk.gray(title)} ${chalk.gray(
+        `${chalk.whiteBright.bold('DEBUG')} ${chalk.gray(
           message
         )}`
       );
@@ -29,12 +29,10 @@ const logLevelIsAtLeastWarn =
         console.error(JSON.stringify(data, null, 2), ...rest);
       }
     },
-    error: (title: string, data: Object, error: Error, ...rest: any[]) => {
+    error: (title: string, error?: Error, ...rest: any[]) => {
       console.error(`${chalk.redBright.bold('ERROR')} ${chalk.red(title)}`);
-      console.error(error);
-
-      if (data) {
-        console.error(JSON.stringify(data, null, 2), ...rest);
+      if (!!error) {
+        console.error(error);
       }
     },
     info: (message: string, data = '', ...rest: any[]) => {
