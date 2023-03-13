@@ -3,7 +3,7 @@ import config from './config';
 
 export interface Log {
   debug: (title: string, message: string, data: Object, ...rest: any[]) => void;
-  error: (title: string, error: Error, data: Object, ...rest: any[]) => void;
+  error: (title: string, data: Object, error: Error, ...rest: any[]) => void;
   info: (message: string, data?: Object, ...rest: any[]) => void;
 }
 
@@ -29,7 +29,7 @@ const logLevelIsAtLeastWarn =
         console.error(JSON.stringify(data, null, 2), ...rest);
       }
     },
-    error: (title: string, error: Error, data: Object, ...rest: any[]) => {
+    error: (title: string, data: Object, error: Error, ...rest: any[]) => {
       console.error(`${chalk.redBright.bold('ERROR')} ${chalk.red(title)}`);
       console.error(error);
 

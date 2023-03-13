@@ -1,6 +1,6 @@
 import { indexSearch } from './services/indexSearch';
-import { from, map, mergeMap, retryWhen, tap } from 'rxjs';
-import { delay, retry } from 'rxjs/operators';
+import { from, mergeMap, retryWhen, tap } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import config from './common/config';
 import log from './common/log';
 
@@ -32,6 +32,9 @@ const crawlerStream = from(levels).pipe(
   mergeMap(level => indexSearch(level.toString()).then(result => {
     log.info(`Result (level ${level}):`, result)
     return result
+  }).catch(error => {
+    log.error(`Crawler error, level ${level}`, level, error)
+    return error
   }), config.concurrency),
   retryWhen((errors) =>
       errors.pipe(
