@@ -18,7 +18,7 @@ ranges.forEach(range => {
   const extremes = range.split('-');
   const start = parseInt(extremes[0], 10);
   const end = parseInt(extremes[1], 10);
-  for (let i = start; i < end; i++) {
+  for (let i = start; i <= end; i++) {
     levels.push(i);
   }
 });
