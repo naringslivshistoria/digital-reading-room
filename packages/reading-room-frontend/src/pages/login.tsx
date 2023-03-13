@@ -14,7 +14,6 @@ export const PageLogin = () => {
     if (username && password) {
       setError(false)
       const result = await onLogin(username, password)
-      console.log('login result', result)
       setError(!result)
     }
   }

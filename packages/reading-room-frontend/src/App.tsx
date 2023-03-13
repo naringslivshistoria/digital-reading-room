@@ -55,13 +55,13 @@ const Navigation = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <NavLink to="/"><Button color="inherit">Home</Button></NavLink>
-        <NavLink to="/login"><Button color="inherit">Login</Button></NavLink>
+        <NavLink to="/"><Button color="inherit">Hem</Button></NavLink>
+        <NavLink to="/login"><Button color="inherit">Logga in</Button></NavLink>
 
       {token && (
-        <Button color onClick={onLogout}>
-          Sign Out
-        </button>
+        <Button color="inherit" onClick={onLogout}>
+          Logga ut
+        </Button>
       )}
       </Toolbar>
     </AppBar>

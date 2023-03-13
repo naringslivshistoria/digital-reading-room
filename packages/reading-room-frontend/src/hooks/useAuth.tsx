@@ -20,11 +20,6 @@ const getToken = async (username: string, password: string) => {
   return data
 }
 
-const fakeAuth = async () : Promise<string> =>
-  new Promise((resolve) => {
-    setTimeout(() => resolve('2342f2f1d131rf12'), 250)
-  })
-
 interface ContextSettings {
   onLogin: (username: string, password: string) => Promise<boolean>
   onLogout: () => Promise<void>

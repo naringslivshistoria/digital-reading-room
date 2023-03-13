@@ -23,23 +23,24 @@ export const Search = ({
   }
   
   const onSubmit = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    setQuery((event.target as HTMLInputElement).value)
+
     if (event.key === 'Enter') {
       event.preventDefault()
       event.stopPropagation()
-      setQuery((event.target as HTMLInputElement).value)
       search()
     }
   }
 
   return (
-    <div className="flex flex-col justify-between rounded-lg px-10 py-4 md:pb-4">
+    <div className="flex flex-row rounded-lg space-x-5">
       <input
-        className="form-control p-4"
+        className="basis-5/6 form-control p-4 mx-1"
         placeholder={placeholder}
         type="text"
         onKeyDown={onSubmit}
       />
-      <Button variant="contained" onClick={() => search()}>Sök</Button>
+      <Button variant="contained" className="basis-1/6 mx-1" onClick={() => search()}>Sök</Button>
     </div>
   );
 };

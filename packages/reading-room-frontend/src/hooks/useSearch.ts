@@ -10,7 +10,7 @@ export interface SearchResponse {
   results: Document[]
 }
 
-export const useSearch = ({ query }: { query: string}) =>
+export const useSearch = ({ query, token }: { query: string, token: string | null }) =>
   useQuery<SearchResponse, AxiosError>({
     queryKey: ['search'], 
     queryFn: async () => {
@@ -21,6 +21,7 @@ export const useSearch = ({ query }: { query: string}) =>
           {
             headers: {
               Accept: 'application/json',
+              Authorization: 'Bearer ' + token
             },
           },
         )
