@@ -1,9 +1,10 @@
 import axios from 'axios'
+import config from '../common/config'
 
 export const indexSearch = async (level: string) => {
   console.log('Call', level)
   return axios
-  .get(`http://localhost:4000/indexSearch?query=scania&levels=${level}`, {})
+  .get(`${config.comprimaUrl}/indexSearch?query=scania&levels=${level}`, {})
   .then(({ data }) => {
     return data;
   })
