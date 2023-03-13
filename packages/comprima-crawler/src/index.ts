@@ -1,4 +1,4 @@
-import { indexSearch } from './services/indexSearch';
+import { indexSearch } from './services/comprimaService/index';
 import { from, mergeMap } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import config from './common/config';
