@@ -18,8 +18,8 @@ describe('comprimaAdapter', () => {
     jest.spyOn(axios, 'get').mockResolvedValue({ data: 'fake data' })
   })
   
-  describe('indexSearch calls Comprima Adapter', () => {
-    it('searches in elastic search', async () => {
+  describe('indexSearch', () => {
+    it('calls Comprima Adapter', async () => {
       await indexSearch('123')
       expect(axios.get).toBeCalledWith('http://fakehost:7357/indexSearch?query=ignored&levels=123', {})
     })
