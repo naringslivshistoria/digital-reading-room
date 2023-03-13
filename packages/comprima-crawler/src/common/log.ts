@@ -5,13 +5,14 @@ export interface Log {
   debug: (message: string, data?: object, ...rest: string[]) => void;
   error: (title: string, error?: Error) => void;
   info: (message: string, data?: object | string, ...rest: string[]) => void;
+  warn: (title: string, error?: Error) => void;
 }
 
 const logLevelIsAtLeastDebug = config.logLevel.toUpperCase() === 'DEBUG';
 const logLevelIsAtLeastInfo =
   config.logLevel.toUpperCase() === 'INFO' || logLevelIsAtLeastDebug;
-// const logLevelIsAtLeastWarn =
-//   config.logLevel.toUpperCase() === 'WARN' || logLevelIsAtLeastInfo;
+const logLevelIsAtLeastWarn =
+  config.logLevel.toUpperCase() === 'WARN' || logLevelIsAtLeastInfo;
 
   export default {
     debug: (message: string, data?: object, ...rest: string[]) => {
@@ -48,33 +49,18 @@ const logLevelIsAtLeastInfo =
         ...rest
       );
     },
+    warn: (title: string, error?: Error) => {
+      if (!logLevelIsAtLeastWarn) {
+        return;
+      }
+  
+      console.log(
+        `${chalk.red.bold('WARN ')} ${chalk.white(title)} ${chalk.white(
+          title
+        )}`
+      );
+      if (error) {
+        console.error(error);
+      }
+    },
   } as Log
-
-// module.exports = {
-//   info: (title: string, message: string, data = '', ...rest: string[]) => {
-//     if (!logLevelIsAtLeastInfo) {
-//       return;
-//     }
-
-//     console.log(
-//       `${chalk.whiteBright.bold('INFO ')} ${chalk.white(title)} ${chalk.white(
-//         message
-//       )}`,
-//       data,
-//       ...rest
-//     );
-//   },
-//   warn: (title: string, message: string, data = '', ...rest: string[]) => {
-//     if (!logLevelIsAtLeastWarn) {
-//       return;
-//     }
-
-//     console.log(
-//       `${chalk.red.bold('WARN ')} ${chalk.white(title)} ${chalk.white(
-//         message
-//       )}`,
-//       data,
-//       ...rest
-//     );
-//   },
-// };
