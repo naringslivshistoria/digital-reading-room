@@ -4,7 +4,7 @@ import config from './config';
 export interface Log {
   debug: (message: string, data?: object, ...rest: string[]) => void;
   error: (title: string, error?: Error) => void;
-  info: (message: string, data?: object, ...rest: string[]) => void;
+  info: (message: string, data?: object | string, ...rest: string[]) => void;
 }
 
 const logLevelIsAtLeastDebug = config.logLevel.toUpperCase() === 'DEBUG';
@@ -35,7 +35,7 @@ const logLevelIsAtLeastInfo =
         console.error(error);
       }
     },
-    info: (message: string, data?: object, ...rest: string[]) => {
+    info: (message: string, data?: object | string, ...rest: string[]) => {
       if (!logLevelIsAtLeastInfo) {
         return;
       }
