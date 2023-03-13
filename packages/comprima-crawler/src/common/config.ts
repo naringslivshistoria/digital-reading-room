@@ -3,6 +3,8 @@ import configPackage from '@iteam/config'
 export interface Config {
   comprimaUrl: string
   concurrency: number
+  levels: string
+  logLevel: string
   retryDelay: number
 }
 
@@ -11,6 +13,8 @@ const config = configPackage({
   defaults: {
     comprimaUrl: 'http://localhost:4000',
     concurrency: 2,
+    levels: '41000-41080,42000-42002',
+    logLevel: 'info',
     retryDelay: 2
   },
 })
@@ -18,5 +22,7 @@ const config = configPackage({
 export default {
   comprimaUrl: config.get('comprimaUrl'),
   concurrency: config.get('concurrency'),
+  levels: config.get('levels'),
+  logLevel: config.get('logLevel'),
   retryDelay: config.get('retryDelay'),
 } as Config
