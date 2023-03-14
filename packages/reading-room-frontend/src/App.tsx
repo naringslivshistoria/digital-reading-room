@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { Routes, Route, NavLink, useNavigate, Navigate } from "react-router-dom"
+import { Routes, Route, NavLink, Navigate } from "react-router-dom"
 import { createTheme, Button, Box, CssBaseline, ThemeProvider, AppBar, Toolbar } from '@mui/material'
 
 import { PageSearch } from './pages/page-search'

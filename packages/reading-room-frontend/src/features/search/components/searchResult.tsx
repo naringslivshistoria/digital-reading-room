@@ -10,7 +10,6 @@ const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
 export function SearchResult({
   documents,
-  isLoading,
 }: Props) {
   return (
     <table className="border-separate border-spacing-4 border">

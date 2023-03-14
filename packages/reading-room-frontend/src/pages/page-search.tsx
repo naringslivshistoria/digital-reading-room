@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Search, SearchResult, useSearch } from '../features/search'
-import { Document } from '../common/types'
 import library from '../../assets/library.jpg'
 import { useAuth } from '../hooks/useAuth'
 
@@ -9,7 +8,7 @@ export const PageSearch = () => {
   const[query, setQuery] = useState<string>('')
   const { token } = useAuth()
 
-  const { data, isLoading, isFetching, refetch } = useSearch({ query, token })
+  const { data, isLoading, refetch } = useSearch({ query, token })
 
   const onSearchInputChange = async (searchQuery: string) => {
     console.log('updating query', searchQuery)
@@ -21,7 +20,7 @@ export const PageSearch = () => {
       console.log('searching for', query)
       refetch()
     }
-  }, [query])
+  }, [query, refetch])
 
   return (
     <div>

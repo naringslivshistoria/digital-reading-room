@@ -24,6 +24,7 @@ export const Search = ({
   
   const onSubmit = (event: React.KeyboardEvent<HTMLDivElement>) => {
     setQuery((event.target as HTMLInputElement).value)
+    console.log('query is now', query)
 
     if (event.key === 'Enter') {
       event.preventDefault()
@@ -38,7 +39,7 @@ export const Search = ({
         className="basis-5/6 form-control p-4 mx-1"
         placeholder={placeholder}
         type="text"
-        onKeyDown={onSubmit}
+        onKeyUp={onSubmit}
       />
       <Button variant="contained" className="basis-1/6 mx-1" onClick={() => search()}>Sök</Button>
     </div>
