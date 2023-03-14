@@ -2,6 +2,7 @@ import axios from 'axios'
 import config from '../../common/config'
 import log from '../../common/log'
 
+// TODO: Accept an array of levels.
 export const indexSearch = async (level: string) => {
   const query = 'ignored' // NOTE: This value is not used.
   const url = `${config.comprimaUrl}/indexSearch?query=${query}&levels=${level}`

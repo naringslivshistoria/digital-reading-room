@@ -6,10 +6,14 @@ import log from './common/log';
 
 log.info('Comprima Crawler', config);
 
+// TODO: Check mode - either crawl unindexed levels or reindex updated levels (or ids?).
+
 /*
  * Setup levels.
  */
 const levels: number[] = [];
+
+// TODO: Get levels to process from postgres.
 
 const ranges = config.levels.split(',');
 ranges.forEach(range => {
@@ -29,6 +33,7 @@ ranges.forEach(range => {
 log.info('Configured levels', levels)
 
 const crawlerStream = from(levels).pipe(
+  // TODO: Send levels as an array to indexSearch
   mergeMap(level => indexSearch(level.toString()).then(result => {
     log.info(`✅ Level ${level}`, result)
     return result
