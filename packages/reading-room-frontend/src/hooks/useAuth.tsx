@@ -31,7 +31,7 @@ let AuthContext : Context<ContextSettings>
 
 export const AuthProvider = ({ children } : { children: any }) => {
   const [token, setToken] = useState<string|null>(null)
-  const [setCookie] = useCookies(['readingroom'])
+  const [cookies, setCookie] = useCookies(['readingroom'])
   const navigate = useNavigate()
 
   const handleLogin = async (username: string, password: string) => {

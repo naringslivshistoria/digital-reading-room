@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { TextField, Button, Alert } from '@mui/material'
 
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../../hooks/useAuth'
 
 export const PageLogin = () => {
   const { onLogin } = useAuth()

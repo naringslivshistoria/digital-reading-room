@@ -2,8 +2,8 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { Routes, Route, NavLink, Navigate } from "react-router-dom"
 import { createTheme, Button, Box, CssBaseline, ThemeProvider, AppBar, Toolbar } from '@mui/material'
 
-import { PageSearch } from './pages/page-search'
-import { PageLogin } from './pages/login'
+import { PageSearch } from './routes/search/searchPage'
+import { PageLogin } from './routes/login/loginPage'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 
 const queryClient = new QueryClient()

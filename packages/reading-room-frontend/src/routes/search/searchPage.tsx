@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
-import { Search, SearchResult, useSearch } from '../features/search'
-import library from '../../assets/library.jpg'
-import { useAuth } from '../hooks/useAuth'
+import { Search, SearchResult, useSearch } from '.'
+import library from '../../../assets/library.jpg'
+import { useAuth } from '../../hooks/useAuth'
 
 export const PageSearch = () => {
   const[query, setQuery] = useState<string>('')

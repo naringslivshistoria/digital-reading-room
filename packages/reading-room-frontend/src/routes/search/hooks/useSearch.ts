@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import { useQuery } from 'react-query'
 
-import { Document } from '../common/types'
+import { Document } from '../../../common/types'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
