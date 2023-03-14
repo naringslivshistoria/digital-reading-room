@@ -24,8 +24,6 @@ export const Search = ({
   
   const onSubmit = (event: React.KeyboardEvent<HTMLDivElement>) => {
     setQuery((event.target as HTMLInputElement).value)
-    console.log('query is now', query)
-
     if (event.key === 'Enter') {
       event.preventDefault()
       event.stopPropagation()

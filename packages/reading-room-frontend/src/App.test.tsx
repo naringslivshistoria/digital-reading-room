@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, /*expect,*/ it } from 'vitest';
 
-import App from './App';
-import { render, screen } from './test/test.utils';
+/*import App from './App';
+import { render, screen } from './test/test.utils';*/
 
 describe('Search page', () => {
   it('Shows result headings', () => {

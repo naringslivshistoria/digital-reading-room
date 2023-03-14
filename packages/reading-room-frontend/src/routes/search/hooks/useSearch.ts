@@ -14,7 +14,6 @@ export const useSearch = ({ query, token }: { query: string, token: string | nul
   useQuery<SearchResponse, AxiosError>({
     queryKey: ['search'], 
     queryFn: async () => {
-      console.log(query)
       if (query) {
         const { data } = await axios.get<SearchResponse>(
           `${searchUrl}/search?query=*` + query.replace(' ', '* *') + '*',

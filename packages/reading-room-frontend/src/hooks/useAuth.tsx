@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { createContext, useState, useContext, Context } from 'react'
 import axios from 'axios'
-import { useCookies } from 'react-cookie'
+import Cookies from 'universal-cookie'
 
 const loginUrl = import.meta.env.VITE_LOGIN_URL || 'http://localhost:4001'
 
@@ -31,8 +31,8 @@ let AuthContext : Context<ContextSettings>
 
 export const AuthProvider = ({ children } : { children: any }) => {
   const [token, setToken] = useState<string|null>(null)
-  const [cookies, setCookie] = useCookies(['readingroom'])
   const navigate = useNavigate()
+  const cookies = new Cookies();
 
   const handleLogin = async (username: string, password: string) => {
     try {
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children } : { children: any }) => {
       if (token) {
         setToken(token)
         // TODO: Do not set cookie from frontend.
-        setCookie('readingroom', token)
+        cookies.set('readingroom', token, { path: '/' })
         navigate('/')
         return true
       }
