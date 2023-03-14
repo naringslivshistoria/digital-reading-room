@@ -14,24 +14,6 @@ const password = process.env.COMPRIMA_PASSWORD
 const serviceUrl = process.env.COMPRIMA_SERVICE_URL 
 const batchSize = 10
 
-if (!user)
-{
-  console.error('No COMPRIMA_USER has been set')
-  throw new Error('No COMPRIMA_USER has been set')
-}
-
-if (!password)
-{
-  console.error('No COMPRIMA_PASSWORD has been set')
-  throw new Error('No COMPRIMA_PASSWORD has been set')
-}
-
-if (!serviceUrl)
-{
-  console.error('No COMPRIMA_SERVICE_URL has been set')
-  throw new Error('No COMPRIMA_SERVICE_URL has been set')
-}
-
 const search = async (freeTextQuery: string | string[], levels: string[], skip?: number) : Promise<Document[]> => {
   if (!sessionId) {
     sessionId = await login(user, password)
