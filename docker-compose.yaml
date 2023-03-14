@@ -2,6 +2,8 @@ version: "3.8"
 
 services:
 
+  # Packages
+
   comprima-adapter:
     build: ./packages/comprima-adapter
     container_name: comprima-adapter
@@ -16,7 +18,7 @@ services:
     depends_on:
     - elasticsearch
     networks:
-    - ek-net
+    - digital-reading-room
     ports:
     - 14000:4000
     volumes:
@@ -34,7 +36,7 @@ services:
     depends_on:
     - comprima-adapter
     networks:
-    - ek-net
+    - digital-reading-room
 
   reading-room-frontend:
     build:
@@ -47,7 +49,7 @@ services:
     - comprima-adapter
     - reading-room-search
     networks:
-    - ek-net
+    - digital-reading-room
     ports:
     - 14002:80
 
@@ -67,53 +69,55 @@ services:
     - elasticsearch
     - postgres
     networks:
-    - ek-net
+    - digital-reading-room
     ports:
     - 14001:4001
     volumes:
     - ./packages/thumbnails:/thumbnails
 
+  # Packages
+
   elasticsearch:
-    container_name: elastic-container
+    container_name: elasticsearch
     environment:
     - xpack.security.enabled=false
     - "discovery.type=single-node"
     image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1
     networks:
-    - ek-net
+    - digital-reading-room
     ports:
     - 9200:9200
     volumes:
     - elasticsearch:/usr/share/elasticsearch/data
 
-  postgres:
-    container_name: postgres-container
-    environment:
-    - POSTGRES_USER
-    - POSTGRES_PASSWORD
-    - POSTGRES_DB=readingroom
-    image: postgres:15.2
-    networks:
-    - ek-net
-    ports:
-    - 5433:5432
-    volumes:
-    - postgres:/var/lib/postgresql/data
-
   kibana:
-    container_name: kibana-container
+    container_name: kibana
     depends_on:
     - elasticsearch
     environment:
     - ELASTICSEARCH_HOSTS=http://elastic-container:9200
     image: docker.elastic.co/kibana/kibana:8.4.1
     networks:
-    - ek-net
+    - digital-reading-room
     ports:
     - 5601:5601
 
+  postgres:
+    container_name: postgres
+    environment:
+    - POSTGRES_USER
+    - POSTGRES_PASSWORD
+    - POSTGRES_DB=readingroom
+    image: postgres:15.2
+    networks:
+    - digital-reading-room
+    ports:
+    - 5433:5432
+    volumes:
+    - postgres:/var/lib/postgresql/data
+
 networks:
-  ek-net:
+  digital-reading-room:
     driver: bridge
 
 volumes:
