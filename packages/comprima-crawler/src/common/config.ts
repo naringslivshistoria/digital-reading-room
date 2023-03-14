@@ -1,31 +1,35 @@
 import configPackage from '@iteam/config'
 
-export interface Config {
-  comprimaUrl: string
+export interface CrawlerConfig {
   concurrency: number
-  levels: string
-  logLevel: string
   retryCount: number
   retryDelay: number
+}
+
+export interface Config {
+  comprimaUrl: string
+  crawler: CrawlerConfig
+  levels: string
+  logLevel: string
 }
 
 const config = configPackage({
   file: `${__dirname}/../config.json`,
   defaults: {
     comprimaUrl: 'http://localhost:4000',
-    concurrency: 2,
+    crawler: {
+      concurrency: 2,
+      retryCount: 2,
+      retryDelay: 2,
+    },
     levels: '41000-41080,42000-42002',
     logLevel: 'info',
-    retryCount: 2,
-    retryDelay: 2
   },
 })
 
 export default {
   comprimaUrl: config.get('comprimaUrl'),
-  concurrency: config.get('concurrency'),
+  crawler: config.get('crawler'),
   levels: config.get('levels'),
   logLevel: config.get('logLevel'),
-  retryCount: config.get('retryCount'),
-  retryDelay: config.get('retryDelay'),
 } as Config

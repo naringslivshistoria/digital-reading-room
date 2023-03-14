@@ -40,8 +40,8 @@ const crawlerStream = from(levels).pipe(
   }).catch(error => {
     log.error(`Crawler was unable to process level ${level}!`)
     return error
-  }), config.concurrency),
-  retry({count: config.retryCount, delay: config.retryDelay * 1000})
+  }), config.crawler.concurrency),
+  retry({count: config.crawler.retryCount, delay: config.crawler.retryDelay * 1000})
   // TODO: What happens when retry counts are exhausted?
 )
 
