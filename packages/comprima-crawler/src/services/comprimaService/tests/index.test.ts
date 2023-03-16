@@ -20,8 +20,13 @@ describe('comprimaAdapter', () => {
   
   describe('indexSearch', () => {
     it('calls Comprima Adapter', async () => {
-      await indexSearch('123')
-      expect(axios.get).toBeCalledWith('http://fakehost:7357/indexSearch?query=ignored&levels=123', {})
+      await indexSearch([])
+      expect(axios.get).toBeCalledWith(expect.stringContaining('http://fakehost:7357/indexSearch?query=ignored&levels='), {})
+    })
+
+    it('passes correct levels', async () => {
+      await indexSearch([1,2,4,8])
+      expect(axios.get).toBeCalledWith('http://fakehost:7357/indexSearch?query=ignored&levels=1,2,4,8', {})
     })
   })
 })
