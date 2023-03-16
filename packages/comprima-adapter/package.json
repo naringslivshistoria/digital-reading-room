@@ -27,7 +27,7 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^8.4.0",
+    "@elastic/elasticsearch": "^8.6.0",
     "@koa/router": "^10.1.1",
     "@types/easy-soap-request": "^4.1.1",
     "@types/jest": "^27.4.1",

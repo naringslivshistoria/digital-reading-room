@@ -51,16 +51,18 @@ router.get('/indexSearch', async (ctx) => {
 
     let successful = 0
 
-    results.map(async (document) => {
-      try {
-        await index.indexDocument(document)
-        successful++
-       } catch (err) {
-        console.error(err)
-       }
-
-       return document
-    }, 0)
+    await Promise.all(
+      results.map(async (document) => {
+        try {
+          await index.indexDocument(document)
+          successful++
+         } catch (err) {
+          console.error(err)
+         }
+  
+         return document
+      }, 0)
+    )
 
     ctx.body = { result: { successful: successful, failed: results.length - successful } }
   } catch (err) {
