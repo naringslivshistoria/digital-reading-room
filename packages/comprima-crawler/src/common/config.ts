@@ -18,9 +18,9 @@ const config = configPackage({
   defaults: {
     comprimaUrl: 'http://localhost:4000',
     crawler: {
-      concurrency: 2,
-      retryCount: 2,
-      retryDelay: 2,
+      concurrency: 1,
+      retryCount: 1,
+      retryDelay: 5,
     },
     levels: '41000-41080,42000-42002',
     logLevel: 'info',
