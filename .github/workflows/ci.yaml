@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+    - feature/crawler-state
     tags:
     - production*
     - staging*
@@ -20,8 +21,8 @@ jobs:
     - name: 🎫 Update patch verision
       run: |
         git fetch
-        git checkout main
-        git pull origin main
+        git checkout feature/crawler-state # TODO: Change back to main
+        git pull origin feature/crawler-state # TODO: Change back to main
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
         if [[ $GITHUB_REF == refs/tags/production* ]]; then
@@ -32,11 +33,38 @@ jobs:
           npm version patch
         fi
         git fetch --all
-        git push origin main
+        git push origin feature/crawler-state # TODO: Change back to main
+
+  dependencies:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        context:
+        - postgres
+
+    steps:
+    - name: 🛎️ Checkout
+      uses: actions/checkout@v3
+
+    - name: 🔐 Login to Docker Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🔧 Build and push Docker Image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./dependencies/${{ matrix.context }}
+        push: true
+        tags: |
+          ghcr.io/naringslivshistoria/${{ matrix.context }}:latest
 
   ci:
     runs-on: ubuntu-latest
-    needs: version
+    needs: [dependencies, version]
 
     strategy:
       matrix:
