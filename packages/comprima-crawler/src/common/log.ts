@@ -55,9 +55,7 @@ const logLevelIsAtLeastWarn =
       }
   
       console.log(
-        `${chalk.red.bold('WARN ')} ${chalk.white(title)} ${chalk.white(
-          title
-        )}`
+        `${chalk.red.bold('WARN ')} ${chalk.white(title)}`
       );
       if (error) {
         console.error(error);
