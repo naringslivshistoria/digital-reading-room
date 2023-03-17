@@ -15,6 +15,8 @@ services:
     - COMPRIMA_USER
     - COMPRIMA_PASSWORD
     - ELASTICSEARCH_URL=http://elasticsearch:9200
+    - POSTGRES__PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES__USER=readingroom
     depends_on:
     - elasticsearch
     networks:
@@ -34,6 +36,8 @@ services:
     - CRAWLER_RETRY_DELAY=5
     - LEVELS=41000-41080
     - LOG_LEVEL=debug
+    - DATABASE_URL=postgres://crawler:${POSTGRES_PASSWORD}@postgres:5432/crawler
+    - NODE_ENV=ci
     depends_on:
     - comprima-adapter
     networks:
@@ -58,7 +62,7 @@ services:
     build: ./packages/reading-room-search
     container_name: reading-room-search
     environment:
-    - DATABASE_URL=postgres://postgres:postgres@postgres:5432/readingroom
+    - DATABASE_URL=postgres://readingroom:${POSTGRES_PASSWORD}@postgres:5432/readingroom
     - ELASTIC_SEARCH__URL=http://elasticsearch:9200
     - NODE_ENV=ci
     depends_on:
@@ -100,12 +104,10 @@ services:
     - 5601:5601
 
   postgres:
+    build: dependencies/postgres
     container_name: postgres
     environment:
-    - POSTGRES_USER
     - POSTGRES_PASSWORD
-    - POSTGRES_DB=readingroom
-    image: postgres:15.2
     networks:
     - digital-reading-room
     ports:
