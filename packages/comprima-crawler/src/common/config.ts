@@ -9,6 +9,7 @@ export interface CrawlerConfig {
 export interface Config {
   comprimaUrl: string
   crawler: CrawlerConfig
+  mode: 'index' | 'update'
   levels: string
   logLevel: string
 }
@@ -22,6 +23,7 @@ const config = configPackage({
       retryCount: 1,
       retryDelay: 5,
     },
+    mode: 'index',
     levels: '41000-41080,42000-42002',
     logLevel: 'info',
   },
@@ -30,6 +32,7 @@ const config = configPackage({
 export default {
   comprimaUrl: config.get('comprimaUrl'),
   crawler: config.get('crawler'),
+  mode: config.get('mode'),
   levels: config.get('levels'),
   logLevel: config.get('logLevel'),
 } as Config

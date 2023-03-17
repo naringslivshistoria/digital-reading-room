@@ -1,6 +1,6 @@
 import { from, mergeMap } from 'rxjs';
 import { retry } from 'rxjs/operators';
-import { indexSearch } from './services/comprimaService/index';
+import { getUpdatedLevels, indexSearch } from './services/comprimaService/index';
 import { getUnindexedLevels } from './services/postgresAdapter/index';
 import config from './common/config';
 import log from './common/log';
@@ -8,18 +8,30 @@ import log from './common/log';
 log.info('Comprima Crawler', config);
 
 // TODO: Check mode - either crawl unindexed levels or reindex updated levels (or ids?).
+const mode = config.mode;
+let levels
+switch (config.mode) {
+  case 'index':
+    levels = getUnindexedLevels(1) // TODO: config.crawler.batchSize
+    break;
+  case 'update':
+    levels = getUpdatedLevels()
+    break;
+  default:
+    log.error(`Unknown mode ${mode}!`)
+    log.warn(`CRAWLER_MODE must be either 'index' or 'update'`)
+    process.exit(1)
+}
 
 /*
  * Setup levels.
  */
-getUnindexedLevels(config.crawler.concurrency).then(levels => {
-  log.info('Unindexed levels', levels)
+levels.then(levels => {
+  log.info('Processing levels', levels)
 
   /*
-  * Crawl.
-  */
-  log.info('Configured levels', levels)
-
+   * Crawl.
+   */
   const crawlerStream = from(levels).pipe(
     // TODO: Send levels as an array to indexSearch
     mergeMap(level => indexSearch(levels).then(result => {
@@ -34,8 +46,8 @@ getUnindexedLevels(config.crawler.concurrency).then(levels => {
   )
 
   /*
-  * Start the crawler.
-  */
+   * Start the crawler.
+   */
   crawlerStream.subscribe()
 });
 
