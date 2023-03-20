@@ -170,7 +170,6 @@ const searchDocuments = async(query: string | string[], levels: string[], skip?:
     const documents = parser.parse(documentsResult).C3DocumentResponse.Documents.Document
 
     if (!documents) {
-      console.log('Results with no documents', documentsResult)
       return []
     }
 
@@ -180,7 +179,7 @@ const searchDocuments = async(query: string | string[], levels: string[], skip?:
 
       return transformedDocuments
     } catch (error) {
-      console.log('Error transforming documents', documents)
+      console.error('Error transforming documents', documents)
       throw error
     }
   } catch (error) {

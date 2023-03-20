@@ -1,5 +1,5 @@
 import Koa from 'koa'
-import KoaRouter from '@koa/router';
+import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
 import pinoLogger from 'koa-pino-logger'
 import cors from '@koa/cors'
@@ -17,9 +17,8 @@ const logger = pinoLogger()
 app.use(logger)
 
 app.on('error', (err) => {
-  console.log('on:error')
   logger.logger.error(err)
-});
+})
 
 // TODO: Remove me. koa-pino-logger uses standard log levels
 app.use(async (ctx, next) => {
