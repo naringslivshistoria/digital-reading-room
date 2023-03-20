@@ -1,7 +1,7 @@
 import { indexSearch } from '../../comprimaService'
 import { crawlLevels } from '..'
 
-jest.mock('../../comprimaservice', () => {
+jest.mock('../../comprimaService', () => {
   const actual = jest.requireActual('../../comprimaService');
 
   return {
