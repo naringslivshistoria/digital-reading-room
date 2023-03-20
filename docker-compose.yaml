@@ -31,11 +31,7 @@ services:
     container_name: comprima-crawler
     environment:
     - COMPRIMA_URL=http://comprima-adapter:4000
-    - CRAWLER_BATCH_SIZE=10
-    - CRAWLER_CONCURRENCY=1
-    - CRAWLER_RETRY_COUNT=1
-    - CRAWLER_RETRY_DELAY=5
-    - LEVELS=41000-41080
+    - BATCH_SIZE=1
     - LOG_LEVEL=debug
     - DATABASE_URL=postgres://crawler:${POSTGRES_PASSWORD}@postgres:5432/crawler
     - NODE_ENV=ci

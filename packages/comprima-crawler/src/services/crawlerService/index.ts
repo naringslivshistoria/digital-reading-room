@@ -13,7 +13,7 @@ export const crawlLevels = async (range: Range): Promise<boolean> => {
 
   let levelCursor = range.lower
   do {
-    const levels = getSubRange(levelCursor, range.upper, config.crawler.batchSize)
+    const levels = getSubRange(levelCursor, range.upper, config.batchSize)
     
     const levelsLabel = `${levels[0]}–${levels[levels.length - 1]}`
     log.info(`Crawling levels ${levelsLabel}`, levels)
@@ -27,7 +27,7 @@ export const crawlLevels = async (range: Range): Promise<boolean> => {
       log.error(`Crawler was unable to process levels ${levelsLabel}!`)
     }
     
-    levelCursor += config.crawler.batchSize
+    levelCursor += config.batchSize
   } while (levelCursor <= range.upper)
 
   // TODO: Figure out if we should return something more meaningful here.
