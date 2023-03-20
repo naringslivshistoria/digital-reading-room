@@ -5,30 +5,27 @@ import comprimaAdapter from './comprimaAdapter'
 
 const batchSize = 10
 
-const search = async (freeTextQuery: string | string[], levels: string[], skip?: number) : Promise<Document[]> => {
+const search = async (levels: string[], skip?: number) : Promise<Document[]> => {
   let lastSetSize = batchSize
   const totalResults = Array<Document>()
   let currentSkip = skip ?? 0
   while (lastSetSize === batchSize) {
-    const result = await comprimaAdapter.searchDocuments(freeTextQuery, levels, currentSkip, batchSize)
+    const startTime = Date.now()
+    const result = await comprimaAdapter.getDocuments(levels, currentSkip, batchSize)
     totalResults.push(...result)
     lastSetSize = result.length
-    currentSkip += batchSize
+    const elapsedTime = (Date.now() - startTime)
     
-    console.info('Successfully retrieved batch of', batchSize)
+    console.info(`Successfully retrieved documents ${currentSkip + 1} to ${currentSkip + lastSetSize} in ${elapsedTime} ms`)
+    currentSkip += batchSize
   }
 
   return totalResults
 }
 
 export const routes = (router: KoaRouter) => {
-  router.get('/search', async (ctx) => {
+  router.get('/documents', async (ctx) => {
     const { query } = ctx.request
-    if (!query.query) {
-      ctx.status = 400
-      ctx.body = { errorMessage: 'Missing parameter: query' }
-      return
-    }
     if (!query.levels) {
       ctx.status = 400
       ctx.body = { errorMessage: 'Missing parameter: levels' }
@@ -38,7 +35,7 @@ export const routes = (router: KoaRouter) => {
     try
     {
       const levels = Array.isArray(query.levels) ? query.levels : query.levels.split(',')
-      const results = await search(query.query, levels)
+      const results = await search(levels)
       ctx.body = { numResults: results.length, results: results, freeTextQuery: ctx.request.query.freeTextQuery }
     } catch (err) {
       ctx.status = 500

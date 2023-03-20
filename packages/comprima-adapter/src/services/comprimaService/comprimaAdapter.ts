@@ -92,7 +92,7 @@ const login = async (user: string | undefined, password: string | undefined) => 
     const loginResponse = parser.parse(body)
 
     const sessionId = loginResponse['s:Envelope']['s:Body'].LoginResponse.LoginResult
-    console.info('Comprima login complete', sessionId)
+    console.info('Comprima login complete')
     return sessionId
   } catch (error) {
     console.error('Comprima login request failed', error)
@@ -100,7 +100,7 @@ const login = async (user: string | undefined, password: string | undefined) => 
   }
 }
 
-const searchDocuments = async(query: string | string[], levels: string[], skip?: number, batchSize: number = 10) : Promise<Document[]> => {
+const getDocuments = async(levels: string[], skip?: number, batchSize: number = 10) : Promise<Document[]> => {
   const action = 'http://www.dms-digital.se/c3/2011/02/IC3SearchService/GetDocuments'
   const skipTo = skip ?? 0
 
@@ -145,6 +145,7 @@ const searchDocuments = async(query: string | string[], levels: string[], skip?:
   '  &lt;Options&gt;' +
   '    &lt;IncludeIndexFieldNames&gt;true&lt;/IncludeIndexFieldNames&gt;' +
   '    &lt;IncludeLogs&gt;true&lt;/IncludeLogs&gt;' +
+  '    &lt;ForceReloadCache&gt;false&lt;/ForceReloadCache&gt;' +
   ' &lt;/Options&gt;' +
   '&lt;/C3DocumentQuery&gt;' +
   '         </ns:query>' +
@@ -250,7 +251,7 @@ const getAttachment = async (document: Document) => {
 }
 
 export default {
-  searchDocuments,
+  getDocuments,
   getDocument,
   getAttachment,
 }
