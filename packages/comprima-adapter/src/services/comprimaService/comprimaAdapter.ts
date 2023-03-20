@@ -14,7 +14,7 @@ const timeout = 5 * 60 * 1000
 
 axiosRetry(axios, { retries: 3 })
 
-const createRequestHeaders = (action : string) : any => {
+const createRequestHeaders = (action : string) => {
   const requestHeaders = {
     'user-agent': 'comprima-adapter',
     'Content-Type': 'application/soap+xml;charset=UTF-8',
@@ -24,7 +24,17 @@ const createRequestHeaders = (action : string) : any => {
   return requestHeaders
 }
 
-const ensureLogin = async (options: any, relogin: boolean = false) => {
+interface SoapOptions {
+      method?: string | undefined
+      url: string
+      headers?: object | string | undefined
+      xml: string
+      timeout?: number | undefined
+      maxBodyLength?: number | undefined
+      maxContentLength?: number | undefined
+}
+
+const ensureLogin = async (options: SoapOptions, relogin = false) => {
   if (!sessionId || relogin) {
     sessionId = await login(user, password)
     options.xml = options.xml.replace(/<ns:sessionId>.*?<\/ns:sessionId>/, '<ns:sessionId>' + sessionId + '</ns:sessionId>')
@@ -37,7 +47,7 @@ const ensureLogin = async (options: any, relogin: boolean = false) => {
  * @param options soapRequest options object
  * @returns soapRequest result
  */
-const makeSoapRequest = async (options : any) => {
+const makeSoapRequest = async (options : SoapOptions) => {
   let result
 
   await ensureLogin(options)
@@ -100,7 +110,7 @@ const login = async (user: string | undefined, password: string | undefined) => 
   }
 }
 
-const getDocuments = async(levels: string[], skip?: number, batchSize: number = 10) : Promise<Document[]> => {
+const getDocuments = async(levels: string[], skip?: number, batchSize = 10) : Promise<Document[]> => {
   const action = 'http://www.dms-digital.se/c3/2011/02/IC3SearchService/GetDocuments'
   const skipTo = skip ?? 0
 
