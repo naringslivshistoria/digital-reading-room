@@ -1,10 +1,6 @@
-import { from, mergeMap } from 'rxjs';
-import { retry } from 'rxjs/operators';
-import { getUpdatedLevels, indexSearch } from './services/comprimaService/index';
 import { getUnindexedLevels } from './services/postgresAdapter/index';
 import config from './common/config';
 import log from './common/log';
-import { getSubRange } from './helpers/arrayHelper';
 import { crawlLevels } from './services/crawlerService';
 
 log.info('Comprima Crawler', config);
