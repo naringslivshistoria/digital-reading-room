@@ -11,26 +11,24 @@ export interface Range {
 export const crawlLevels = async (range: Range): Promise<boolean> => {
   // TODO: Mark range as in progress in postgres
 
-  const cursor = {
-    lower: range.lower,
-    upper: range.upper + config.crawler.batchSize
-  }
-  // TODO: Crawl 10 at a time
+  let levelCursor = range.lower
   do {
-    cursor.upper += config.crawler.batchSize
-    const levels = getSubRange(cursor.lower, range.upper, config.crawler.batchSize)
-
-    log.info(`Crawling levels`, cursor)
-    log.debug('Levels', levels)
+    const levels = getSubRange(levelCursor, range.upper, config.crawler.batchSize)
+    
+    const levelsLabel = `${levels[0]}–${levels[levels.length - 1]}`
+    log.info(`Crawling levels ${levelsLabel}`, levels)
+    
     try {
       const result = await indexSearch(levels)
-      log.info(`✅ Levels ${cursor.lower}–${cursor.upper}`, result)
-    } catch (error) {
-      log.error(`Crawler was unable to process levels ${cursor.lower}–${cursor.upper}!`)
-    }
 
-    cursor.lower += config.crawler.batchSize
-  } while (cursor.lower <= range.upper)
+      // TODO: Mark levels as indexed in postgres
+      log.info(`✅ Levels ${levelsLabel}`, result)
+    } catch (error) {
+      log.error(`Crawler was unable to process levels ${levelsLabel}!`)
+    }
+    
+    levelCursor += config.crawler.batchSize
+  } while (levelCursor <= range.upper)
 
   // TODO: Figure out if we should return something more meaningful here.
   return Promise.resolve(true)
