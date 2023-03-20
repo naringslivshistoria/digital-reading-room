@@ -11,6 +11,7 @@
     "lint": "eslint -c .eslintrc src/",
     "migrate:down": "knex migrate:up",
     "migrate:up": "knex migrate:up",
+    "seed": "knex seed:run",
     "start": "ts-node ./src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch"
