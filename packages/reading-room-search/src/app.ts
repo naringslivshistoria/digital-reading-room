@@ -35,7 +35,7 @@ authRoutes(publicRouter)
 app.use(publicRouter.routes())
 
 // Unprotected routes above this line, protected by login below
-app.use(jwt({ secret: config.auth.secret }))
+app.use(jwt({ secret: config.auth.secret, cookie: 'readingroom' }))
 
 app.use(api.routes())
 

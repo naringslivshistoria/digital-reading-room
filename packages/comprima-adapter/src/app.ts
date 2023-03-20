@@ -8,7 +8,7 @@ import errorHandler from './middlewares/error-handler';
 const app = new Koa();
 const logger = pinoLogger();
 
-//app.use(logger);
+app.use(logger);
 
 /*app.on('error', (err) => {
   console.log('on:error');
@@ -16,12 +16,6 @@ const logger = pinoLogger();
 });*/
 
 app.use(errorHandler());
-
-// TODO: Remove me. koa-pino-logger uses standard log levels
-/*app.use(async (ctx, next) => {
-  ctx.log.warn('Hello');
-  await next();
-});*/
 
 app.use(bodyParser());
 app.use(exampleApi.routes());
