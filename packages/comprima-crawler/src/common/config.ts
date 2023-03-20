@@ -1,6 +1,7 @@
 import configPackage from '@iteam/config'
 
 export interface CrawlerConfig {
+  batchSize: number
   concurrency: number
   retryCount: number
   retryDelay: number
@@ -19,6 +20,7 @@ const config = configPackage({
   defaults: {
     comprimaUrl: 'http://localhost:4000',
     crawler: {
+      batchSize: 10,
       concurrency: 1,
       retryCount: 1,
       retryDelay: 5,

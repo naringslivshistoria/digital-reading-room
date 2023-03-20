@@ -31,6 +31,7 @@ services:
     container_name: comprima-crawler
     environment:
     - COMPRIMA_URL=http://comprima-adapter:4000
+    - CRAWLER_BATCH_SIZE=10
     - CRAWLER_CONCURRENCY=1
     - CRAWLER_RETRY_COUNT=1
     - CRAWLER_RETRY_DELAY=5
