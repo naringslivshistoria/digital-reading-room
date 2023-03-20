@@ -6,7 +6,7 @@ import axiosRetry from 'axios-retry'
 import transformer from './transformer'
 import { Document } from '../../common/types'
 
-let sessionId : string | undefined = '123'
+let sessionId : string | undefined
 const user = process.env.COMPRIMA_USER
 const password = process.env.COMPRIMA_PASSWORD
 const serviceUrl = process.env.COMPRIMA_SERVICE_URL 
@@ -24,6 +24,13 @@ const createRequestHeaders = (action : string) : any => {
   return requestHeaders
 }
 
+const ensureLogin = async (options: any, relogin: boolean = false) => {
+  if (!sessionId || relogin) {
+    sessionId = await login(user, password)
+    options.xml = options.xml.replace(/<ns:sessionId>.*?<\/ns:sessionId>/, '<ns:sessionId>' + sessionId + '</ns:sessionId>')
+  }
+}
+
 /**
  * Generic wrapper for soapRequest that will retry and do a login if session has expired
  * 
@@ -33,7 +40,7 @@ const createRequestHeaders = (action : string) : any => {
 const makeSoapRequest = async (options : any) => {
   let result
 
-  console.log('making soap request')
+  await ensureLogin(options)
 
   try {
     result = await soapRequest(options)
@@ -42,12 +49,8 @@ const makeSoapRequest = async (options : any) => {
   } catch (error) {
     if (typeof(error) === 'string' && error.indexOf('Sessionen är inte aktiv') !== -1) {
       // Check for auth error, which is returned as a 500
-      console.info('No valid login session', sessionId)
-      sessionId = await login(user, password)
-      console.log('options before', options)
-      console.log('new session id', sessionId)
-      options.xml = options.xml.replace(/<ns:sessionId>.*?<\/ns:sessionId>/, '<ns:sessionId>' + sessionId + '</ns:sessionId>')
-      console.log('options after', options)
+      console.info('No valid login session')
+      await ensureLogin(options, true)
       result = await soapRequest(options)
 
       return result
@@ -83,7 +86,7 @@ const login = async (user: string | undefined, password: string | undefined) => 
   }
 
   try {
-    const { response: { body } } = await makeSoapRequest({ method: 'POST', url: serviceUrl, headers: requestHeaders, xml: payload, timeout })
+    const { response: { body } } = await soapRequest({ method: 'POST', url: serviceUrl, headers: requestHeaders, xml: payload, timeout })
 
     const parser = new XMLParser()
     const loginResponse = parser.parse(body)
@@ -98,10 +101,6 @@ const login = async (user: string | undefined, password: string | undefined) => 
 }
 
 const searchDocuments = async(query: string | string[], levels: string[], skip?: number, batchSize: number = 10) : Promise<Document[]> => {
-  /*if (!sessionId) {
-    sessionId = await login(user, password)
-  }*/
-
   const action = 'http://www.dms-digital.se/c3/2011/02/IC3SearchService/GetDocuments'
   const skipTo = skip ?? 0
 
@@ -191,10 +190,6 @@ const searchDocuments = async(query: string | string[], levels: string[], skip?:
 }
 
 const getDocument = async (documentId: number) : Promise<Document> => {
-  /*if (!sessionId) {
-    sessionId = await login(user, password)
-  }*/
-
   const action = 'http://www.dms-digital.se/c3/2011/02/IC3SearchService/GetDocuments'
 
   const requestHeaders = createRequestHeaders(action)
