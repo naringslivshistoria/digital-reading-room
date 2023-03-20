@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import config from './config';
 
 export interface Log {
-  debug: (message: string, data?: object, ...rest: string[]) => void;
+  debug: (message: string, data?: object) => void;
   error: (title: string, error?: Error) => void;
   info: (message: string, data?: object | string, ...rest: string[]) => void;
   warn: (title: string, error?: Error) => void;
@@ -15,19 +15,23 @@ const logLevelIsAtLeastWarn =
   config.logLevel.toUpperCase() === 'WARN' || logLevelIsAtLeastInfo;
 
   export default {
-    debug: (message: string, data?: object, ...rest: string[]) => {
+    debug: (message: string, data?: object) => {
       if (!logLevelIsAtLeastDebug) {
         return;
       }
   
-      console.debug(
-        `${chalk.whiteBright.bold('DEBUG')} ${chalk.gray(
-          message
-        )}`
-      );
-  
       if (data) {
-        console.error(JSON.stringify(data, null, 2), ...rest);
+        console.debug(
+          `${chalk.whiteBright.bold('DEBUG')} ${chalk.gray(
+            message
+          )}`, data
+        );
+      } else {
+        console.debug(
+          `${chalk.whiteBright.bold('DEBUG')} ${chalk.gray(
+            message
+          )}`
+        );
       }
     },
     error: (title: string, error?: Error) => {
