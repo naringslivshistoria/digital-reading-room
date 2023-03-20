@@ -11,11 +11,11 @@ log.info('Comprima Crawler', config);
 
 // TODO: Check mode - either crawl unindexed levels or reindex updated levels (or ids?).
 const mode = config.mode;
-// let levels
+
 let levelPromise
 switch (config.mode) {
   case 'index':
-    levelPromise = getUnindexedLevels // TODO: config.crawler.batchSize
+    levelPromise = getUnindexedLevels
     break;
   // case 'update':
   //   levelPromise = getUpdatedLevels
