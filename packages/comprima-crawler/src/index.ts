@@ -34,5 +34,3 @@ levelPromise().then(levels => {
 })
 .then(result => log.info(`Crawl complete: ${result}`))
 .catch(error => log.error('Crawl failed!', error))
-
-
