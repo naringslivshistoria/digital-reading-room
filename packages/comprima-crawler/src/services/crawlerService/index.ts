@@ -32,5 +32,6 @@ export const crawlLevels = async (range: Range): Promise<boolean> => {
     cursor.lower += config.crawler.batchSize
   } while (cursor.lower <= range.upper)
 
-  return true
+  // TODO: Figure out if we should return something more meaningful here.
+  return Promise.resolve(true)
 }
