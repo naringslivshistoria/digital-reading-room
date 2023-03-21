@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios'
 import config from '../../common/config'
 import log from '../../common/log'
 
+// TODO: Use a custom error class.
 export class FooError extends Error {
   constructor(msg: string) {
       super(msg);

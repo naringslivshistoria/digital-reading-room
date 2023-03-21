@@ -1,14 +1,13 @@
-import config from "../../common/config"
 import log from "../../common/log"
 import { indexSearch } from "../comprimaService"
 import { getUnindexedLevel, updateLevel } from "../postgresAdapter"
 
 export const crawlLevels = async () => {
-  // TODO: Mark range as in progress in postgres
   let level
-
+  
   do {
     level = await getUnindexedLevel()
+    // TODO: Mark level as in progress in postgres.
 
     log.info(`Crawling level`, level)
     
