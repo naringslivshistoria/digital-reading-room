@@ -2,15 +2,17 @@ import config from "../../common/config"
 import log from "../../common/log"
 import { getSubRange } from "../../helpers/arrayHelper"
 import { indexSearch } from "../comprimaService"
-import { Range } from "../postgresAdapter"
+import { getUnindexedLevels, Level } from "../postgresAdapter"
 
-export const crawlLevels = async (range: Range): Promise<boolean> => {
+export const crawlLevels = async () => {
   // TODO: Mark range as in progress in postgres
+  let level
 
-  let levelCursor = range.lower
   do {
-    const levels = getSubRange(levelCursor, range.upper, config.batchSize)
+    // const levels = getSubRange(levelCursor, range.upper, config.batchSize)
     
+    level = getUnindexedLevels()
+
     const levelsLabel = `${levels[0]}–${levels[levels.length - 1]}`
     log.info(`Crawling levels ${levelsLabel}`, levels)
     
@@ -27,7 +29,7 @@ export const crawlLevels = async (range: Range): Promise<boolean> => {
     }
     
     levelCursor += config.batchSize
-  } while (levelCursor <= range.upper)
+  } while (level)
 
   // TODO: Figure out if we should return something more meaningful here.
   return Promise.resolve(true)

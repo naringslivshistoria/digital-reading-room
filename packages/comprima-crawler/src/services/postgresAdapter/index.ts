@@ -2,22 +2,17 @@ import knex from 'knex'
 import config from '../../common/config'
 import log from '../../common/log'
 
-export interface LevelStatus {
-  level: number
-  error: string
-  updated: Date
-}
-
-export interface Range {
-  lower: number
-  upper: number
-}
-
-export interface LevelRange {
+export interface Level {
   id: string
-  lower: number
-  upper: number
-  statuses: LevelStatus[]
+  level: number
+
+  archivist: string
+  depositor: string
+  created: Date
+
+  crawled?: Date
+  indexed?: Date
+  error?: string
 }
 
 const db = knex({
@@ -33,19 +28,32 @@ const db = knex({
   },
 })
 
-export const getUnindexedLevels = async (): Promise<{lower: number, upper: number}> => {
+export const getUnindexedLevels = async (): Promise<Level> => {
   // TODO: Get unindexed levels from postgres
-  const [range] = await db
-  .select('id', 'lower', 'upper')
-  .from<LevelRange>('level_ranges')
+  const [level] = await db
+  .select
+  (
+    'id',
+    'level',
+    'archivist',
+    'crawled',
+    'depositor',
+    'created',
+    'indexed',
+    'error'
+    )
+  .from<Level>('levels')
+  .limit(1)
+  .where('indexed', null)
+  .where('result', null)
 
-  console.log(range)
+  console.log(level)
 
-  if (!range) {
+  if (!level) {
     return Promise.reject('NO_UNINDEXED_LEVELS')
   }
 
   // TODO: Mark levels as in progress in postgres
 
-  return Promise.resolve(range)
+  return Promise.resolve(level)
 }
