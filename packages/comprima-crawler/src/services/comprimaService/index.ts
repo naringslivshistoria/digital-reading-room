@@ -1,6 +1,19 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import config from '../../common/config'
 import log from '../../common/log'
+
+export class FooError extends Error {
+  constructor(msg: string) {
+      super(msg);
+
+      // Set the prototype explicitly.
+      Object.setPrototypeOf(this, FooError.prototype);
+  }
+
+  sayHello() {
+      return "hello " + this.message;
+  }
+}
 
 // TODO: Figure out exactly what we get - is it levels or ids or something else?
 export const getUpdatedLevels = async () => {
@@ -16,8 +29,14 @@ export const indexSearch = async (levels: number[]) => {
   .then(({ data }) => {
     return data;
   })
-  .catch((e) => {
-    log.error('Error', e)
-    throw e;
+  .catch((error: AxiosError) => {
+    const errorSummary = {
+      code: error.code,
+      data: error.response?.data,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+    }
+    log.warn('Comprima adapter request failed', errorSummary)
+    throw error
   });
 }

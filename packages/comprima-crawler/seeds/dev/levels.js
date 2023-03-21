@@ -5,8 +5,8 @@
 exports.seed = async function (knex) {
   await knex('level_ranges').insert([
     {
-      from: 41000,
-      to: 42000,
+      lower: 41000,
+      upper: 42000,
     },
   ]);
 };

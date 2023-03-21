@@ -3,30 +3,27 @@ import config from './common/config';
 import log from './common/log';
 import { crawlLevels } from './services/crawlerService';
 
-log.info('Comprima Crawler', config);
+log.info('🐛 Comprima Crawler', config);
 
-// TODO: Check mode - either crawl unindexed levels or reindex updated levels (or ids?).
-const mode = config.mode;
-
-let levelPromise
 switch (config.mode) {
   case 'index':
-    levelPromise = getUnindexedLevels
+    getUnindexedLevels()
+    .then(levels => {
+      return crawlLevels(levels)
+    })
+    .then(result => log.info(`Crawl complete: ${result}`))
+    .catch(error => {
+      if (error === 'NO_UNINDEXED_LEVELS') {
+        log.info('No unindexed levels found. Exiting.')
+      }
+    })
     break;
+  // TODO: implement update mode
   // case 'update':
   //   levelPromise = getUpdatedLevels
   //   break;
   default:
     log.warn(`CRAWLER_MODE must be either 'index' or 'update'`)
-    log.error(`Unknown mode ${mode}!`)
-    throw new Error(`Unknown mode ${mode}!`)
+    log.error(`Unknown mode ${config.mode}!`)
+    throw new Error(`Unknown mode ${config.mode}!`)
 }
-
-/*
- * Setup levels.
- */
-levelPromise().then(levels => {
-  return crawlLevels(levels)
-})
-.then(result => log.info(`Crawl complete: ${result}`))
-.catch(error => log.error('Crawl failed!', error))

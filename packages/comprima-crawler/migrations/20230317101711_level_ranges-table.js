@@ -10,12 +10,12 @@ exports.up = function (knex) {
         .primary()
         .notNullable()
         .defaultTo(knex.raw('uuid_generate_v4()'));
-      table.integer('from').notNullable().defaultTo(0);
-      table.integer('to').notNullable().defaultTo(0);
+      table.integer('lower').notNullable().defaultTo(0);
+      table.integer('upper').notNullable().defaultTo(0);
       table.boolean('in_progress').notNullable().defaultTo(false);
       table.timestamp('created').defaultTo(knex.fn.now());
       table.timestamp('indexed').defaultTo(null);
-      table.unique(['from', 'to']);
+      table.unique(['lower', 'upper']);
     })
   );
 };
