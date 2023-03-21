@@ -1,5 +1,5 @@
 import soapRequest from 'easy-soap-request'
-import { XMLParser } from 'fast-xml-parser';
+import { XMLParser } from 'fast-xml-parser'
 import transformer from './transformer'
 import KoaRouter from '@koa/router'
 import axios from 'axios'
@@ -12,28 +12,41 @@ let sessionId : string | undefined;
 const user = process.env.COMPRIMA_USER
 const password = process.env.COMPRIMA_PASSWORD
 const serviceUrl = process.env.COMPRIMA_SERVICE_URL 
+const batchSize = 10
 
 const search = async (freeTextQuery: string | string[], levels: string[], skip?: number) : Promise<Document[]> => {
   if (!sessionId) {
     sessionId = await login(user, password)
   }
 
-  const result = await performSearch(freeTextQuery, levels, skip)
+  let lastSetSize = batchSize
+  const totalResults = Array<Document>()
+  let currentSkip = skip ?? 0
+  while (lastSetSize === batchSize) {
+    const result = await performSearch(freeTextQuery, levels, currentSkip)
+    totalResults.push(...result)
+    lastSetSize = result.length
+    currentSkip += batchSize
 
-  return result
+    console.info('Batch of ' + lastSetSize + ' retrieved')
+  }
+
+  return totalResults
 }
 
 const createRequestHeaders = (action : string) : any => {
   const requestHeaders = {
     'user-agent': 'comprima-adapter',
     'Content-Type': 'application/soap+xml;charset=UTF-8',
-    'soapAction': action
-  };
+    'soapAction': action,
+  }
 
   return requestHeaders
 }
 
-const login = async (user: string | undefined, password: string | undefined) : Promise<string> => {
+const login = async (user: string | undefined, password: string | undefined) => {
+  console.info('Logging in to Comprima')
+
   const action = 'http://www.dms-digital.se/c3/2011/02/IC3SearchService/Login'
   const requestHeaders = createRequestHeaders(action)
 
@@ -63,6 +76,7 @@ const login = async (user: string | undefined, password: string | undefined) : P
     const loginResponse = parser.parse(body)
 
     const sessionId = loginResponse['s:Envelope']['s:Body'].LoginResponse.LoginResult
+    console.info('Comprima login complete')
     return sessionId
   } catch (error) {
     console.error('Comprima login request failed', error)
@@ -87,7 +101,7 @@ const performSearch = async(query: string | string[], levels: string[], skip?: n
   '  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' +
   '  xmlns="http://www.dms-digital.se/c3/2011/02"&gt;' +
   `  &lt;Skip&gt;${skipTo}&lt;/Skip&gt;` +
-  '  &lt;Take&gt;1000&lt;/Take&gt;' +
+  `  &lt;Take&gt;${batchSize}&lt;/Take&gt;` +
   '  &lt;FindIn&gt;' +
   '    &lt;Levels&gt;'
 
@@ -138,9 +152,21 @@ const performSearch = async(query: string | string[], levels: string[], skip?: n
     documentsResult = documentsResult.replace(/&#xD;/gim, '').replace(/&gt;/gim, '>').replace(/&lt;/gim, '<')
 
     const documents = parser.parse(documentsResult).C3DocumentResponse.Documents.Document
-    const transformedDocuments = transformer.transformDocuments(documents)
 
-    return transformedDocuments
+    if (!documents) {
+      console.log('Results with no documents', documentsResult)
+      return []
+    }
+
+    try {
+      const documentArray = Array.isArray(documents) ? documents : Array(documents)
+      const transformedDocuments = transformer.transformDocuments(documentArray)
+
+      return transformedDocuments
+    } catch (error) {
+      console.log('Error transforming documents', documents)
+      throw error
+    }
   } catch (error) {
     console.error('Comprima search request failed', error)
     throw new Error('Comprima search request failed')
@@ -173,7 +199,8 @@ const getDocument = async (documentId: number) : Promise<Document> => {
   '&lt;/FilterBy&gt;' +
   '&lt;Options&gt;' +
   '  &lt;IncludeIndexFieldNames&gt;true&lt;/IncludeIndexFieldNames&gt;' +
-  '  &lt;IncludeLogs&gt;true&lt;/IncludeLogs&gt;' +
+  '  &lt;IncludeLogs&gt;false&lt;/IncludeLogs&gt;' +
+  '  &lt;ForceReloadCache&gt;false&lt;/ForceReloadCache&gt;' +
   '&lt;/Options&gt;' +
   '&lt;/C3DocumentQuery&gt;' +
   '         </ns:query>' +
@@ -264,6 +291,7 @@ export const routes = (router: KoaRouter) => {
       ctx.body = results
     } catch (err) {
       ctx.status = 500
+      console.error(err)
       ctx.body = { results: 'error: ' + err}
     }
   })  

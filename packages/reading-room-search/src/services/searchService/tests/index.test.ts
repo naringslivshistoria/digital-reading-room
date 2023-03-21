@@ -38,6 +38,8 @@ describe('app', () => {
             query: 'searchQuery'
           }
         },
+        from: 0,
+        size: 100,
       })
     })
 
