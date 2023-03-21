@@ -14,6 +14,7 @@ jobs:
       matrix:
         context:
         - comprima-adapter
+        - comprima-crawler
         - reading-room-frontend
         - reading-room-search
 
