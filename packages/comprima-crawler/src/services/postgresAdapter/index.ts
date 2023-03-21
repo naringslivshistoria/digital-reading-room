@@ -1,21 +1,7 @@
 import knex from 'knex'
 import config from '../../common/config'
 import log from '../../common/log'
-
-export interface Level {
-  id: string
-  level: number
-
-  archivist: string
-  depositor: string
-  created: Date
-
-  crawled?: Date
-  error?: string
-
-  failed: number
-  successful: number
-}
+import { Level } from '../../common/types'
 
 const db = knex({
   client: 'pg',

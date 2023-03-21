@@ -1,8 +1,7 @@
 import config from "../../common/config"
 import log from "../../common/log"
-import { getSubRange } from "../../helpers/arrayHelper"
 import { indexSearch } from "../comprimaService"
-import { getUnindexedLevel, Level, updateLevel } from "../postgresAdapter"
+import { getUnindexedLevel, updateLevel } from "../postgresAdapter"
 
 export const crawlLevels = async () => {
   // TODO: Mark range as in progress in postgres
