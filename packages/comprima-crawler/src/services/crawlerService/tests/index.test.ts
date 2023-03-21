@@ -14,9 +14,6 @@ jest.mock('../../../common/config', () => {
   return {
     __esModule: true,
     default: {
-      crawler: {
-        batchSize: 10,
-      },
       logLevel: 'SILENT',
     }
   }

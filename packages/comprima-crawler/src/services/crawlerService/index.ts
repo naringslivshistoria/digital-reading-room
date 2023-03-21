@@ -8,7 +8,6 @@ export const crawlLevels = async () => {
   let level
 
   do {
-    // const levels = getSubRange(levelCursor, range.upper, config.batchSize)
     level = await getUnindexedLevel()
 
     log.info(`Crawling level`, level)
