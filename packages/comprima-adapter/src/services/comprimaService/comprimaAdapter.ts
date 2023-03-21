@@ -102,7 +102,7 @@ const login = async (user: string | undefined, password: string | undefined) => 
     const loginResponse = parser.parse(body)
 
     const sessionId = loginResponse['s:Envelope']['s:Body'].LoginResponse.LoginResult
-    console.info('Comprima login complete')
+    console.info('Comprima login complete', sessionId)
     return sessionId
   } catch (error) {
     console.error('Comprima login request failed', error)
@@ -154,7 +154,6 @@ const getDocuments = async(levels: string[], skip?: number, batchSize = 10) : Pr
   '  &lt;/FilterBy&gt;' +
   '  &lt;Options&gt;' +
   '    &lt;IncludeIndexFieldNames&gt;true&lt;/IncludeIndexFieldNames&gt;' +
-  '    &lt;IncludeLogs&gt;true&lt;/IncludeLogs&gt;' +
   '    &lt;ForceReloadCache&gt;false&lt;/ForceReloadCache&gt;' +
   ' &lt;/Options&gt;' +
   '&lt;/C3DocumentQuery&gt;' +
