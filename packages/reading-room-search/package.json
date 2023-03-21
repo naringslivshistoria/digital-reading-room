@@ -17,6 +17,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.1",
     "@types/node": "^18.14.0",
     "@types/pg": "^8.6.6",
     "eslint": "^8.13.0",

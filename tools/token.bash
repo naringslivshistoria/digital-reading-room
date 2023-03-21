@@ -7,3 +7,5 @@
  echo "Hash: $(echo $RESULT | jq -r '.password')"
  echo "Salt: $(echo $RESULT | jq -r '.salt')"
  
+curl -X GET -H "Content-Type: application/json" -d '{"query":"scania","levels":41080}' http://localhost:4001/auth/generateHash?password=meow
+
