@@ -1,16 +1,13 @@
-import { getUnindexedLevels } from './services/postgresAdapter/index';
 import config from './common/config';
 import log from './common/log';
 import { crawlLevels } from './services/crawlerService';
 
-log.info('🐛 Comprima Crawler', config);
+log.info('🐛 Comprima Crawler running!');
+log.info('Configuration', config);
 
 switch (config.mode) {
   case 'index':
-    getUnindexedLevels()
-    .then(levels => {
-      return crawlLevels(levels)
-    })
+    crawlLevels()
     .then(result => log.info(`Crawl complete: ${result}`))
     .catch(error => {
       if (error === 'NO_UNINDEXED_LEVELS') {

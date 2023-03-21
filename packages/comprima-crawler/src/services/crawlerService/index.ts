@@ -2,7 +2,7 @@ import config from "../../common/config"
 import log from "../../common/log"
 import { getSubRange } from "../../helpers/arrayHelper"
 import { indexSearch } from "../comprimaService"
-import { getUnindexedLevels, Level } from "../postgresAdapter"
+import { getUnindexedLevel, Level, updateLevel } from "../postgresAdapter"
 
 export const crawlLevels = async () => {
   // TODO: Mark range as in progress in postgres
@@ -10,25 +10,26 @@ export const crawlLevels = async () => {
 
   do {
     // const levels = getSubRange(levelCursor, range.upper, config.batchSize)
-    
-    level = getUnindexedLevels()
+    level = await getUnindexedLevel()
 
-    const levelsLabel = `${levels[0]}–${levels[levels.length - 1]}`
-    log.info(`Crawling levels ${levelsLabel}`, levels)
+    log.info(`Crawling level`, level)
     
     try {
-      const result = await indexSearch(levels)
+      const {result} = await indexSearch(level.level)
 
-      // TODO: Mark levels as indexed in postgres
-      log.info(`✅ Levels ${levelsLabel}`, result)
+      level.crawled = new Date()
+      level.failed = result.failed
+      level.successful = result.successful
+
+      await updateLevel(level)
+
+      log.info(`✅ Levels ${level.level}`, level)
     } catch (error: any) {
-      log.warn('a', error)
-      log.error(`Crawler was unable to process levels ${levelsLabel}!`)
+      log.error(`Crawling level ${level.level} failed!`)
+      level.error = error
 
-      // TODO: Save error in postgres
+      await updateLevel(level)
     }
-    
-    levelCursor += config.batchSize
   } while (level)
 
   // TODO: Figure out if we should return something more meaningful here.

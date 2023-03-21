@@ -11,8 +11,10 @@ export interface Level {
   created: Date
 
   crawled?: Date
-  indexed?: Date
   error?: string
+
+  failed: number
+  successful: number
 }
 
 const db = knex({
@@ -28,32 +30,47 @@ const db = knex({
   },
 })
 
-export const getUnindexedLevels = async (): Promise<Level> => {
-  // TODO: Get unindexed levels from postgres
-  const [level] = await db
-  .select
-  (
-    'id',
-    'level',
-    'archivist',
-    'crawled',
-    'depositor',
-    'created',
-    'indexed',
-    'error'
-    )
-  .from<Level>('levels')
-  .limit(1)
-  .where('indexed', null)
-  .where('result', null)
+export const getUnindexedLevel = async (): Promise<Level> => {
+  try {
+    const [level] = await db
+    .select
+    (
+      'id',
+      'level',
+      'archivist',
+      'crawled',
+      'depositor',
+      'created',
+      'error',
+      'failed',
+      'successful',
+      )
+    .from<Level>('levels')
+    .limit(1)
+    .where('crawled', null)
+    .where('error', null)
 
-  console.log(level)
+    if (!level) {
+      return Promise.reject('NO_UNINDEXED_LEVELS')
+    }
 
-  if (!level) {
-    return Promise.reject('NO_UNINDEXED_LEVELS')
+    return Promise.resolve(level)
+  } catch (error: any) {
+    log.error('Unable to get unindexed levels', error)
+    return Promise.reject(error)
   }
+}
 
-  // TODO: Mark levels as in progress in postgres
+export const updateLevel = async (level: Level): Promise<boolean> => {
+  try {
+    await db
+    .update(level)
+    .from<Level>('levels')
+    .where('id', level.id)
 
-  return Promise.resolve(level)
+    return Promise.resolve(true)
+  } catch (error: any) {
+    log.error('Unable to update level', error)
+    return Promise.reject(error)
+  }
 }

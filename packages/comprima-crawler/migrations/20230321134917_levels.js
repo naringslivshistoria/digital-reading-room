@@ -20,7 +20,8 @@ exports.up = function (knex) {
       // State.
       table.timestamp('crawled').nullable();
       table.json('error').nullable();
-      table.json('result').nullable();
+      table.integer('successful').notNullable().defaultTo(0);
+      table.integer('failed').notNullable().defaultTo(0);
 
       // Constraints/Indices.
       table.unique(['level']);
