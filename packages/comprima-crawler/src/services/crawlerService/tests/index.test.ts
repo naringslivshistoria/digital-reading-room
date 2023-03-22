@@ -1,31 +1,39 @@
-import { indexLevel } from '../../comprimaService'
-import { crawlLevels } from '..'
+import * as comprimaService from '../../comprimaService';
+import * as postgresAdapter from '../../postgresAdapter';
+import { Level } from '../../../common/types';
+import { crawlLevels } from '..';
 
-jest.mock('../../comprimaService', () => {
-  const actual = jest.requireActual('../../comprimaService');
-
-  return {
-      ...actual,
-      indexLevel: jest.fn()
-  };
-})
-
+jest.mock('knex');
 jest.mock('../../../common/config', () => {
   return {
     __esModule: true,
     default: {
       logLevel: 'SILENT',
-    }
-  }
-})
+      postgres: {},
+    },
+  };
+});
 
 describe('crawler', () => {
   describe('crawlLevels', () => {
+    const level = {
+      level: 41000,
+    } as Level;
+
+    beforeAll(() => {
+      jest
+        .spyOn(postgresAdapter, 'getUnindexedLevel')
+        .mockResolvedValueOnce(level)
+        .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
+      jest.spyOn(postgresAdapter, 'updateLevel').mockResolvedValue(true);
+      jest
+        .spyOn(comprimaService, 'indexLevel')
+        .mockResolvedValue({ result: {} });
+    });
+
     it('calls comprima service with correct levels', async () => {
-      await crawlLevels({ lower: 41000, upper: 41029 })
-      expect(indexLevel).toBeCalledWith([41000, 41001, 41002, 41003, 41004, 41005, 41006, 41007, 41008, 41009])
-      expect(indexLevel).toBeCalledWith([41010, 41011, 41012, 41013, 41014, 41015, 41016, 41017, 41018, 41019])
-      expect(indexLevel).toBeCalledWith([41020, 41021, 41022, 41023, 41024, 41025, 41026, 41027, 41028, 41029])
-    })
-  })
-})
+      await crawlLevels();
+      expect(comprimaService.indexLevel).toBeCalledWith(level.level);
+    });
+  });
+});
