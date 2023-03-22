@@ -21,7 +21,7 @@ export const getUpdatedLevels = async () => {
   return Promise.resolve([41070,41071,41072,41073])
 }
 
-export const indexSearch = async (level: number) => {
+export const indexLevel = async (level: number) => {
   const query = 'ignored' // NOTE: This value is not used.
   const url = `${config.comprimaUrl}/indexSearch?query=${query}&levels=${level}`
   log.debug(`Calling comprima adapter on ${url}`)

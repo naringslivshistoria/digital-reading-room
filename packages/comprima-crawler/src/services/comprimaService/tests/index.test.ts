@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { indexSearch } from '..'
+import { indexLevel } from '..'
 
 jest.mock('axios')
 
@@ -18,15 +18,10 @@ describe('comprimaAdapter', () => {
     jest.spyOn(axios, 'get').mockResolvedValue({ data: 'fake data' })
   })
   
-  describe('indexSearch', () => {
-    it('calls Comprima Adapter', async () => {
-      await indexSearch([])
-      expect(axios.get).toBeCalledWith(expect.stringContaining('http://fakehost:7357/indexSearch?query=ignored&levels='), {})
-    })
-
-    it('passes correct levels', async () => {
-      await indexSearch([1,2,4,8])
-      expect(axios.get).toBeCalledWith('http://fakehost:7357/indexSearch?query=ignored&levels=1,2,4,8', {})
+  describe('indexLevel', () => {
+    it('passes correct level to comprima adapter', async () => {
+      await indexLevel(1)
+      expect(axios.get).toBeCalledWith('http://fakehost:7357/indexSearch?query=ignored&levels=1', {})
     })
   })
 })

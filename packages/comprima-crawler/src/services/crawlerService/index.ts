@@ -1,5 +1,5 @@
 import log from "../../common/log"
-import { indexSearch } from "../comprimaService"
+import { indexLevel } from "../comprimaService"
 import { getUnindexedLevel, updateLevel } from "../postgresAdapter"
 
 export const crawlLevels = async () => {
@@ -12,7 +12,7 @@ export const crawlLevels = async () => {
     log.info(`Crawling level`, level)
     
     try {
-      const {result} = await indexSearch(level.level)
+      const {result} = await indexLevel(level.level)
 
       level.crawled = new Date()
       level.failed = result.failed
