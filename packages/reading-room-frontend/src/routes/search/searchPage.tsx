@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-
+import { Grid, Box } from '@mui/material'
+import { sizing } from '@mui/system'
 import { Search, SearchResult, useSearch } from '.'
-import library from '../../../assets/library.jpg'
+import header from '../../../assets/header.jpg'
 import { useAuth } from '../../hooks/useAuth'
 
 export const PageSearch = () => {
@@ -23,13 +24,23 @@ export const PageSearch = () => {
   }, [query, refetch])
 
   return (
+    <>
+    <Grid container direction='row' alignItems='center' alignContent="center" sx={{ height: '250px', bgcolor: 'primary.main' }}>
+      <Grid item sm={8} xs={12} alignItems='center' alignContent="center">
+        <Grid container justifyContent='center'>
+          <Grid item sm={8} xs={12} sx={{ padding: '0 10px 0 10px' }}>
+            <Search onChange={onSearchInputChange} placeholder={"Sök efter dokument"} />
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item sm={4} xs={0} style={{ backgroundColor: 'red', backgroundImage: `url(${header})`, backgroundSize: 'cover' }} sx={{ height: '100%' }} >
+      </Grid>
+    </Grid>
     <div>
-      <div style={{ backgroundImage: `url(${library})`, height: "100px", backgroundSize: 'cover', backgroundPosition: 'center', padding: '20px'  }}>
-        <Search onChange={onSearchInputChange} placeholder={"Sök efter dokument"} />
-      </div>
       <div style={{ padding: '30px' }}>
         <SearchResult isLoading={isLoading} documents={data?.results} />
       </div>
     </div>
+    </>
   )
 }

@@ -1,5 +1,18 @@
 import { useState } from 'react'
-import { Button } from '@mui/material'
+import { IconButton, TextField } from '@mui/material'
+import { Box } from '@mui/system'
+import SearchIcon from '@mui/icons-material/Search'
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    neutral: Palette['primary'];
+  }
+
+  // allow configuration using `createTheme`
+  interface PaletteOptions {
+    neutral?: PaletteOptions['primary'];
+  }
+}
 
 interface ChangeFunc {
   (query: string) : void
@@ -32,14 +45,23 @@ export const Search = ({
   }
 
   return (
-    <div className="flex flex-row rounded-lg space-x-5">
-      <input
-        className="basis-5/6 form-control p-4 mx-1"
+    <Box>
+      <h1>Digital läsesal</h1>
+      <TextField
+        variant='filled'
+        sx={{ bgcolor: 'background.default', width: { sm: '80%' } }}
         placeholder={placeholder}
         type="text"
         onKeyUp={onSubmit}
+        inputProps={{
+          style: {
+            height: '10px',
+          },
+        }}
       />
-      <Button variant="contained" className="basis-1/6 mx-1" onClick={() => search()}>Sök</Button>
-    </div>
+      <IconButton onClick={() => search()} sx={{ color: 'white', bgcolor: '#53565a', borderRadius: 0, height: '43px', width: '43px' }}>
+        <SearchIcon/>
+      </IconButton>
+    </Box>
   );
 };

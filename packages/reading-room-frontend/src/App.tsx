@@ -8,9 +8,31 @@ import { AuthProvider, useAuth } from './hooks/useAuth'
 
 const queryClient = new QueryClient()
 
+declare module '@mui/material/styles' {
+  interface PaletteOptions {
+    neutral?: PaletteOptions['primary'];
+  }
+
+  interface Palette {
+    neutral: Palette['primary'];
+  }
+}
+
 const mdTheme = createTheme({
   palette: {
     mode: 'light',
+    primary: {
+      main: '#de3831'
+    },
+    secondary: {
+      main: '#53565a'
+    },
+    background: {
+      default: 'white'
+    },
+    neutral: {
+      main: 'white'
+    }
   },
 })
 
@@ -29,7 +51,6 @@ function App() {
               flexGrow: 1,
               height: '100vh',
               overflow: 'auto',
-              p: 2,
             }}
           >
             <CssBaseline />
