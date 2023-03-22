@@ -34,6 +34,7 @@ exports.seed = async function (knex) {
       })
       .on('error', function (error) {
         console.log(error.message);
+        return reject(error);
       });
   });
 };
