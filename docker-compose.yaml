@@ -34,6 +34,9 @@ services:
     - LOG_LEVEL=debug
     - DATABASE_URL=postgres://crawler:${POSTGRES_PASSWORD}@postgres:5432/crawler
     - NODE_ENV=ci
+    - POSTGRES__HOST=postgres
+    - POSTGRES__PORT=5432
+    - POSTGRES__USER=crawler
     depends_on:
     - comprima-adapter
     networks:
