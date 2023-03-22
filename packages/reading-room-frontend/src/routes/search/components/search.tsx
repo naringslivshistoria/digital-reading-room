@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { IconButton, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import SearchIcon from '@mui/icons-material/Search'
+import Typography from '@mui/material/Typography'
 
 declare module '@mui/material/styles' {
   interface Palette {
@@ -46,7 +47,7 @@ export const Search = ({
 
   return (
     <Box>
-      <h1>Digital läsesal</h1>
+      <Typography variant='h1' sx={{ marginBottom: '10px' }}>Digital läsesal</Typography>
       <TextField
         variant='filled'
         sx={{ bgcolor: 'background.default', width: { sm: '80%' } }}

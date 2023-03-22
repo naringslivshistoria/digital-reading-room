@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Grid, Box } from '@mui/material'
-import { sizing } from '@mui/system'
+import { Grid } from '@mui/material'
 import { Search, SearchResult, useSearch } from '.'
 import header from '../../../assets/header.jpg'
 import { useAuth } from '../../hooks/useAuth'

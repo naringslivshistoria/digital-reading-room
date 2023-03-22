@@ -34,6 +34,17 @@ const mdTheme = createTheme({
       main: 'white'
     }
   },
+  typography: {
+    h1: {
+      fontSize: 50,
+      fontFamily: 'Times new roman',
+      color: 'white',
+      fontStyle: 'italic'
+    },
+    h2: {
+      fontSize: 22
+    }
+  }
 })
 
 function App() {
