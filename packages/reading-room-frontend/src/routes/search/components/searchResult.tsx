@@ -1,7 +1,7 @@
 import { Document } from '../../../common/types'
 
 interface Props {
-  documents: Document[]
+  documents: Document[] | undefined
   isLoading: boolean
 }
 
@@ -10,7 +10,6 @@ const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
 export function SearchResult({
   documents,
-  isLoading,
 }: Props) {
   return (
     <table className="border-separate border-spacing-4 border">
@@ -25,7 +24,7 @@ export function SearchResult({
         </tr>
       </thead>
       <tbody>
-        {!isLoading && documents.map((document) => { 
+        {documents && documents.map((document) => { 
           return (
           <tr key={document.id} style={{ height: "40px" }}>
             <td className="border border-slate-300">

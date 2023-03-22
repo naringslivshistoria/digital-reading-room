@@ -11,6 +11,8 @@ const search = async (query: string | string[]) : Promise<Document[]> => {
   const queryString = Array.isArray(query) ? query[0] : query
 
   const searchResults = await client.search({
+    from: 0,
+    size: 100,
     index: config.elasticSearch.indexName,
     query: {
       query_string: {
