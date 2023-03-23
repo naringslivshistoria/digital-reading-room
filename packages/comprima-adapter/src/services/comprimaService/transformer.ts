@@ -3,8 +3,33 @@ import {
   Document,
 } from '../../common/types'
 
-const transformDocuments = (xmlDocuments: any[]) : Document[] => {
-  const documents = xmlDocuments.map((xmlDocument : any) : Document => {
+interface ComprimaPage {
+  Page: {
+    PageType: string,
+    Data: string,
+    ThumbnailData: string,
+  }
+}
+
+interface ComprimaIndex {
+  Value: string,
+  Number: number,
+  FieldType: string,
+  FieldName: string,
+}
+
+interface ComprimaDocument {
+  Id: number,
+  DocumentState: string,
+  IsDeleted: boolean,
+  Indices: {
+    Index: ComprimaIndex[]
+  }
+  Pages: ComprimaPage,
+}
+
+const transformDocuments = (xmlDocuments: ComprimaDocument[]) : Document[] => {
+  const documents = xmlDocuments.map((xmlDocument : ComprimaDocument) : Document => {
     const document = transformDocument(xmlDocument)
     return document
   })
@@ -139,10 +164,10 @@ const getIndexName = (indexName: string) : string => {
   return name
 }
 
-const transformDocument = (xmlDocument : any) : Document => {
+const transformDocument = (xmlDocument : ComprimaDocument) : Document => {
   const fields : Fields = {}
 
-  xmlDocument.Indices.Index.forEach((index : any) => {
+  xmlDocument.Indices.Index.forEach((index : ComprimaIndex) => {
     const translationKey = index.FieldName?.toLowerCase().replace(' ', '-') ?? index.Number
     const indexName = getIndexName(translationKey)
     fields[indexName] = {

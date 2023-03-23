@@ -27,12 +27,7 @@ router.get('/index/:documentId', async (ctx) => {
   }
 })
 
-router.get('/indexSearch', async (ctx) => {
-  if (!ctx.query.query) {
-    ctx.status = 400
-    ctx.body = { errorMessage: 'Missing parameter: query' }
-    return
-  }
+router.get('/indexlevels', async (ctx) => {
   if (!ctx.query.levels) {
     ctx.status = 400
     ctx.body = { errorMessage: 'Missing parameter: levels' }
@@ -47,7 +42,7 @@ router.get('/indexSearch', async (ctx) => {
   try
   {
     const levels = Array.isArray(ctx.query.levels) ? ctx.query.levels : ctx.query.levels.split(',')
-    const results = await comprima.search(ctx.query.query, levels, skip)
+    const results = await comprima.search(levels, skip)
 
     let successful = 0
 
