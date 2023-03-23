@@ -20,8 +20,6 @@ const db = knex({
 })
 
 const getUser = async (username : string) => {
-  console.log('looking for', username)
-
   const [user] =  await db
     .select(
       'id',
@@ -34,8 +32,6 @@ const getUser = async (username : string) => {
     )
     .from<User>('users')
     .where('username', username)
-
-  console.log(user)
 
   return user
 }
