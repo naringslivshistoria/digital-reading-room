@@ -11,7 +11,7 @@ interface Fields {
 interface Page {
   pageType: string,
   url: string,
-  thumbnailUrl: string,
+  thumbnailUrl?: string,
 }
 
 interface Document {
