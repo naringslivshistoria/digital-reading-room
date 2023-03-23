@@ -32,8 +32,7 @@ export const getUnindexedLevel = async (): Promise<Level> => {
       )
       .from<Level>('levels')
       .limit(1)
-      .where('crawled', null)
-      .where('error', null);
+      .where('crawled', null);
 
     if (!level) {
       return Promise.reject('NO_UNINDEXED_LEVELS');
