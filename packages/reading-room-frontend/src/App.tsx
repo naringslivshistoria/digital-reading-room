@@ -3,6 +3,7 @@ import { Routes, Route, NavLink, Navigate } from "react-router-dom"
 import { createTheme, Button, Box, CssBaseline, ThemeProvider, AppBar, Toolbar } from '@mui/material'
 
 import { PageSearch } from './routes/search/searchPage'
+import { PageAbout } from './routes/about/aboutPage'
 import { PageLogin } from './routes/login/loginPage'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 
@@ -72,6 +73,11 @@ function App() {
                   <PageSearch />
                 </ProtectedRoute>
               }/>
+              <Route path="/about" element={
+                <ProtectedRoute>
+                  <PageAbout />
+                </ProtectedRoute>
+              }/>
               <Route path="/login" element={<PageLogin />} />
             </Routes>
           </Box>
@@ -88,6 +94,7 @@ const Navigation = () => {
     <AppBar position="static">
       <Toolbar>
         <NavLink to="/"><Button color="inherit">Hem</Button></NavLink>
+        <NavLink to="/about"><Button color="inherit">Om</Button></NavLink>
         <NavLink to="/login"><Button color="inherit">Logga in</Button></NavLink>
 
       {token && (
@@ -103,9 +110,9 @@ const Navigation = () => {
 const ProtectedRoute = ({ children } : { children : any }) => {
   const { token } = useAuth()
 
-  if (!token) {
+/*  if (!token) {
     return <Navigate to="/home" replace />
-  }
+  }*/
 
   return children;
 }

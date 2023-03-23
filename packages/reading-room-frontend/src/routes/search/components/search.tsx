@@ -3,36 +3,18 @@ import { IconButton, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import SearchIcon from '@mui/icons-material/Search'
 import Typography from '@mui/material/Typography'
+import { useNavigate } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
-declare module '@mui/material/styles' {
-  interface Palette {
-    neutral: Palette['primary'];
-  }
 
-  // allow configuration using `createTheme`
-  interface PaletteOptions {
-    neutral?: PaletteOptions['primary'];
-  }
-}
-
-interface ChangeFunc {
-  (query: string) : void
-}
-
-interface ISearchProps {
-  onChange: ChangeFunc
-  placeholder: string
-}
-
-export const Search = ({
-  onChange,
-  placeholder,
-}: ISearchProps) => {
-  const [query, setQuery] = useState<string|null>(null)
+export const Search = () => {
+  const [searchParams] = useSearchParams()
+  const [query, setQuery] = useState<string|null>(searchParams.get('query'))
+  const navigate = useNavigate()
 
   const search = () => {
     if (query) {
-      onChange(query)
+      navigate('/?query=' + query)
     }
   }
   
@@ -51,7 +33,8 @@ export const Search = ({
       <TextField
         variant='filled'
         sx={{ bgcolor: 'background.default', width: { sm: '80%' } }}
-        placeholder={placeholder}
+        placeholder='Sök efter dokument'
+        defaultValue={query}
         type="text"
         onKeyUp={onSubmit}
         inputProps={{
