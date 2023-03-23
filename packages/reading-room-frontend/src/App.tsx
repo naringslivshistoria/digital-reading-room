@@ -43,7 +43,17 @@ const mdTheme = createTheme({
       fontStyle: 'italic'
     },
     h2: {
-      fontSize: 22
+      fontSize: 28,
+      fontFamily: 'Times new roman',
+      fontStyle: 'italic'
+    },
+    h3: {
+      fontSize: 20,
+    },
+    h4: {
+      fontSize: 16,
+      textTransform: 'uppercase',
+      color: '#53565a',
     }
   }
 })

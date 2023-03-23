@@ -3,9 +3,7 @@ import { IconButton, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import SearchIcon from '@mui/icons-material/Search'
 import Typography from '@mui/material/Typography'
-import { useNavigate } from 'react-router-dom'
-import { useSearchParams } from 'react-router-dom'
-
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 export const Search = () => {
   const [searchParams] = useSearchParams()

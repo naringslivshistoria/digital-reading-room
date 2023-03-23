@@ -1,25 +1,20 @@
-import { useEffect, useState } from 'react'
-
-import { Search, SearchResult, useSearch } from '.'
-import { useAuth } from '../../hooks/useAuth'
-import { SearchHeader } from '../../components/searchHeader'
 import { useSearchParams } from 'react-router-dom'
+
+import { useAuth } from '../../hooks/useAuth'
+import { SearchResult, useSearch } from '.'
+import { SearchHeader } from '../../components/searchHeader'
 
 export const PageSearch = () => {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('query') ?? ''
   const { token } = useAuth()
 
-  const { data, isLoading, refetch } = useSearch({ query, token })
+  const { data, isLoading } = useSearch({ query, token })
 
   return (
     <>
       <SearchHeader></SearchHeader>
-      <div>
-        <div style={{ padding: '30px' }}>
-        <SearchResult isLoading={isLoading} documents={data?.results} />
-        </div>
-      </div>
+      <SearchResult isLoading={isLoading} query={query} documents={data?.results} />
     </>
   )
 }
