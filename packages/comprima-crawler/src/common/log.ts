@@ -2,65 +2,80 @@ import chalk from 'chalk';
 import config from './config';
 
 export interface Log {
-  debug: (message: string, data?: object, ...rest: string[]) => void;
-  error: (title: string, error?: Error) => void;
-  info: (message: string, data?: object | string, ...rest: string[]) => void;
-  warn: (title: string, error?: Error) => void;
+  debug: (message: string, data?: object) => void;
+  error: (title: string, error?: object) => void;
+  info: (message: string, data?: object | string) => void;
+  warn: (title: string, data?: object) => void;
 }
 
-const logLevelIsAtLeastDebug = config.logLevel.toUpperCase() === 'DEBUG';
-const logLevelIsAtLeastInfo =
-  config.logLevel.toUpperCase() === 'INFO' || logLevelIsAtLeastDebug;
-const logLevelIsAtLeastWarn =
-  config.logLevel.toUpperCase() === 'WARN' || logLevelIsAtLeastInfo;
+const LEVEL = config.logLevel.toUpperCase();
 
-  export default {
-    debug: (message: string, data?: object, ...rest: string[]) => {
-      if (!logLevelIsAtLeastDebug) {
-        return;
-      }
-  
-      console.debug(
-        `${chalk.whiteBright.bold('DEBUG')} ${chalk.gray(
-          message
-        )}`
-      );
-  
-      if (data) {
-        console.error(JSON.stringify(data, null, 2), ...rest);
-      }
-    },
-    error: (title: string, error?: Error) => {
-      console.error(`${chalk.redBright.bold('ERROR')} ${chalk.red(title)}`);
-      if (error) {
-        console.error(error);
-      }
-    },
-    info: (message: string, data?: object | string, ...rest: string[]) => {
-      if (!logLevelIsAtLeastInfo) {
-        return;
-      }
+const levelIsAtLeastDebug = LEVEL === 'DEBUG';
+const levelIsAtLeastInfo = LEVEL === 'INFO' || levelIsAtLeastDebug;
+const levelIsAtLeastWarn = LEVEL === 'WARN' || levelIsAtLeastInfo;
 
-      console.log(
-        `${chalk.whiteBright.bold('INFO ')} ${chalk.white(
-          message
-        )}`,
-        data,
-        ...rest
-      );
-    },
-    warn: (title: string, error?: Error) => {
-      if (!logLevelIsAtLeastWarn) {
-        return;
-      }
-  
-      console.log(
-        `${chalk.red.bold('WARN ')} ${chalk.white(title)} ${chalk.white(
-          title
-        )}`
-      );
-      if (error) {
-        console.error(error);
-      }
-    },
-  } as Log
+const print = (
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  logFn: Function,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  titleFn: Function,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  messageFn: Function,
+  title: string,
+  message: string,
+  data?: object | string
+) => {
+  if (data) {
+    logFn(titleFn(title), messageFn(message), data);
+  } else {
+    logFn(titleFn(title), messageFn(message));
+  }
+};
+
+export default {
+  debug: (message: string, data?: object) => {
+    if (!levelIsAtLeastDebug) {
+      return;
+    }
+
+    print(
+      console.debug,
+      chalk.whiteBright.bold,
+      chalk.gray,
+      'DEBUG',
+      message,
+      data
+    );
+  },
+  error: (title: string, error?: object) => {
+    print(
+      console.error,
+      chalk.redBright.bold,
+      chalk.red,
+      'ERROR',
+      title,
+      error
+    );
+  },
+  info: (message: string, data?: object | string) => {
+    if (!levelIsAtLeastInfo) {
+      return;
+    }
+
+    print(
+      console.log,
+      chalk.whiteBright.bold,
+      chalk.white,
+      'INFO ',
+      message,
+      data
+    );
+  },
+  warn: (title: string, data?: object) => {
+    if (!levelIsAtLeastWarn) {
+      return;
+    }
+
+    print(console.log, chalk.red.bold, chalk.white, 'WARN ', title, data);
+  },
+} as Log;

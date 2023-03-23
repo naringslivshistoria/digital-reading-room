@@ -4,12 +4,15 @@
   "main": "./src/index.ts",
   "private": "true",
   "engines": {
-    "node": "18.*"
+    "node": "18.14.1"
   },
   "scripts": {
     "dev": "nodemon -e ts,js --exec npm run start",
     "lint": "eslint -c .eslintrc src/",
-    "start": "ts-node ./src/index.ts",
+    "migrate:down": "knex migrate:down",
+    "migrate:up": "knex migrate:latest",
+    "seed": "knex seed:run",
+    "start": "npm run migrate:up && ts-node ./src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -19,6 +22,7 @@
     "@types/jest": "29.2.4",
     "@types/supertest": "2.0.12",
     "@typescript-eslint/eslint-plugin": "5.46.0",
+    "csv": "^6.2.8",
     "eslint": "8.29.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-import": "2.26.0",
@@ -34,7 +38,8 @@
     "@tsconfig/node18": "^1.0.1",
     "axios": "^1.3.4",
     "chalk": "^4.1.2",
-    "rxjs": "^7.8.0",
+    "knex": "^2.4.2",
+    "pg": "^8.10.0",
     "ts-node": "10.9.1"
   }
 }

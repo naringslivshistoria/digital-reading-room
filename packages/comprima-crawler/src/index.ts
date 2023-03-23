@@ -1,46 +1,34 @@
-import { indexSearch } from './services/comprimaService/index';
-import { from, mergeMap } from 'rxjs';
-import { retry } from 'rxjs/operators';
+/* eslint-disable no-process-exit */
 import config from './common/config';
 import log from './common/log';
+import { crawlLevels } from './services/crawlerService';
 
-log.info('Comprima Crawler', config);
+log.info('🐛 Comprima Crawler running!');
+log.info('Configuration', config);
 
-/*
- * Setup levels.
- */
-const levels: number[] = [];
+switch (config.mode) {
+  case 'index':
+    crawlLevels()
+      .then(() => {
+        log.info(`Crawl complete!`);
+        process.exit(0);
+      })
+      .catch((error) => {
+        if (error === 'NO_UNINDEXED_LEVELS') {
+          log.info('No unindexed levels found. Exiting.');
+          process.exit(0);
+        }
 
-const ranges = config.levels.split(',');
-ranges.forEach(range => {
-  log.info('Parse range', range)
-
-  const extremes = range.split('-');
-  const start = parseInt(extremes[0], 10);
-  const end = parseInt(extremes[1], 10);
-  for (let i = start; i <= end; i++) {
-    levels.push(i);
-  }
-});
-
-/*
- * Crawl.
- */
-log.info('Configured levels', levels)
-
-const crawlerStream = from(levels).pipe(
-  mergeMap(level => indexSearch(level.toString()).then(result => {
-    log.info(`✅ Level ${level}`, result)
-    return result
-  }).catch(error => {
-    log.error(`Crawler was unable to process level ${level}!`)
-    return error
-  }), config.concurrency),
-  retry({count: config.retryCount, delay: config.retryDelay * 1000})
-  // TODO: What happens when retry counts are exhausted?
-)
-
-/*
- * Start the crawler.
- */
-crawlerStream.subscribe()
+        log.error('Crawl failed', error);
+        process.exit(1);
+      });
+    break;
+  // TODO: implement update mode
+  // case 'update':
+  //   levelPromise = getUpdatedLevels
+  //   break;
+  default:
+    log.warn(`CRAWLER_MODE must be either 'index' or 'update'`);
+    log.error(`Unknown mode ${config.mode}!`);
+    throw new Error(`Unknown mode ${config.mode}!`);
+}

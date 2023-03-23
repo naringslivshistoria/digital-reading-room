@@ -1,18 +1,30 @@
-import axios from 'axios'
-import config from '../../common/config'
-import log from '../../common/log'
+import axios, { AxiosError } from 'axios';
+import config from '../../common/config';
+import log from '../../common/log';
 
-export const indexSearch = async (level: string) => {
-  const query = 'ignored' // NOTE: This value is not used.
-  const url = `${config.comprimaUrl}/indexSearch?query=${query}&levels=${level}`
-  log.debug(`Calling comprima adapter on ${url}`)
+// TODO: Figure out exactly what we get - is it levels or ids or something else?
+export const getUpdatedLevels = async () => {
+  // TODO: Replace this mock with a real call to the comprima adapter.
+  return Promise.resolve([41070, 41071, 41072, 41073]);
+};
+
+export const indexLevel = async (level: number) => {
+  const url = `${config.comprimaUrl}/indexLevels?levels=${level}`;
+  log.debug(`Calling comprima adapter on ${url}`);
+
   return axios
-  .get(url, {})
-  .then(({ data }) => {
-    return data;
-  })
-  .catch((e) => {
-    log.error('Error', e)
-    throw e;
-  });
-}
+    .get(url, {})
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((error: AxiosError) => {
+      const errorSummary = {
+        code: error.code,
+        data: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+      };
+      log.warn('Comprima adapter request failed', errorSummary);
+      throw error;
+    });
+};

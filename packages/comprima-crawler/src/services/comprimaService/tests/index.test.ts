@@ -1,7 +1,7 @@
-import axios from 'axios'
-import { indexSearch } from '..'
+import axios from 'axios';
+import { indexLevel } from '..';
 
-jest.mock('axios')
+jest.mock('axios');
 
 jest.mock('../../../common/config', () => {
   return {
@@ -9,19 +9,22 @@ jest.mock('../../../common/config', () => {
     default: {
       comprimaUrl: 'http://fakehost:7357',
       logLevel: 'ERROR',
-    }
-  }
-})
+    },
+  };
+});
 
 describe('comprimaAdapter', () => {
   beforeEach(() => {
-    jest.spyOn(axios, 'get').mockResolvedValue({ data: 'fake data' })
-  })
-  
-  describe('indexSearch', () => {
-    it('calls Comprima Adapter', async () => {
-      await indexSearch('123')
-      expect(axios.get).toBeCalledWith('http://fakehost:7357/indexSearch?query=ignored&levels=123', {})
-    })
-  })
-})
+    jest.spyOn(axios, 'get').mockResolvedValue({ data: 'fake data' });
+  });
+
+  describe('indexLevel', () => {
+    it('passes correct level to comprima adapter', async () => {
+      await indexLevel(1);
+      expect(axios.get).toBeCalledWith(
+        'http://fakehost:7357/indexLevels?levels=1',
+        {}
+      );
+    });
+  });
+});
