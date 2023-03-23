@@ -2,22 +2,9 @@ import axios, { AxiosError } from 'axios';
 import config from '../../common/config';
 import log from '../../common/log';
 
-// TODO: Use a custom error class.
-export class FooError extends Error {
-  constructor(msg: string) {
-    super(msg);
-
-    // Set the prototype explicitly.
-    Object.setPrototypeOf(this, FooError.prototype);
-  }
-
-  sayHello() {
-    return 'hello ' + this.message;
-  }
-}
-
 // TODO: Figure out exactly what we get - is it levels or ids or something else?
 export const getUpdatedLevels = async () => {
+  // TODO: Replace this mock with a real call to the comprima adapter.
   return Promise.resolve([41070, 41071, 41072, 41073]);
 };
 

@@ -12,7 +12,6 @@ export const crawlLevels = async () => {
       log.warn(`No unindexed levels found!`);
       return Promise.resolve(true);
     }
-    // TODO: Mark level as in progress in postgres.
 
     log.info(`Crawling level`, level);
 
