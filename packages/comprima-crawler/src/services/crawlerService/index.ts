@@ -25,10 +25,10 @@ export const crawlLevels = async () => {
       await updateLevel(level);
 
       log.info(`✅ Levels ${level.level}`, level);
-    } catch (error: any) {
+    } catch (error) {
       log.error(`Crawling level ${level.level} failed!`);
       level.crawled = new Date();
-      level.error = error;
+      level.error = JSON.parse(JSON.stringify(error));
 
       await updateLevel(level);
     }

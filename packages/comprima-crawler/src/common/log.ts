@@ -3,7 +3,7 @@ import config from './config';
 
 export interface Log {
   debug: (message: string, data?: object) => void;
-  error: (title: string, error?: Error) => void;
+  error: (title: string, error: object) => void;
   info: (message: string, data?: object | string) => void;
   warn: (title: string, data?: object) => void;
 }
@@ -47,7 +47,7 @@ export default {
       data
     );
   },
-  error: (title: string, error?: Error) => {
+  error: (title: string, error: object) => {
     print(
       console.error,
       chalk.redBright.bold,

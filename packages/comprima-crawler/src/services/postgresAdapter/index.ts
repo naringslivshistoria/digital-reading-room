@@ -39,8 +39,11 @@ export const getUnindexedLevel = async (): Promise<Level> => {
     }
 
     return Promise.resolve(level);
-  } catch (error: any) {
-    log.error('Unable to get unindexed levels', error);
+  } catch (error) {
+    if (error) {
+      log.error('Unable to get unindexed levels', error);
+    }
+
     return Promise.reject(error);
   }
 };
@@ -50,8 +53,10 @@ export const updateLevel = async (level: Level): Promise<boolean> => {
     await db.update(level).from<Level>('levels').where('id', level.id);
 
     return Promise.resolve(true);
-  } catch (error: any) {
-    log.error('Unable to update level', error);
+  } catch (error) {
+    if (error) {
+      log.error('Unable to update level', error);
+    }
     return Promise.reject(error);
   }
 };
