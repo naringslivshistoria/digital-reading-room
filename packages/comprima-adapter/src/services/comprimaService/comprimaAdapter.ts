@@ -220,7 +220,6 @@ const getDocument = async (documentId: number) : Promise<Document> => {
   '&lt;/FilterBy&gt;' +
   '&lt;Options&gt;' +
   '  &lt;IncludeIndexFieldNames&gt;true&lt;/IncludeIndexFieldNames&gt;' +
-  '  &lt;IncludeLogs&gt;false&lt;/IncludeLogs&gt;' +
   '  &lt;ForceReloadCache&gt;false&lt;/ForceReloadCache&gt;' +
   '&lt;/Options&gt;' +
   '&lt;/C3DocumentQuery&gt;' +
@@ -244,10 +243,15 @@ const getDocument = async (documentId: number) : Promise<Document> => {
     let documentsResult = searchResponse['s:Envelope']['s:Body'].GetDocumentsResponse.GetDocumentsResult
     documentsResult = documentsResult.replace(/&#xD;/gim, '').replace(/&gt;/gim, '>').replace(/&lt;/gim, '<')
 
-    const document = parser.parse(documentsResult).C3DocumentResponse.Documents.Document
-    const transformedDocument = transformer.transformDocument(document)
-
-    return transformedDocument
+    try {
+      const document = parser.parse(documentsResult).C3DocumentResponse.Documents.Document
+      const transformedDocument = transformer.transformDocument(document)
+  
+      return transformedDocument
+    } catch (error) {
+      console.error('Error transforming document', error, documentsResult)
+      throw error
+    }
   } catch (error) {
     console.error('Comprima search request failed', error)
     throw new Error('Comprima search request failed')

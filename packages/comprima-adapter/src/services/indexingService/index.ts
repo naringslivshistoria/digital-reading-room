@@ -21,24 +21,33 @@ const thumbnailTypes = [
 ]
 
 const saveThumbnail = async (document: Document) => {
-  const response = await axios.get(document.pages[0].thumbnailUrl, { responseType: 'arraybuffer' })
+  if (document.pages[0].thumbnailUrl) {
+    const response = await axios.get(document.pages[0].thumbnailUrl, { responseType: 'arraybuffer' })
 
-  if (thumbnailTypes.includes(response.headers['content-type'].toLowerCase())) {
-    await fs.writeFile(process.cwd() + '/../thumbnails/' + document.id + '.jpg', response.data, 'binary')
-  } else {
-    console.error('Rejected thumbnail type', response.headers['content-type'].toLowerCase())
+    if (thumbnailTypes.includes(response.headers['content-type'].toLowerCase())) {
+      await fs.writeFile(process.cwd() + '/../thumbnails/' + document.id + '.jpg', response.data, 'binary')
+      return true
+    } else {
+      console.error('Rejected thumbnail type', response.headers['content-type'].toLowerCase())
+    }
   }
+
+  return false
 }
 
 const indexDocument = async (document: Document) => {
   try {
+    const hasValidThumbnail = await saveThumbnail(document)
+
+    if (!hasValidThumbnail) {
+      document.pages[0].thumbnailUrl = undefined
+    }
+
     await client.index({
       index: 'comprima',
       id: document.id.toString(),
       document
     })
-
-    await saveThumbnail(document)
   } catch (err) {
     console.error(err)
   }
