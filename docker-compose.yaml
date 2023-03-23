@@ -60,6 +60,10 @@ services:
     - DATABASE_URL=postgres://postgres:postgres@postgres:5432/readingroom
     - ELASTIC_SEARCH__URL=http://elasticsearch:9200
     - NODE_ENV=ci
+    - POSTGRES__HOST=postgres
+    - POSTGRES__PASSWORD=postgres
+    - POSTGRES__PORT=5432
+    - POSTGRES__USER=postgres
     depends_on:
     - comprima-adapter
     - elasticsearch
