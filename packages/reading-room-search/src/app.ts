@@ -10,7 +10,7 @@ import { routes as authRoutes } from './services/authenticationService'
 import { routes as documentRoutes } from './services/documentService'
 import config from './common/config'
 
-const app = new Koa()
+const app = new Koa({proxy: true})
 
 app.use(cors())
 
