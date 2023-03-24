@@ -40,7 +40,6 @@ const indexDocument = async (document: Document) => {
     const hasValidThumbnail = await saveThumbnail(document)
 
     if (!hasValidThumbnail) {
-      console.log('removed thumbnail url')
       document.pages[0].thumbnailUrl = undefined
     }
 
