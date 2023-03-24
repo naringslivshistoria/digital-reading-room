@@ -80,7 +80,7 @@ export const routes = (router: KoaRouter) => {
     try {
       const token = await createToken(username, password)
       ctx.cookies.set('readingroom', token.token, {
-        httpOnly: true,
+        httpOnly: false,
         overwrite: true,
         sameSite: 'lax', 
         secure: true,
