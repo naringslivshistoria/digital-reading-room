@@ -1,9 +1,9 @@
 import { useSearchParams } from 'react-router-dom'
+import { Grid } from '@mui/material'
 
 import { useAuth } from '../../hooks/useAuth'
 import { SearchResult, useSearch } from '.'
 import { SearchHeader } from '../../components/searchHeader'
-import { Grid } from '@mui/material'
 
 export const PageSearch = () => {
   const [searchParams] = useSearchParams()

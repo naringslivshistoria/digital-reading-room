@@ -77,7 +77,6 @@ function App() {
             }}
           >
             <CssBaseline />
-            <Navigation />
             <Routes>
               <Route path="/" element={
                 <ProtectedRoute>
@@ -100,29 +99,6 @@ function App() {
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
-  )
-}
-
-const Navigation = () => {
-  const { token, onLogout } = useAuth()
-
-  return (
-    <AppBar position="static">
-      <Toolbar>
-        <NavLink to="/"><Button color="inherit">Hem</Button></NavLink>
-        <NavLink to="/om"><Button color="inherit">Om</Button></NavLink>
-
-        {!token && (
-          <NavLink to="/login"><Button color="inherit">Logga in</Button></NavLink>
-        )}
-
-      {token && (
-        <Button color="inherit" onClick={onLogout}>
-          Logga ut
-        </Button>
-      )}
-      </Toolbar>
-    </AppBar>
   )
 }
 

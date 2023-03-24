@@ -39,6 +39,7 @@ export const Search = () => {
         inputProps={{
           style: {
             height: '10px',
+            padding: '17px 10px 17px 10px'
           },
         }}
       />
