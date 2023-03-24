@@ -7,30 +7,32 @@ import jwt from 'koa-jwt'
 
 import api from './api'
 import { routes as authRoutes } from './services/authenticationService'
+import { routes as documentRoutes } from './services/documentService'
 import config from './common/config'
 
 const app = new Koa()
 
 app.use(cors())
 
-const logger = pinoLogger()
+/*const logger = pinoLogger()
 app.use(logger)
 
 app.on('error', (err) => {
   logger.logger.error(err)
-})
+})*/
 
 // TODO: Remove me. koa-pino-logger uses standard log levels
-app.use(async (ctx, next) => {
+/*app.use(async (ctx, next) => {
   ctx.log.warn('Hello')
   await next()
-})
+})*/
 
 app.use(bodyParser())
 
 const publicRouter = new KoaRouter()
 
 authRoutes(publicRouter)
+documentRoutes(publicRouter)
 app.use(publicRouter.routes())
 
 // Unprotected routes above this line, protected by login below

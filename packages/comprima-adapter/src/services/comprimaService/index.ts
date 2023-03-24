@@ -55,7 +55,17 @@ export const routes = (router: KoaRouter) => {
       const document = await comprimaAdapter.getDocument(parseInt(ctx.params.documentId))
       const attachment = await comprimaAdapter.getAttachment(document)
 
-      ctx.set('content-type', document.fields.mimeType?.value)
+/*      console.log(attachment.headers)
+
+      let contentType = attachment.headers['content-type']
+      if (!contentType) {
+        contentType = document.fields.format?.value
+      }
+
+      console.log('returning file with type', contentType)
+
+      ctx.type = contentType*/
+      ctx.type = document.fields.format?.value ?? attachment.headers['content-type']
       ctx.body = attachment.data
     } catch (err) {
       ctx.status = 500

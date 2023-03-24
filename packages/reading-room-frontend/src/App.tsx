@@ -6,6 +6,7 @@ import { PageSearch } from './routes/search/searchPage'
 import { PageAbout } from './routes/about/aboutPage'
 import { PageLogin } from './routes/login/loginPage'
 import { AuthProvider, useAuth } from './hooks/useAuth'
+import { DocumentPage } from './routes/document/documentPage'
 
 const queryClient = new QueryClient()
 
@@ -83,9 +84,14 @@ function App() {
                   <PageSearch />
                 </ProtectedRoute>
               }/>
-              <Route path="/about" element={
+              <Route path="/om" element={
                 <ProtectedRoute>
                   <PageAbout />
+                </ProtectedRoute>
+              }/>
+              <Route path="/dokument/:id" element={
+                <ProtectedRoute>
+                  <DocumentPage />
                 </ProtectedRoute>
               }/>
               <Route path="/login" element={<PageLogin />} />
@@ -104,8 +110,11 @@ const Navigation = () => {
     <AppBar position="static">
       <Toolbar>
         <NavLink to="/"><Button color="inherit">Hem</Button></NavLink>
-        <NavLink to="/about"><Button color="inherit">Om</Button></NavLink>
-        <NavLink to="/login"><Button color="inherit">Logga in</Button></NavLink>
+        <NavLink to="/om"><Button color="inherit">Om</Button></NavLink>
+
+        {!token && (
+          <NavLink to="/login"><Button color="inherit">Logga in</Button></NavLink>
+        )}
 
       {token && (
         <Button color="inherit" onClick={onLogout}>
@@ -120,9 +129,9 @@ const Navigation = () => {
 const ProtectedRoute = ({ children } : { children : any }) => {
   const { token } = useAuth()
 
-/*  if (!token) {
-    return <Navigate to="/home" replace />
-  }*/
+  if (!token) {
+    return <Navigate to="/login" replace />
+  }
 
   return children;
 }

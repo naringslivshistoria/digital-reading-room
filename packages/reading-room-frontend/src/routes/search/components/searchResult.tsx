@@ -32,12 +32,12 @@ export function SearchResult({
         return (
           <Stack key={document.id} direction='row' columnGap={3}>
               <Box minWidth={205} display="flex" justifyContent="center" alignContent='flex-start'>
-                <Link to={'/dokument?id=' + document.id}>
+                <Link to={'/dokument/' + document.id + '?query=' + query}>
                   <img src={searchUrl + "/thumbnail/" + document.id} style={{ maxHeight: '205px', maxWidth: '205px'}} alt=""></img>
                 </Link>
               </Box>
               <Stack direction='column' width='100%'>
-                <Link to={'/dokument?id=' + document.id}>
+                <Link to={'/dokument/' + document.id + '?query=' + query }>
                   <Typography variant='h3' sx={{ padding: '20px 0 20px 0' }}>{document.fields.title?.value}</Typography>
                 </Link>
                 <Grid container>
@@ -76,29 +76,6 @@ export function SearchResult({
                 </Grid>
               </Stack>
           </Stack>
-        /*
-        <tr key={document.id} style={{ height: "40px" }}>
-          <td className="border border-slate-300">
-            {document.fields.title?.value}
-          </td>
-          <td className="border border-slate-300">
-            {document.fields.archiveInitiator?.value}
-          </td>
-          <td className="border border-slate-300">
-            {document.fields.seriesName?.value}
-          </td>
-          <td className="border border-slate-300">
-            {document.fields.description?.value}
-          </td>
-          <td className="border border-slate-300">
-            {document.fields.time?.value}
-          </td>
-          <td className="border border-slate-300">
-            <a href={comprimaAdapterUrl + "/document/" + document.id + "/attachment"} target="_blank" rel="noreferrer">
-              <img src={searchUrl + "/thumbnail/" + document.id} style={{maxHeight: "40px"}} alt=""></img>
-            </a>
-          </td>
-        </tr>*/
     )})}
     </Stack>
     </>

@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { SearchResult, useSearch } from '.'
 import { SearchHeader } from '../../components/searchHeader'
+import { Grid } from '@mui/material'
 
 export const PageSearch = () => {
   const [searchParams] = useSearchParams()
@@ -14,7 +15,13 @@ export const PageSearch = () => {
   return (
     <>
       <SearchHeader></SearchHeader>
-      <SearchResult isLoading={isLoading} query={query} documents={data?.results} />
+      <Grid container>
+        <Grid item sm={1} />
+        <Grid item sm={10} >
+          <SearchResult isLoading={isLoading} query={query} documents={data?.results} />
+        </Grid>
+        <Grid item sm={1} />
+        </Grid>
     </>
   )
 }

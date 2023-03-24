@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { IconButton, TextField } from '@mui/material'
+import { Grid, IconButton, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import SearchIcon from '@mui/icons-material/Search'
 import Typography from '@mui/material/Typography'
@@ -35,6 +35,7 @@ export const Search = () => {
         defaultValue={query}
         type="text"
         onKeyUp={onSubmit}
+        autoFocus
         inputProps={{
           style: {
             height: '10px',
