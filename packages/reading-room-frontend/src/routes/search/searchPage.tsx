@@ -1,35 +1,27 @@
-import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { Grid } from '@mui/material'
 
-import { Search, SearchResult, useSearch } from '.'
-import library from '../../../assets/library.jpg'
 import { useAuth } from '../../hooks/useAuth'
+import { SearchResult, useSearch } from '.'
+import { SearchHeader } from '../../components/searchHeader'
 
 export const PageSearch = () => {
-  const[query, setQuery] = useState<string>('')
+  const [searchParams] = useSearchParams()
+  const query = searchParams.get('query') ?? ''
   const { token } = useAuth()
 
-  const { data, isLoading, refetch } = useSearch({ query, token })
-
-  const onSearchInputChange = async (searchQuery: string) => {
-    console.log('updating query', searchQuery)
-    setQuery(searchQuery)
-  }
-
-  useEffect(() => {
-    if (query) {
-      console.log('searching for', query)
-      refetch()
-    }
-  }, [query, refetch])
+  const { data, isLoading } = useSearch({ query, token })
 
   return (
-    <div>
-      <div style={{ backgroundImage: `url(${library})`, height: "100px", backgroundSize: 'cover', backgroundPosition: 'center', padding: '20px'  }}>
-        <Search onChange={onSearchInputChange} placeholder={"Sök efter dokument"} />
-      </div>
-      <div style={{ padding: '30px' }}>
-        <SearchResult isLoading={isLoading} documents={data?.results} />
-      </div>
-    </div>
+    <>
+      <SearchHeader></SearchHeader>
+      <Grid container>
+        <Grid item sm={1} />
+        <Grid item sm={10} >
+          <SearchResult isLoading={isLoading} query={query} documents={data?.results} />
+        </Grid>
+        <Grid item sm={1} />
+        </Grid>
+    </>
   )
 }

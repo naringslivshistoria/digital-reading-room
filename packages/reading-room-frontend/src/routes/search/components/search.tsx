@@ -1,24 +1,18 @@
 import { useState } from 'react'
-import { Button } from '@mui/material'
+import { IconButton, TextField } from '@mui/material'
+import { Box } from '@mui/system'
+import SearchIcon from '@mui/icons-material/Search'
+import Typography from '@mui/material/Typography'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
-interface ChangeFunc {
-  (query: string) : void
-}
-
-interface ISearchProps {
-  onChange: ChangeFunc
-  placeholder: string
-}
-
-export const Search = ({
-  onChange,
-  placeholder,
-}: ISearchProps) => {
-  const [query, setQuery] = useState<string|null>(null)
+export const Search = () => {
+  const [searchParams] = useSearchParams()
+  const [query, setQuery] = useState<string|null>(searchParams.get('query'))
+  const navigate = useNavigate()
 
   const search = () => {
     if (query) {
-      onChange(query)
+      navigate('/?query=' + query)
     }
   }
   
@@ -32,14 +26,25 @@ export const Search = ({
   }
 
   return (
-    <div className="flex flex-row rounded-lg space-x-5">
-      <input
-        className="basis-5/6 form-control p-4 mx-1"
-        placeholder={placeholder}
+    <Box>
+      <Typography variant='h1' sx={{ marginBottom: '10px' }}>Digital läsesal</Typography>
+      <TextField
+        variant='filled'
+        sx={{ bgcolor: 'background.default', width: { sm: '80%' } }}
+        placeholder='Sök efter dokument'
+        defaultValue={query}
         type="text"
         onKeyUp={onSubmit}
+        inputProps={{
+          style: {
+            height: '10px',
+            padding: '17px 10px 17px 10px'
+          },
+        }}
       />
-      <Button variant="contained" className="basis-1/6 mx-1" onClick={() => search()}>Sök</Button>
-    </div>
+      <IconButton onClick={() => search()} sx={{ color: 'white', bgcolor: '#53565a', borderRadius: 0, height: '43px', width: '43px' }}>
+        <SearchIcon/>
+      </IconButton>
+    </Box>
   );
 };
