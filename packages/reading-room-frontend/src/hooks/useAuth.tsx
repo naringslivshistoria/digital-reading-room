@@ -41,7 +41,7 @@ export const AuthProvider = ({ children } : { children: any }) => {
       if (token) {
         setToken(token)
         // TODO: Do not set cookie from frontend.
-        cookies.set('readingroom', token, { path: '/' })
+        cookies.set('readingroom', token, { path: '/', secure: true, sameSite: 'none', httpOnly: true })
         navigate('/')
         return true
       }
