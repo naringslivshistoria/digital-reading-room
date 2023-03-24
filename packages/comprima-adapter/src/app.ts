@@ -1,6 +1,6 @@
 import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
-import pinoLogger from 'koa-pino-logger'
+//import pinoLogger from 'koa-pino-logger'
 
 import exampleApi from './api'
 import errorHandler from './middlewares/error-handler'
