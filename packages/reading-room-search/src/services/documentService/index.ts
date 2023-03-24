@@ -5,7 +5,7 @@ import config from '../../common/config'
 import Axios from 'axios'
 
 const getAttachmentStream = async (id: string) => {
-  const url = `http://localhost:4000/document/${id}/attachment`
+  const url = `${process.env.COMPRIMA_ADAPTER_URL || 'https://comprima.dev.cfn.iteam.se'}/document/${id}/attachment`
   const response = await Axios({
     method: 'get',
     url: url,
