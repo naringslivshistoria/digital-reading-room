@@ -7,4 +7,4 @@ const router = new KoaRouter();
 searchRoutes(router)
 thumbnailRoutes(router)
 
-export default router;
+export default router

@@ -12,6 +12,11 @@ import config from './common/config'
 
 const app = new Koa({proxy: true})
 
+app.use((ctx, next) => {
+  ctx.cookies.secure = true
+  return next()
+})
+
 app.use(cors())
 
 /*const logger = pinoLogger()
