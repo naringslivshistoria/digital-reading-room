@@ -48,6 +48,7 @@ services:
       args:
       - COMPRIMA_ADAPTER_URL=http://localhost:14000
       - SEARCH_URL=http://localhost:14001
+#      - COOKIE_DOMAIN=localhost
     container_name: reading-room-frontend
     depends_on:
     - comprima-adapter
@@ -64,6 +65,7 @@ services:
     - DATABASE_URL=postgres://readingroom:${POSTGRES_PASSWORD}@postgres:5432/readingroom
     - ELASTIC_SEARCH__URL=http://elasticsearch:9200
     - NODE_ENV=ci
+#    - COOKIE_DOMAIN=localhost
     - POSTGRES__HOST=postgres
     - POSTGRES__PASSWORD=postgres
     - POSTGRES__PORT=5432

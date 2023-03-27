@@ -3,7 +3,8 @@ import { createContext, useState, useContext, Context } from 'react'
 import axios from 'axios'
 import Cookies from 'universal-cookie'
 
-const loginUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
+const loginUrl = import.meta.env.VITE_SEARCH_URL || 'https://search.dev.cfn.iteam.se'
+const cookieDomain = import.meta.env.VITE_COOKIE_DOMAIN || 'dev.cfn.iteam.se'
 
 export interface LoginResponse {
   token: string
@@ -41,7 +42,7 @@ export const AuthProvider = ({ children } : { children: any }) => {
       if (token) {
         setToken(token)
         // TODO: Do not set cookie from frontend.
-        cookies.set('readingroom', token, { path: '/', secure: true, sameSite: 'lax', httpOnly: false, domain: 'dev.cfn.iteam.se', })
+        cookies.set('readingroom', token, { path: '/', secure: true, sameSite: 'lax', httpOnly: false, domain: cookieDomain, })
         navigate('/')
         return true
       }
