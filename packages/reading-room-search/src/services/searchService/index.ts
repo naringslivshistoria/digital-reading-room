@@ -17,7 +17,7 @@ const search = async (query: string | string[]) : Promise<Document[]> => {
     query: {
       query_string: {
         query: queryString
-      } 
+      }
     }
   })
 

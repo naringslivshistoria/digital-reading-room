@@ -10,13 +10,29 @@ export interface SearchResponse {
   results: Document[]
 }
 
+const fixSimpleQuery = (query: string) => {
+  const queryWords = query.split(' ')
+  const fixedWords = queryWords.map((word) => {
+    if (['and', 'not', 'or'].includes(word.toLowerCase())) {
+      return word.toUpperCase()
+    } else if (word.startsWith('"')) {
+      return word
+    } else {
+      return `*${word}*`
+    }
+  })
+
+  return fixedWords.join(' ')
+}
+
 export const useSearch = ({ query, token }: { query: string, token: string | null }) =>
   useQuery<SearchResponse, AxiosError>({
     queryKey: ['search'], 
     queryFn: async () => {
       if (query) {
+        const fixedQuery = fixSimpleQuery(query)
         const { data } = await axios.get<SearchResponse>(
-          `${searchUrl}/search?query=*` + query.replace(' ', '* *') + '*',
+          `${searchUrl}/search?query=${fixedQuery}`,
           {
             headers: {
               Accept: 'application/json',

@@ -83,8 +83,8 @@ export const routes = (router: KoaRouter) => {
         httpOnly: false,
         overwrite: true,
         sameSite: 'lax', 
-        secure: true,
-        domain: 'dev.cfn.iteam.se',
+        secure: false,
+        domain: process.env.COOKIE_DOMAIN ?? 'dev.cfn.iteam.se',
       })
       ctx.body = token
     } catch (error) {
