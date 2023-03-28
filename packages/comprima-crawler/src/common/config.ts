@@ -10,7 +10,7 @@ interface Postgres {
 
 export interface Config {
   comprimaUrl: string
-  mode: 'index' | 'update'
+  mode: 'index' | 'update' | 'ocr'
   logLevel: string
   postgres: Postgres
 }
