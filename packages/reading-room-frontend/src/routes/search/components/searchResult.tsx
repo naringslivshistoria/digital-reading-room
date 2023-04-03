@@ -7,6 +7,7 @@ import AppsIcon from '@mui/icons-material/Apps'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
 import { useState } from 'react'
 
+import { createGeographyString } from '..'
 import { Document } from '../../../common/types'
 
 interface Props {
@@ -69,7 +70,7 @@ export function SearchResult({
                 </Grid>
                 <Grid item sm={4}>
                   <Typography variant='h4'>GEOGRAFI</Typography>
-                  {document.fields.city?.value}
+                  {createGeographyString(document)}
                 </Grid>
                 <Grid item sm={4}>
                   <Typography variant='h4'>FRÅN</Typography>
@@ -81,6 +82,7 @@ export function SearchResult({
                   <Typography variant='h4'>MEDIETYP</Typography>
                   <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
                     {document.pages[0].pageType} ({document.fields.format?.value}) <DownloadIcon /><br/>
+                    {document.fields.filename?.value}
                   </a>
                 </Grid>
                 <Grid item sm={4}>
@@ -92,16 +94,16 @@ export function SearchResult({
         </Stack>
       ))}
     {showGrid && documents && (
-      <Grid container rowGap={10}>
-      {documents.map((document) => (
+      <Grid container rowSpacing={10} columnSpacing={3} height={2}>
+        {documents.map((document) => (
           <Grid item sm={3} key={`${document.id}-gallery`}>
-            <Link to={'/dokument/' + document.id + '?query=' + query}  style={{ width: '100%', height: '100%' }}>
+            <Link to={'/dokument/' + document.id + '?query=' + query}>
               { document.pages[0].thumbnailUrl && (
-                <img src={searchUrl + "/thumbnail/" + document.id} style={{ maxHeight: '250px', maxWidth: '250px', width: '100%', height:'100%', objectFit: 'cover' }} alt=""></img>
+                <img src={searchUrl + "/thumbnail/" + document.id} style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
               )}
             </Link>
-            <Box>
-            {document.fields.title?.value}
+            <Box sx={{ width: '100%', overflow: 'hidden' }}>
+              {document.fields.title?.value}
             </Box>
           </Grid>
       ))}
