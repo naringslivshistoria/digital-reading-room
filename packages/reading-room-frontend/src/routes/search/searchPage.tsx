@@ -16,11 +16,11 @@ export const PageSearch = () => {
     <>
       <SearchHeader></SearchHeader>
       <Grid container>
-        <Grid item sm={1} />
-        <Grid item sm={10} >
+        <Grid item xs={1} />
+        <Grid item xs={10} >
           <SearchResult isLoading={isLoading} query={query} documents={data?.results} />
         </Grid>
-        <Grid item sm={1} />
+        <Grid item xs={1} />
         </Grid>
     </>
   )

@@ -96,7 +96,7 @@ export function SearchResult({
     {showGrid && documents && (
       <Grid container rowSpacing={10} columnSpacing={3} height={2}>
         {documents.map((document) => (
-          <Grid item sm={3} key={`${document.id}-gallery`}>
+          <Grid item xs={12} sm={4} md={3} xl={2} key={`${document.id}-gallery`}>
             <Link to={'/dokument/' + document.id + '?query=' + query}>
               { document.pages[0].thumbnailUrl && (
                 <img src={searchUrl + "/thumbnail/" + document.id} style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
