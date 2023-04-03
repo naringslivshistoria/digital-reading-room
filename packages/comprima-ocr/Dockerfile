@@ -1,15 +1,9 @@
 FROM node:18.14.1-alpine AS builder
 WORKDIR /app
 
-# TODO: Slim down deps.
 RUN apk add --update --no-cache \
   build-base \
-  cairo-dev \
-  jpeg-dev \
-  libjpeg \
-  pango-dev \
-  giflib-dev \
-  libtool
+  pango-dev
 
 COPY package.json package-lock.json ./
 RUN npm install --omit=dev
