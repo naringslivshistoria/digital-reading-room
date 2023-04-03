@@ -13,10 +13,10 @@ export interface SearchResponse {
 const fixSimpleQuery = (query: string) => {
   const queryWords = query.split(' ')
   const fixedWords = queryWords.map((word) => {
-    if (['and', 'not', 'or'].includes(word.toLowerCase())) {
-      return word.toUpperCase()
-    } else if (word.startsWith('"')) {
+    if (word.startsWith('(') || word.startsWith('"') || word.endsWith(')') || word.endsWith('"')) {
       return word
+    } else if (['and', 'not', 'or'].includes(word.toLowerCase())) {
+      return word.toUpperCase()
     } else {
       return `*${word}*`
     }
