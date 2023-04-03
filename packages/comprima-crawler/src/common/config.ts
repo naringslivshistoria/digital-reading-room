@@ -10,7 +10,10 @@ interface Postgres {
 
 export interface Config {
   comprimaUrl: string;
-  elasticsearchUrl: string;
+  elasticSearch: {
+    url: string;
+    indexName: string;
+  };
   logLevel: string;
   mode: 'index' | 'update' | 'ocr';
   ocrUrl: string;
@@ -21,7 +24,10 @@ const config = configPackage({
   file: `${__dirname}/../config.json`,
   defaults: {
     comprimaUrl: 'http://localhost:4000',
-    elasticsearchUrl: 'http://localhost:9200',
+    elasticSearch: {
+      url: 'http://localhost:9200',
+      indexName: 'comprima',
+    },
     logLevel: 'info',
     mode: 'index',
     ocrUrl: 'http://localhost:4003',
@@ -37,7 +43,7 @@ const config = configPackage({
 
 export default {
   comprimaUrl: config.get('comprimaUrl'),
-  elasticsearchUrl: config.get('elasticsearchUrl'),
+  elasticSearch: config.get('elasticSearch'),
   logLevel: config.get('logLevel'),
   mode: config.get('mode'),
   ocrUrl: config.get('ocrUrl'),

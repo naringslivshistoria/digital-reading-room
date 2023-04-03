@@ -48,7 +48,7 @@ services:
     container_name: comprima-crawler-ocr
     environment:
     - DATABASE_URL=postgres://crawler:${POSTGRES_PASSWORD}@postgres:5432/crawler
-    - ELASTICSEARCH_URL=http://elasticsearch:9200
+    - ELASTIC_SEARCH__URL=http://elasticsearch:9200
     - LOG_LEVEL=debug
     - MODE=ocr
     - NODE_ENV=ci

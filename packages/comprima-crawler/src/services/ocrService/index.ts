@@ -3,7 +3,7 @@ import Axios from 'axios';
 import config from '../../common/config';
 
 const client = new Client({
-  node: config.elasticsearchUrl,
+  node: config.elasticSearch.url,
 });
 
 const ocrUrl = config.ocrUrl;
