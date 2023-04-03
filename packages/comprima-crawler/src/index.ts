@@ -2,14 +2,16 @@
 import config from './common/config';
 import log from './common/log';
 import { crawlLevels } from './services/crawlerService';
-import { ocrNext } from './services/ocrService'
+import { ocrNext } from './services/ocrService';
 
 log.info('🐛 Comprima Crawler running!');
 log.info('Configuration', config);
 
 const delay = async (time: number) => {
-  return new Promise(resolve => setTimeout(resolve, time))
-}
+  return new Promise((resolve) => setTimeout(resolve, time));
+};
+
+let documentId = null;
 
 (async () => {
   switch (config.mode) {
@@ -30,16 +32,13 @@ const delay = async (time: number) => {
         });
       break;
     case 'ocr':
-      let documentId = null
-
       do {
-        documentId = await ocrNext()
-        console.info('Successfully OCR:ed', documentId)
+        documentId = await ocrNext();
+        console.info('Successfully OCR:ed', documentId);
         // Stupid wait for elastic to be done writing not to pick
         // up duplicates
-        await delay(1000)
-      }
-      while (documentId != null)
+        await delay(1000);
+      } while (documentId != null);
 
       break;
     // TODO: implement update mode
@@ -51,4 +50,4 @@ const delay = async (time: number) => {
       log.error(`Unknown mode ${config.mode}!`);
       throw new Error(`Unknown mode ${config.mode}!`);
   }
-}) ()
+})();
