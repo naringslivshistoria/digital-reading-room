@@ -1,7 +1,7 @@
 import KoaRouter from '@koa/router'
 import { Client } from '@elastic/elasticsearch'
 import config from '../../common/config'
-import Axios from 'Axios'
+import axios from 'axios'
 import ocr from './ocr'
 
 const client = new Client({
@@ -10,7 +10,7 @@ const client = new Client({
 
 const getAttachment = async (documentId : string) => {
   const url = `${process.env.COMPRIMA_ADAPTER_URL || 'https://comprima.dev.cfn.iteam.se'}/document/${documentId}/attachment`
-  const response = await Axios({
+  const response = await axios({
     method: 'get',
     url: url,
     responseType: 'arraybuffer',
