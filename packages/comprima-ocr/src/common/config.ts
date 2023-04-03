@@ -1,14 +1,15 @@
-import configPackage from '@iteam/config'
+import configPackage from '@iteam/config';
 
 export interface Config {
-  port: number
+  port: number;
   elasticSearch: {
-    url: string
-    indexName: string
-  },
+    url: string;
+    indexName: string;
+  };
   comprimaAdapter: {
-    url: string
-  }
+    url: string;
+  };
+  logLevel: string;
 }
 
 const config = configPackage({
@@ -20,13 +21,15 @@ const config = configPackage({
       indexName: 'comprima',
     },
     comprimaAdapter: {
-      url: 'http://localhost:4000'
-    }
+      url: 'http://localhost:4000',
+    },
+    loglevel: 'info',
   },
-})
+});
 
 export default {
   port: config.get('port'),
   elasticSearch: config.get('elasticSearch'),
   comprimaAdapter: config.get('comprimaAdapter'),
-} as Config
+  logLevel: config.get('logLevel'),
+} as Config;
