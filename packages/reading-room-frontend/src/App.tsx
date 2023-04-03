@@ -55,6 +55,14 @@ const mdTheme = createTheme({
       fontSize: 16,
       textTransform: 'uppercase',
       color: '#53565a',
+    },
+    body1: {
+      fontSize: 16,
+    },
+    body2: {
+      fontSize: 28,
+      fontFamily: 'Times new roman',
+      fontStyle: 'italic'
     }
   }
 })
@@ -78,12 +86,12 @@ function App() {
           >
             <CssBaseline />
             <Routes>
-              <Route path="/" element={
+              <Route path="/search" element={
                 <ProtectedRoute>
                   <PageSearch />
                 </ProtectedRoute>
               }/>
-              <Route path="/om" element={
+              <Route path="/" element={
                 <ProtectedRoute>
                   <PageAbout />
                 </ProtectedRoute>
