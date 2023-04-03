@@ -105,7 +105,10 @@ function App() {
 const ProtectedRoute = ({ children } : { children : any }) => {
   const { token } = useAuth()
 
+  console.log('Protected route', token)
+
   if (!token) {
+    console.log('ProtectedRoute redirecting to /login')
     return <Navigate to="/login" replace />
   }
 
