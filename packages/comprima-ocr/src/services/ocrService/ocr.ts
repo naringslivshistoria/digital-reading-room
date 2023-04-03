@@ -33,8 +33,9 @@ const terminateWorker = async () => {
 const ocrImage = async (fileData: ArrayBuffer) => {
   if (worker) {
     const { data: { text } } = await worker.recognize(fileData)
-    console.log(text)
-  
+    console.debug(text)
+
+    // Remove hyphenation in words
     return text.replaceAll('-\n', '')
   } else {
     throw new Error('Worker not initalized')
@@ -51,16 +52,16 @@ export default async (fileData: ArrayBuffer, type: string) => {
     await initializeWorker()
 
     const images = await convertToImages(fileData)
-    console.log('Got', images.length, 'pages')
+    console.info('Got', images.length, 'pages')
     let text = ''
     let counter = 0
 
     for (const image of images) {
       if (typeof(image) !== 'string') {
-        console.log('indexing page', counter++)
+        console.info('indexing page', counter++)
         text += await ocrImage(image.buffer)
       } else {
-        console.log('Unexpected conversion from pdf', image)
+        console.error('Unexpected error while converting from pdf', image)
       }
     }
 
@@ -71,7 +72,7 @@ export default async (fileData: ArrayBuffer, type: string) => {
     try {
       return await ocrImage(fileData)
     } catch (error) {
-      console.error('Error OCR:ing type', type)
+      console.error('Error OCR:ing attachment of type', type)
       return ''
     }
   }

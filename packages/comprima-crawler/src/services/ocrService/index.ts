@@ -81,12 +81,12 @@ export const ocrNext = async () => {
     console.log('No more documents to process')
     return null
   } else {
-    console.log('Found', next.hits.hits.length)
+    console.info('Found', next.hits.hits.length)
   }
 
   for (const document of next.hits.hits) {
     const nextDocumentId = document._id
-    console.log('Next', nextDocumentId)
+    console.info('Processing document', nextDocumentId)
   
     await Axios.get(ocrUrl + '/ocr/' + nextDocumentId)
   }
