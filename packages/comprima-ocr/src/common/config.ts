@@ -23,7 +23,7 @@ const config = configPackage({
     comprimaAdapter: {
       url: 'http://localhost:4000',
     },
-    loglevel: 'info',
+    logLevel: 'info',
   },
 });
 
