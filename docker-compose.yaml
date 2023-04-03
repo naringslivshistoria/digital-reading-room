@@ -66,7 +66,6 @@ services:
     - COMPRIMA_ADAPTER__URL=http://comprima-adapter:4000
     - ELASTIC_SEARCH__URL=http://elasticsearch:9200
     - LOG_LEVEL=debug
-    - NODE_ENV=ci
     depends_on:
     - elasticsearch
     networks:
