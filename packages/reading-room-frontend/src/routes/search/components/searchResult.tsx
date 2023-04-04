@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import DownloadIcon from '@mui/icons-material/Download'
 import AppsIcon from '@mui/icons-material/Apps'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
+import NoPhotographyIcon from '@mui/icons-material/NoPhotography'
 import { useState } from 'react'
 
 import { createGeographyString } from '..'
@@ -96,11 +97,16 @@ export function SearchResult({
     {showGrid && documents && (
       <Grid container rowSpacing={10} columnSpacing={3} height={2}>
         {documents.map((document) => (
-          <Grid item xs={12} sm={4} md={3} xl={2} key={`${document.id}-gallery`}>
+          <Grid item xs={12} sm={4} md={3} xl={12/5} key={`${document.id}-gallery`}>
             <Link to={'/dokument/' + document.id + '?query=' + query}>
-              { document.pages[0].thumbnailUrl && (
+              { document.pages[0].thumbnailUrl ? (
                 <img src={searchUrl + "/thumbnail/" + document.id} style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
-              )}
+              ) : (
+                <Box>
+                  <NoPhotographyIcon/>
+                </Box>
+              )
+              }
             </Link>
             <Box sx={{ width: '100%', overflow: 'hidden' }}>
               {document.fields.title?.value}

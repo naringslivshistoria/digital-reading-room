@@ -1,6 +1,7 @@
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { QueryCache, QueryClient, QueryClientProvider } from 'react-query'
 import { Routes, Route, Navigate } from "react-router-dom"
 import { createTheme, Box, CssBaseline, ThemeProvider } from '@mui/material'
+import { AxiosError } from 'axios'
 
 import { PageSearch } from './routes/search/searchPage'
 import { PageAbout } from './routes/about/aboutPage'
@@ -8,7 +9,17 @@ import { PageLogin } from './routes/login/loginPage'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import { DocumentPage } from './routes/document/documentPage'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: error => {
+      if ((error as AxiosError).response?.status === 401) {
+        location.replace('/login')
+      } else {
+        console.log('An error occurred fetching data', error)
+      }
+    }
+  })
+})
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
