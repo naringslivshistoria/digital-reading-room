@@ -71,9 +71,8 @@ const mdTheme = createTheme({
       fontSize: 16,
     },
     body2: {
-      fontSize: 28,
+      fontSize: 20,
       fontFamily: 'Times new roman',
-      fontStyle: 'italic'
     }
   }
 })
@@ -90,8 +89,6 @@ function App() {
                 theme.palette.mode === 'light'
                   ? theme.palette.grey[100]
                   : theme.palette.grey[900],
-              //flexGrow: 1,
-//              height: '100vh'
             }}
           >
             <CssBaseline />

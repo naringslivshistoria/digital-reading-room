@@ -39,7 +39,6 @@ export const AuthProvider = ({ children } : { children: any }) => {
 
   if (!token && storedToken) {
     setToken(storedToken)
-    console.log('set token', token, storedToken)
   }
 
   const handleLogin = async (username: string, password: string) => {
@@ -51,7 +50,6 @@ export const AuthProvider = ({ children } : { children: any }) => {
         localStorage.setItem('token', token)
         // TODO: Do not set cookie from frontend.
         cookies.set('readingroom', token, { path: '/', secure: true, sameSite: 'lax', httpOnly: false, domain: cookieDomain, })
-        console.log('token set, redirecting to /', token)
         navigate('/')
         return true
       }
@@ -65,8 +63,7 @@ export const AuthProvider = ({ children } : { children: any }) => {
   const handleLogout = async () => {
     setToken(null)
     localStorage.removeItem('token')
-    console.log('handleLogout redirecting to /login')
-    redirect('/login')
+    navigate('/login')
   }
 
   const value = {
