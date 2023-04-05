@@ -75,7 +75,7 @@ export const Search = () => {
         </Typography>
         <Typography variant='body1'>
           Använd citatteck för att ange att ord måste komma i följd<br/>
-          Exempel: "svartvitt foto"
+          Exempel: &quot;svartvitt foto&quot;
         </Typography>
         <Typography variant='h3'>
           Komplexa uttryck

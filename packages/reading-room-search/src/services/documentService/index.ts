@@ -2,11 +2,12 @@ import KoaRouter from '@koa/router'
 import { Client } from '@elastic/elasticsearch'
 import { Document } from '../../common/types'
 import config from '../../common/config'
-import Axios from 'axios'
+import axios from 'axios'
 
 const getAttachmentStream = async (id: string) => {
-  const url = `${process.env.COMPRIMA_ADAPTER_URL || 'https://comprima.dev.cfn.iteam.se'}/document/${id}/attachment`
-  const response = await Axios({
+  const url = `${config.comprimaAdapter?.url || 'https://comprima.dev.cfn.iteam.se'}/document/${id}/attachment`
+
+  const response = await axios({
     method: 'get',
     url: url,
     responseType: 'stream',
@@ -33,12 +34,7 @@ const getDocument = async (id: string) => {
 export const routes = (router: KoaRouter) => {
   router.get('/document/:id', async (ctx) => {
     const { id } = ctx.params
-    if (!id) {
-      ctx.status = 400
-      ctx.body = { errorMessage: 'Missing parameter: id' }
-      return
-    }
-  
+
     try
     {
       const results = await getDocument(id)

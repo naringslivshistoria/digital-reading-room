@@ -43,7 +43,7 @@ describe('app', () => {
       expect(fsSpy).toBeCalled()
     })
 
-    it('returns', async () => {
+    it('returns binary data', async () => {
       jest.spyOn(fs, 'createReadStream').mockReturnValue(getMockedStream() as ReadStream)
 
       const res = await request(app.callback()).get('/thumbnail/123')

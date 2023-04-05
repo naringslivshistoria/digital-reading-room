@@ -39,7 +39,7 @@ describe('app', () => {
           }
         },
         from: 0,
-        size: 100,
+        size: 20,
       })
     })
 
@@ -52,6 +52,7 @@ describe('app', () => {
       expect(res.body).toEqual({
         query: 'searchQuery',
         results: [ searchResultMock.hits.hits[0]._source ],
+        hits: 20,
       })
     })
 

@@ -112,7 +112,7 @@ export const DocumentPage = () => {
           <Grid container rowGap={2}>
           {
             getRemainingFields(document).map((field: Field) => (
-              <Grid item sm={4}>
+              <Grid item sm={4} key={field.originalName}>
                 <Typography variant='h4'>{field.originalName}</Typography>
                 {field.value}
               </Grid>
