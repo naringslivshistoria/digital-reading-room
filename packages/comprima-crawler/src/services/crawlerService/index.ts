@@ -21,6 +21,7 @@ export const crawlLevels = async () => {
       level.crawled = new Date();
       level.failed = result.failed;
       level.successful = result.successful;
+      level.error = undefined;
 
       await updateLevel(level);
 
