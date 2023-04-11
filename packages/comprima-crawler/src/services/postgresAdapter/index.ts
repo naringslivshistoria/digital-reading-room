@@ -52,7 +52,7 @@ export const getUnindexedLevel = async (): Promise<Level> => {
         .from<Level>('levels')
         .limit(1)
         .where('error', 'is not', null)
-        .andWhere('attempts', '<', 10)
+        .andWhere('attempts', '<', config.attempts)
         .orderBy('crawled', 'asc');
     }
 
