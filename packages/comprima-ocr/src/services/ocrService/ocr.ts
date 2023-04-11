@@ -1,20 +1,9 @@
 import Tesseract from 'tesseract.js';
 import pdf2image from 'pdf-img-convert';
 const { createWorker } = Tesseract;
-import fs from 'fs';
 import log from '../../common/log';
 
 const languages = [/*"eng",*/ 'swe'];
-const supportedFormats = [
-  'jpg',
-  'jpeg',
-  'png',
-  'gif',
-  'pdf',
-  'tif',
-  'tiff',
-  'webp',
-];
 
 let worker: Tesseract.Worker | null = null;
 
@@ -67,13 +56,13 @@ export default async (fileData: ArrayBuffer, type: string) => {
 
   if (type.toLowerCase().endsWith('pdf')) {
     const images = await convertToImages(fileData);
-    console.info('Got', images.length, 'pages');
+    log.info(`Got ${images.length} pages`);
     let text = '';
     let counter = 0;
 
     for (const image of images) {
       if (typeof image !== 'string') {
-        console.info('indexing page', counter++);
+        log.info(`indexing page ${counter++}`);
         text += await ocrImage(image.buffer);
       } else {
         console.error('Unexpected error while converting from pdf', image);
