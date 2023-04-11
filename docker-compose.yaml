@@ -62,6 +62,7 @@ services:
     build: ./packages/reading-room-search
     container_name: reading-room-search
     environment:
+    - COMPRIMA_ADAPTER__URL=http://comprima-adapter:4000
     - DATABASE_URL=postgres://readingroom:${POSTGRES_PASSWORD}@postgres:5432/readingroom
     - ELASTIC_SEARCH__URL=http://elasticsearch:9200
     - NODE_ENV=ci
