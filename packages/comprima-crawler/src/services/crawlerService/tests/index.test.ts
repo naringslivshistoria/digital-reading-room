@@ -60,5 +60,47 @@ describe('crawler', () => {
         error: undefined,
       });
     });
+
+    describe('increases crawl attempts', () => {
+      beforeEach(() => {
+        level.attempts = 5;
+      });
+
+      it('after a successful crawl', async () => {
+        jest
+          .spyOn(comprimaService, 'indexLevel')
+          .mockResolvedValue({ result: {} });
+
+        jest
+          .spyOn(postgresAdapter, 'getUnindexedLevel')
+          .mockResolvedValueOnce(level)
+          .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
+
+        await crawlLevels();
+        expect(comprimaService.indexLevel).toBeCalledWith(level.level);
+        expect(postgresAdapter.updateLevel).toBeCalledWith({
+          ...level,
+          attempts: 6,
+        });
+      });
+
+      it('after a failed crawl', async () => {
+        jest
+          .spyOn(comprimaService, 'indexLevel')
+          .mockRejectedValueOnce('Some error');
+
+        jest
+          .spyOn(postgresAdapter, 'getUnindexedLevel')
+          .mockResolvedValueOnce(level)
+          .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
+
+        await crawlLevels();
+        expect(comprimaService.indexLevel).toBeCalledWith(level.level);
+        expect(postgresAdapter.updateLevel).toBeCalledWith({
+          ...level,
+          attempts: 6,
+        });
+      });
+    });
   });
 });
