@@ -1,28 +1,25 @@
 interface Field {
-  id: number,
-  originalName: string
-  value: string
+  id: number;
+  originalName: string;
+  value: string;
 }
 
 interface Fields {
-  [key: string]: Field
+  [key: string]: Field;
 }
 
 interface Page {
-  pageType: string,
-  url: string,
-  thumbnailUrl?: string,
+  pageType: string;
+  url: string;
+  thumbnailUrl?: string;
 }
 
 interface Document {
-  id: number,
-  documentState: string,
-  fields: Fields,
-  pages: [Page]
+  id: number;
+  documentState: string;
+  fields: Fields;
+  level?: string;
+  pages: [Page];
 }
 
-export {
-  Document,
-  Field,
-  Fields,
-}
+export { Document, Field, Fields };
