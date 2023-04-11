@@ -9,7 +9,7 @@ export const getUpdatedLevels = async () => {
 };
 
 export const indexLevel = async (level: number) => {
-  const url = `${config.comprimaUrl}/indexLevels?levels=${level}`;
+  const url = `${config.comprimaAdapter.url}/indexLevels?levels=${level}`;
   log.debug(`Calling comprima adapter on ${url}`);
 
   return axios
