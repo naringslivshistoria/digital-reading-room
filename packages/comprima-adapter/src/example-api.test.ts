@@ -7,10 +7,10 @@ const app = new Koa();
 app.use(bodyParser());
 app.use(api.routes());
 
-describe('indexlevels', () => {
+describe('indexlevel', () => {
   it('requires a levels parameter', async () => {
-    const res = await request(app.callback()).get('/indexlevels');
+    const res = await request(app.callback()).get('/indexlevel');
     expect(res.status).toBe(400);
-    expect(res.body.errorMessage).toBe('Missing parameter: levels');
+    expect(res.body.errorMessage).toBe('Missing parameter: level');
   });
 });
