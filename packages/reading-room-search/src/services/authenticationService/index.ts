@@ -7,7 +7,7 @@ import createHttpError from 'http-errors'
 export const routes = (router: KoaRouter) => {
   /**
    * @swagger
-   * /auth/generate-password-hash:
+   * /auth/generatehash:
    *  get:
    *    summary: Generates a salt and hashes the given password using that salt.
    *    description: Generates a salt and hashes the given password using that salt. Pass cleartext password as query parameter.
@@ -33,7 +33,7 @@ export const routes = (router: KoaRouter) => {
 
     if (!query.password) {
       ctx.status = 400
-      ctx.body = { message: 'Needs password query parameter' }
+      ctx.body = { errorMessage: 'Missing parameter: password' }
       return
     } 
 
@@ -73,7 +73,7 @@ export const routes = (router: KoaRouter) => {
 
     if (!username || !password) {
       ctx.status = 400
-      ctx.body = { message: 'username and password must be provided' }
+      ctx.body = { errorMessage: 'Missing parameter(s): username, password' }
       return
     }
 

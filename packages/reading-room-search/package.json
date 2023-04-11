@@ -7,7 +7,7 @@
     "node": "18.14.1"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --silent=false",
     "test:watch": "jest --watch",
     "start": "npm run migrate:up && ts-node ./src/index.ts",
     "dev": "nodemon -e ts,js --exec npm run start",

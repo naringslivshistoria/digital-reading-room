@@ -20,6 +20,9 @@ export interface Config {
     url: string
     indexName: string
   }
+  comprimaAdapter: {
+    url: string
+  }
 }
 
 const config = configPackage({
@@ -42,6 +45,9 @@ const config = configPackage({
     elasticSearch: {
       url: 'http://localhost:9200',
       indexName: 'comprima',
+    },
+    comprimaAdapter: {
+      url: 'http://localhost:4000'
     }
   },
 })
@@ -51,4 +57,5 @@ export default {
   port: config.get('port'),
   postgres: config.get('postgres'),
   elasticSearch: config.get('elasticSearch'),
+  comprimaAdapter: config.get('comprimaAdapter'),
 } as Config
