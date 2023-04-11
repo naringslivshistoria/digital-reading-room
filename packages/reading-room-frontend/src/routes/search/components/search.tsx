@@ -68,14 +68,14 @@ export const Search = () => {
         </Typography>
         <Typography variant='body1'>
           Du kan använda <i>AND</i> och <i>OR</i> för att kombinera söktermer<br/>
-          Exempel: butik AND annons - båda orden butik och annons måste förekomma
+          Exempel: butik AND annons - båda orden butik och annons måste förekomma.
         </Typography>
         <Typography variant='h3'>
           Fraser
         </Typography>
         <Typography variant='body1'>
-          Använd citatteck för att ange att ord måste komma i följd<br/>
-          Exempel: &quot;svartvitt foto&quot;
+          Använd citattecken för att ange att ord måste komma i följd<br/>
+          Exempel: &quot;svartvitt foto&quot;.
         </Typography>
         <Typography variant='h3'>
           Komplexa uttryck
