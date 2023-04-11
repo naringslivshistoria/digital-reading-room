@@ -24,6 +24,7 @@ export const getUnindexedLevel = async (): Promise<Level> => {
         'id',
         'level',
         'archivist',
+        'attempts',
         'crawled',
         'depositor',
         'created',
@@ -41,6 +42,7 @@ export const getUnindexedLevel = async (): Promise<Level> => {
           'id',
           'level',
           'archivist',
+          'attempts',
           'crawled',
           'depositor',
           'created',
@@ -50,6 +52,7 @@ export const getUnindexedLevel = async (): Promise<Level> => {
         .from<Level>('levels')
         .limit(1)
         .where('error', 'is not', null)
+        .andWhere('attempts', '<', config.attempts)
         .orderBy('crawled', 'asc');
     }
 

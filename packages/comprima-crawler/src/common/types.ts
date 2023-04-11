@@ -6,6 +6,7 @@ export interface Level {
   depositor: string;
   created: Date;
 
+  attempts: number;
   crawled?: Date;
   error?: string;
 

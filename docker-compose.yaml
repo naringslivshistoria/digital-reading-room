@@ -30,6 +30,7 @@ services:
     build: ./packages/comprima-crawler
     container_name: comprima-crawler
     environment:
+    - ATTEMPTS=3
     - COMPRIMA_URL=http://comprima-adapter:4000
     - LOG_LEVEL=debug
     - DATABASE_URL=postgres://crawler:${POSTGRES_PASSWORD}@postgres:5432/crawler

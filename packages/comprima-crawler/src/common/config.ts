@@ -9,6 +9,7 @@ interface Postgres {
 }
 
 export interface Config {
+  attempts: number;
   comprimaUrl: string;
   elasticSearch: {
     url: string;
@@ -23,6 +24,7 @@ export interface Config {
 const config = configPackage({
   file: `${__dirname}/../config.json`,
   defaults: {
+    attempts: 10,
     comprimaUrl: 'http://localhost:4000',
     elasticSearch: {
       url: 'http://localhost:9200',
@@ -42,6 +44,7 @@ const config = configPackage({
 });
 
 export default {
+  attempts: config.get('attempts'),
   comprimaUrl: config.get('comprimaUrl'),
   elasticSearch: config.get('elasticSearch'),
   logLevel: config.get('logLevel'),
