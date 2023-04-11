@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - main
-    - feature/36-ocr
     tags:
     - production*
     - staging*
@@ -21,8 +20,8 @@ jobs:
     - name: 🎫 Update patch verision
       run: |
         git fetch
-        git checkout feature/36-ocr
-        git pull origin feature/36-ocr
+        git checkout main
+        git pull origin main
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
         if [[ $GITHUB_REF == refs/tags/production* ]]; then
@@ -33,7 +32,7 @@ jobs:
           npm version patch
         fi
         git fetch --all
-        git push origin feature/36-ocr
+        git push origin main
 
   ci:
     runs-on: ubuntu-latest
