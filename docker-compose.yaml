@@ -39,8 +39,39 @@ services:
     - POSTGRES__USER=crawler
     depends_on:
     - comprima-adapter
+    - comprima-ocr
     networks:
     - digital-reading-room
+
+  comprima-crawler-ocr:
+    build: ./packages/comprima-crawler
+    container_name: comprima-crawler-ocr
+    environment:
+    - DATABASE_URL=postgres://crawler:${POSTGRES_PASSWORD}@postgres:5432/crawler
+    - ELASTIC_SEARCH__URL=http://elasticsearch:9200
+    - LOG_LEVEL=debug
+    - MODE=ocr
+    - NODE_ENV=ci
+    - OCR_URL=http://comprima-ocr:4003
+    depends_on:
+    - elasticsearch
+    - comprima-ocr
+    networks:
+    - digital-reading-room
+
+  comprima-ocr:
+    build: ./packages/comprima-ocr
+    container_name: comprima-ocr
+    environment:
+    - COMPRIMA_ADAPTER__URL=http://comprima-adapter:4000
+    - ELASTIC_SEARCH__URL=http://elasticsearch:9200
+    - LOG_LEVEL=debug
+    depends_on:
+    - elasticsearch
+    networks:
+    - digital-reading-room
+    ports:
+    - 14003:4003
 
   reading-room-frontend:
     build:

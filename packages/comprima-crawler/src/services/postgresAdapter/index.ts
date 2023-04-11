@@ -18,7 +18,8 @@ const db = knex({
 
 export const getUnindexedLevel = async (): Promise<Level> => {
   try {
-    const [level] = await db
+    // Get a level that has not been crawled yet.
+    let [level] = await db
       .select(
         'id',
         'level',
@@ -26,13 +27,31 @@ export const getUnindexedLevel = async (): Promise<Level> => {
         'crawled',
         'depositor',
         'created',
-        'error',
         'failed',
         'successful'
       )
       .from<Level>('levels')
       .limit(1)
       .where('crawled', null);
+
+    if (!level) {
+      // Get a level that has been crawled but failed.
+      [level] = await db
+        .select(
+          'id',
+          'level',
+          'archivist',
+          'crawled',
+          'depositor',
+          'created',
+          'failed',
+          'successful'
+        )
+        .from<Level>('levels')
+        .limit(1)
+        .where('error', 'is not', null)
+        .orderBy('crawled', 'asc');
+    }
 
     if (!level) {
       return Promise.reject('NO_UNINDEXED_LEVELS');
