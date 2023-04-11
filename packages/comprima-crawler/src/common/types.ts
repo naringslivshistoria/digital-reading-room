@@ -1,14 +1,15 @@
 export interface Level {
-  id: string
-  level: number
+  id: string;
+  level: number;
 
-  archivist: string
-  depositor: string
-  created: Date
+  archivist: string;
+  depositor: string;
+  created: Date;
 
-  crawled?: Date
-  error?: string
+  attempts: number;
+  crawled?: Date;
+  error?: string;
 
-  failed: number
-  successful: number
+  failed: number;
+  successful: number;
 }
