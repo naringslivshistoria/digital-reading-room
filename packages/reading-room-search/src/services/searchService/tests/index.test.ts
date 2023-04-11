@@ -24,7 +24,7 @@ jest.mock('../../../common/config', () => {
   }
 })
 
-describe('app', () => {
+describe('searchService', () => {
   describe('GET /search?freeTextQuery', () => {
     it('searches in elastic search', async () => {
       const elasticSpy = jest.spyOn(Client.prototype, 'search')

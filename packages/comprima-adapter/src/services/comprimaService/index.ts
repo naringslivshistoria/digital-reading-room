@@ -41,7 +41,7 @@ export const routes = (router: KoaRouter) => {
       ctx.status = 500
       ctx.body = { results: 'error: ' + err}
     }
-  });
+  })
 
   router.get('/document/:documentId/attachment', async (ctx) => {
     if (!ctx.params.documentId) {
