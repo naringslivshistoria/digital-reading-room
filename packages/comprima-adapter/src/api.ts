@@ -50,11 +50,10 @@ router.get('/indexlevel', async (ctx) => {
 
     let successful = 0;
 
-    // TODO: Set level on document
-
     await Promise.all(
       results.map(async (document) => {
         try {
+          document.level = level;
           await index.indexDocument(document);
           successful++;
         } catch (err) {
