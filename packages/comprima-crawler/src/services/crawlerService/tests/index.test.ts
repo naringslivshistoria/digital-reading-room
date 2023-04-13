@@ -57,7 +57,7 @@ describe('crawler', () => {
       await crawlLevels();
       expect(postgresAdapter.updateLevel).toBeCalledWith({
         ...level,
-        error: undefined,
+        error: null,
       });
     });
 

@@ -8,7 +8,7 @@ export interface Level {
 
   attempts: number;
   crawled?: Date;
-  error?: string;
+  error?: string | null;
 
   failed: number;
   successful: number;
