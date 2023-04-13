@@ -34,7 +34,7 @@ let documentId = null;
     case 'ocr':
       do {
         documentId = await ocrNext();
-        console.info('Successfully OCR:ed', documentId);
+        log.info(`Successfully OCR:ed ${documentId}`);
         // Stupid wait for elastic to be done writing not to pick
         // up duplicates
         await delay(1000);
