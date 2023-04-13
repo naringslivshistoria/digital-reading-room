@@ -1,5 +1,5 @@
 import { Box, Divider, Grid, Stack, Typography } from '@mui/material'
-import { useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import DownloadIcon from '@mui/icons-material/Download'
 
 import { SearchHeader } from '../../components/searchHeader'
@@ -14,6 +14,7 @@ export const DocumentPage = () => {
   const { token } = useAuth()
   const { id } = useParams()
   const { data } = useGetDocument({ id: id ?? '', token })
+  const navigate = useNavigate()
 
   const document = data?.results as Document
 
@@ -52,13 +53,15 @@ export const DocumentPage = () => {
     <>
     <SearchHeader></SearchHeader>
     <Grid container>
-      <Grid item sm={1} />
-      <Grid item sm={10} sx={{ marginBottom: 10 }}>
+      <Grid item xs={1} />
+      <Grid item xs={10} sx={{ marginBottom: 10 }}>
       { document ? (
       <>
-        <Stack direction='row' spacing={ 2 } alignItems='flex-end'>
+        <Box sx={{ marginTop: 3, marginBottom: 2 }}>
+        <Link to='' onClick={(e) => { e.preventDefault(); navigate(-1) }}>
           &lt; Sökträffar
-        </Stack>
+        </Link>
+        </Box>
         <Divider sx={{ borderColor: 'red' }} />
         <Typography variant='h2' sx={{ padding: '20px 0 20px 0' }}>{document.fields.title?.value}</Typography>
         { document.pages[0].thumbnailUrl && (
@@ -127,7 +130,7 @@ export const DocumentPage = () => {
         </div>
       )}
         </Grid>
-        <Grid item sm={1} />
+        <Grid item xs={1} />
       </Grid>
     </>
   )
