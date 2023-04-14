@@ -35,7 +35,7 @@ export const Search = () => {
       </Link>
       <TextField
         variant='filled'
-        sx={{ bgcolor: 'background.default', width: { sm: '80%' } }}
+        sx={{ bgcolor: 'background.default', width: { xs: '80%' } }}
         placeholder='Sök efter dokument'
         defaultValue={query}
         type="text"

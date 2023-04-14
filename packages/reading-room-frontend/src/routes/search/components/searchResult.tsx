@@ -56,15 +56,16 @@ export function SearchResult({
       <Pagination count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2 }} siblingCount={4} />
     </Box>
     {! showGrid && documents && documents.map((document) => (
-      <Stack key={document.id} direction='row' columnGap={3}>
-          <Box minWidth={205} height={205} display="flex" justifyContent="center" alignContent='flex-start'>
-            <Link to={'/dokument/' + document.id + '?query=' + query}  style={{ width: '100%', height: '100%' }}>
+      <Grid container columnSpacing={{ xs: 1, sm: 2, md: 3}} sx={{ marginBottom: '10px' }} key={document.id}>
+        <Grid item xs={4} sm={2}>
+          <Link to={'/dokument/' + document.id + '?query=' + query} style={{ minWidth: '100%' }}>
               { document.pages[0].thumbnailUrl && (
-                <img src={searchUrl + "/thumbnail/" + document.id} style={{ maxHeight: '205px', maxWidth: '205px', width: '100%', height:'100%', objectFit: 'cover' }} alt=""></img>
+                <img src={searchUrl + "/thumbnail/" + document.id} style={{  minWidth: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
               )}
-            </Link>
-          </Box>
-          <Stack direction='column' width='100%' rowGap={2}>
+          </Link>
+        </Grid>
+        <Grid item xs={8} sm={10}>
+        <Stack direction='column' width='100%' rowGap={2}>
             <Link to={'/dokument/' + document.id + '?query=' + query }>
               <Typography variant='h3' sx={{ padding: '20px 0 15px 0' }}>{document.fields.title?.value}</Typography>
             </Link>
@@ -89,7 +90,7 @@ export function SearchResult({
               </Grid>
             </Grid>
             <Grid container>
-              <Grid item sm={4}>
+              <Grid item sm={4} sx={{ overflow: 'hidden' }}>
                 <Typography variant='h4'>MEDIETYP</Typography>
                 <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
                   {document.pages[0].pageType} ({document.fields.format?.value}) <DownloadIcon /><br/>
@@ -102,12 +103,14 @@ export function SearchResult({
               </Grid>
             </Grid>
           </Stack>
-      </Stack>
+        <Grid/>
+      </Grid>
+    </Grid>
     ))}
     {showGrid && documents && (
-      <Grid container rowSpacing={10} columnSpacing={3}>
+      <Grid container rowSpacing={{ xs: 4, sm: 5, md: 6}} columnSpacing={{ xs: 1, sm: 2, md: 3}}>
         {documents.map((document) => (
-          <Grid item xs={12} sm={4} md={3} xl={12/5} key={`${document.id}-gallery`}>
+          <Grid item xs={6} md={3} xl={12/5} key={`${document.id}-gallery`}>
             <Link to={'/dokument/' + document.id + '?query=' + query}>
               { document.pages[0].thumbnailUrl ? (
                 <img src={searchUrl + "/thumbnail/" + document.id} style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
@@ -117,8 +120,11 @@ export function SearchResult({
                 </Box>
               )}
             </Link>
-            <Box>
+            <Box sx={{ maxHeight: '20px', overflow: 'hidden', fontSize: { xs: '12px', sm: '14px', md: '16px' } }}>
               {document.fields.title?.value}
+            </Box>
+            <Box sx={{ maxHeight: '20px', overflow: 'hidden', fontSize: { xs: '12px', sm: '14px', md: '16px' } }}>
+              {document.fields.archiveInitiator?.value}
             </Box>
           </Grid>
       ))}
