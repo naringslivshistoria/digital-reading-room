@@ -69,13 +69,15 @@ export function SearchResult({
             <Link to={'/dokument/' + document.id + '?query=' + query }>
               <Typography variant='h3' sx={{ padding: '20px 0 15px 0' }}>{document.fields.title?.value}</Typography>
             </Link>
-            <Grid container>
-              <Grid item sm={12}>
+            <Grid container rowSpacing={{ xs: 1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
+              <Grid item sm={8}>
                 <Typography variant='h4'>BESKRIVNING</Typography>
                 {document.fields.description?.value}
               </Grid>
-            </Grid>
-            <Grid container>
+              <Grid item sm={4}>
+                <Typography variant='h4'>FRÅN</Typography>
+                {document.fields.archiveInitiator?.value}
+              </Grid>
               <Grid item sm={4}>
                 <Typography variant='h4'>ÅRTAL</Typography>
                 {document.fields.time?.value}
@@ -84,22 +86,9 @@ export function SearchResult({
                 <Typography variant='h4'>GEOGRAFI</Typography>
                 {createGeographyString(document)}
               </Grid>
-              <Grid item sm={4}>
-                <Typography variant='h4'>FRÅN</Typography>
-                {document.fields.archiveInitiator?.value}
-              </Grid>
-            </Grid>
-            <Grid container>
               <Grid item sm={4} sx={{ overflow: 'hidden' }}>
-                <Typography variant='h4'>MEDIETYP</Typography>
-                <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
-                  {document.pages[0].pageType} ({document.fields.format?.value}) <DownloadIcon /><br/>
-                  {document.fields.filename?.value}
-                </a>
-              </Grid>
-              <Grid item sm={4}>
-                <Typography variant='h4'>SERIE</Typography>
-                {document.fields.seriesName?.value}
+                <Typography variant='h4'>MOTIVID</Typography>
+                {document.fields.motiveId?.value}
               </Grid>
             </Grid>
           </Stack>
@@ -120,10 +109,10 @@ export function SearchResult({
                 </Box>
               )}
             </Link>
-            <Box sx={{ maxHeight: '20px', overflow: 'hidden', fontSize: { xs: '12px', sm: '14px', md: '16px' } }}>
+            <Box sx={{ maxHeight: '22px', overflow: 'hidden', fontSize: { xs: '12px', sm: '14px', md: '16px' } }}>
               {document.fields.title?.value}
             </Box>
-            <Box sx={{ maxHeight: '20px', overflow: 'hidden', fontSize: { xs: '12px', sm: '14px', md: '16px' } }}>
+            <Box sx={{ maxHeight: '22px', overflow: 'hidden', fontSize: { xs: '12px', sm: '14px', md: '16px' } }}>
               {document.fields.archiveInitiator?.value}
             </Box>
           </Grid>

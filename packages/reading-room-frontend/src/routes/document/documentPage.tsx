@@ -67,14 +67,11 @@ export const DocumentPage = () => {
         { document.pages[0].thumbnailUrl && (
           <Box sx={{ marginBottom: 2 }}>
             <img src={searchUrl + "/thumbnail/" + document.id} alt='Liten bild för dokumentet' />
+            {document.fields.description?.value}
           </Box>
         )}
         <Stack direction='column' width='100%' rowGap={2}>
-          <Grid container rowGap={2}>
-            <Grid item sm={12}>
-              <Typography variant='h4'>BESKRIVNING</Typography>
-              {document.fields.description?.value}
-            </Grid>
+          <Grid container rowSpacing={{ xs:1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
             <Grid item sm={4}>
               <Typography variant='h4'>ÅRTAL</Typography>
               {document.fields.time?.value}
@@ -84,15 +81,19 @@ export const DocumentPage = () => {
               {createGeographyString(document)}
             </Grid>
             <Grid item sm={4}>
-              <Typography variant='h4'>FRÅN</Typography>
-              {document.fields.archiveInitiator?.value}
-            </Grid>
-            <Grid item sm={4}>
               <Typography variant='h4'>MEDIETYP</Typography>
               <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
                 {document.pages[0].pageType} ({document.fields.format?.value}) <DownloadIcon /><br/>
                 {document.fields.filename?.value}
               </a>
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>FRÅN</Typography>
+              {document.fields.archiveInitiator?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>MOVTIVID</Typography>
+              {document.fields.motiveId?.value}
             </Grid>
             <Grid item sm={4}>
               <Typography variant='h4'>SERIE</Typography>
@@ -103,16 +104,12 @@ export const DocumentPage = () => {
               {document.fields.language?.value}
             </Grid>
             <Grid item sm={4}>
-              <Typography variant='h4'>MOVTIVID</Typography>
-              {document.fields.motiveId?.value}
-            </Grid>
-            <Grid item sm={4}>
               <Typography variant='h4'>TAGGAR</Typography>
               {document.fields.tags?.value}
             </Grid>
           </Grid>
           <Typography variant='h3'>Övrig information</Typography>
-          <Grid container rowGap={2}>
+          <Grid container rowSpacing={{ xs:1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
           {
             getRemainingFields(document).map((field: Field) => (
               <Grid item sm={4} key={field.originalName}>
