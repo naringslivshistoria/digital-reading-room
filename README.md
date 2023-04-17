@@ -28,3 +28,5 @@ export COMPRIMA_USER=
 export COMPRIMA_PASSWORD=
 export POSTGRES_PASSWORD=
 ```
+
+test
