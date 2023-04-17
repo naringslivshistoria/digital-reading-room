@@ -39,7 +39,7 @@ const config = configPackage({
     auth: {
       secret:
         'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
-      expiresIn: '1m', //'3h', // format allowed by https://github.com/zeit/ms
+      expiresIn: '3h', // format allowed by https://github.com/zeit/ms
       maxFailedLoginAttempts: 3,
     },
     elasticSearch: {
