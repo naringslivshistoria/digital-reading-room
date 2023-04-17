@@ -2,17 +2,19 @@ import KoaRouter from '@koa/router'
 import { Client } from '@elastic/elasticsearch'
 import { Document } from '../../common/types'
 import config from '../../common/config'
+import { serialize } from 'node:v8'
+import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types'
 
 const client = new Client({
   node: config.elasticSearch.url
 })
 
-const search = async (query: string | string[]) : Promise<Document[]> => {
+const search = async (query: string | string[], start = 0, size = 20) => {
   const queryString = Array.isArray(query) ? query[0] : query
 
   const searchResults = await client.search({
-    from: 0,
-    size: 100,
+    from: start,
+    size: size,
     index: config.elasticSearch.indexName,
     query: {
       query_string: {
@@ -25,12 +27,17 @@ const search = async (query: string | string[]) : Promise<Document[]> => {
     return searchHit._source as Document
   })
 
-  return documents
+  const totalHits = (searchResults.hits.total as SearchTotalHits)?.value ?? Number(searchResults.hits.total)
+
+  return {
+    hits: totalHits,
+    documents
+  }
 }
 
 export const routes = (router: KoaRouter) => {
   router.get('/search', async (ctx) => {
-    const { query: { query } } = ctx.request
+    const { query, start, size } = ctx.request.query
     if (!query) {
       ctx.status = 400
       ctx.body = { errorMessage: 'Missing parameter: query' }
@@ -39,8 +46,8 @@ export const routes = (router: KoaRouter) => {
   
     try
     {
-      const results = await search(query)
-      ctx.body = { results: results, query: query }
+      const results = await search(query, start ? Number(start) : 0, size ? Number(size) : 20)
+      ctx.body = { results: results.documents, hits: results.hits, query: query }
     } catch (err) {
       ctx.status = 500
       ctx.body = { results: 'error: ' + err}

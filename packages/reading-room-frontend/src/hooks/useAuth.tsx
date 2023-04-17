@@ -32,8 +32,14 @@ let AuthContext : Context<ContextSettings>
 
 export const AuthProvider = ({ children } : { children: any }) => {
   const [token, setToken] = useState<string|null>(null)
+  const cookies = new Cookies()
   const navigate = useNavigate()
-  const cookies = new Cookies();
+
+  const storedToken = localStorage.getItem('token')
+
+  if (!token && storedToken) {
+    setToken(storedToken)
+  }
 
   const handleLogin = async (username: string, password: string) => {
     try {
@@ -41,6 +47,7 @@ export const AuthProvider = ({ children } : { children: any }) => {
 
       if (token) {
         setToken(token)
+        localStorage.setItem('token', token)
         // TODO: Do not set cookie from frontend.
         cookies.set('readingroom', token, { path: '/', secure: true, sameSite: 'lax', httpOnly: false, domain: cookieDomain, })
         navigate('/')
@@ -55,6 +62,7 @@ export const AuthProvider = ({ children } : { children: any }) => {
 
   const handleLogout = async () => {
     setToken(null)
+    localStorage.removeItem('token')
     navigate('/login')
   }
 

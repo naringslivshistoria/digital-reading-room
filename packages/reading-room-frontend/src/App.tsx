@@ -1,6 +1,7 @@
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { QueryCache, QueryClient, QueryClientProvider } from 'react-query'
 import { Routes, Route, Navigate } from "react-router-dom"
 import { createTheme, Box, CssBaseline, ThemeProvider } from '@mui/material'
+import { AxiosError } from 'axios'
 
 import { PageSearch } from './routes/search/searchPage'
 import { PageAbout } from './routes/about/aboutPage'
@@ -8,7 +9,17 @@ import { PageLogin } from './routes/login/loginPage'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import { DocumentPage } from './routes/document/documentPage'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: error => {
+      if ((error as AxiosError).response?.status === 401) {
+        location.replace('/login')
+      } else {
+        console.log('An error occurred fetching data', error)
+      }
+    }
+  })
+})
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
@@ -55,6 +66,13 @@ const mdTheme = createTheme({
       fontSize: 16,
       textTransform: 'uppercase',
       color: '#53565a',
+    },
+    body1: {
+      fontSize: 16,
+    },
+    body2: {
+      fontSize: 20,
+      fontFamily: 'Times new roman',
     }
   }
 })
@@ -71,19 +89,16 @@ function App() {
                 theme.palette.mode === 'light'
                   ? theme.palette.grey[100]
                   : theme.palette.grey[900],
-              flexGrow: 1,
-              height: '100vh',
-              overflow: 'auto',
             }}
           >
             <CssBaseline />
             <Routes>
-              <Route path="/" element={
+              <Route path="/search" element={
                 <ProtectedRoute>
                   <PageSearch />
                 </ProtectedRoute>
               }/>
-              <Route path="/om" element={
+              <Route path="/" element={
                 <ProtectedRoute>
                   <PageAbout />
                 </ProtectedRoute>
@@ -105,7 +120,10 @@ function App() {
 const ProtectedRoute = ({ children } : { children : any }) => {
   const { token } = useAuth()
 
+  console.log('Protected route', token)
+
   if (!token) {
+    console.log('ProtectedRoute redirecting to /login')
     return <Navigate to="/login" replace />
   }
 
