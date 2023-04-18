@@ -66,7 +66,9 @@ export const DocumentPage = () => {
         <Typography variant='h2' sx={{ padding: '20px 0 20px 0' }}>{document.fields.title?.value}</Typography>
         { document.pages[0].thumbnailUrl && (
           <Box sx={{ marginBottom: 2 }}>
-            <img src={searchUrl + "/thumbnail/" + document.id} alt='Liten bild för dokumentet' />
+            <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
+              <img src={searchUrl + "/thumbnail/" + document.id} alt='Liten bild för dokumentet' />
+            </a>
             {document.fields.description?.value}
           </Box>
         )}
@@ -96,28 +98,118 @@ export const DocumentPage = () => {
               {document.fields.motiveId?.value}
             </Grid>
             <Grid item sm={4}>
-              <Typography variant='h4'>SERIE</Typography>
-              {document.fields.seriesName?.value}
-            </Grid>
-            <Grid item sm={4}>
-              <Typography variant='h4'>SPRÅK</Typography>
-              {document.fields.language?.value}
+              <Typography variant='h4'>ORIGINALTEXT</Typography>
+              {document.fields.originalText?.value}
             </Grid>
             <Grid item sm={4}>
               <Typography variant='h4'>TAGGAR</Typography>
               {document.fields.tags?.value}
             </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>TITLE</Typography>
+              {document.fields.englishTitle?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>DESCRIPTION</Typography>
+              {document.fields.englishDescription?.value}
+            </Grid>
           </Grid>
           <Typography variant='h3'>Övrig information</Typography>
           <Grid container rowSpacing={{ xs:1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
-          {
-            getRemainingFields(document).map((field: Field) => (
-              <Grid item sm={4} key={field.originalName}>
-                <Typography variant='h4'>{field.originalName}</Typography>
-                {field.value}
-              </Grid>
-            ))
-          }
+            <Grid item sm={4}>
+              <Typography variant='h4'>DEPONENT</Typography>
+              {document.fields.depositor?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>SERIESIGNUM</Typography>
+              {document.fields.seriesSignature?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>SERIE</Typography>
+              {document.fields.seriesName?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>VOLYM</Typography>
+              {document.fields.volume?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>FÖRVARING/ORDNING</Typography>
+              {document.fields.storage?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>MEDIEBÄRARE</Typography>
+              {document.fields.mediaCarrier?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>ALBUM</Typography>
+              {document.fields.album?.value}
+            </Grid>
+            <Grid item sm={12} />
+            <Grid item sm={6}>
+              <Typography variant='h4'>KREATÖR</Typography>
+              {document.fields.creator?.value}
+            </Grid>
+            <Grid item sm={6}>
+              <Typography variant='h4'>KREATÖR FIRMA</Typography>
+              {document.fields.company?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>KVARTER</Typography>
+              {document.fields.block?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>FASTIGHET</Typography>
+              {document.fields.property?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>FÖRSAMLING</Typography>
+              {document.fields.parish?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>OMRÅDE MINDRE</Typography>
+              {document.fields.areaMinor?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>OMRÅDE STÖRRE</Typography>
+              {document.fields.areaMajor?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>KOMMUN</Typography>
+              {document.fields.municipality?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>LÄN</Typography>
+              {document.fields.region?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>GATA 2</Typography>
+              {document.fields.street2?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>GATUNUMMER 2</Typography>
+              {document.fields.streetNumber2?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>FASTIGHET 2</Typography>
+              {document.fields.property2?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>KVARTER 2</Typography>
+              {document.fields.block2?.value}
+            </Grid>
+            <Grid item sm={12} />
+            <Grid item sm={4}>
+              <Typography variant='h4'>PUBLICERAD</Typography>
+              {document.fields.published?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>RÄTTIGHETER</Typography>
+              {document.fields.rights?.value}
+            </Grid>
+            <Grid item sm={4}>
+              <Typography variant='h4'>SPRÅK</Typography>
+              {document.fields.language?.value}
+            </Grid>
           </Grid>
         </Stack>
       </>

@@ -56,7 +56,7 @@ export function SearchResult({
       <Pagination count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2 }} siblingCount={4} />
     </Box>
     {! showGrid && documents && documents.map((document) => (
-      <Grid container columnSpacing={{ xs: 1, sm: 2, md: 3}} sx={{ marginBottom: '10px' }} key={document.id}>
+      <Grid container columnSpacing={{ xs: 1, sm: 2, md: 3}} sx={{ marginBottom: '20px' }} key={document.id}>
         <Grid item xs={4} sm={2}>
           <Link to={'/dokument/' + document.id + '?query=' + query} style={{ minWidth: '100%' }}>
               { document.pages[0].thumbnailUrl && (
@@ -67,28 +67,32 @@ export function SearchResult({
         <Grid item xs={8} sm={10}>
         <Stack direction='column' width='100%' rowGap={2}>
             <Link to={'/dokument/' + document.id + '?query=' + query }>
-              <Typography variant='h3' sx={{ padding: '20px 0 15px 0' }}>{document.fields.title?.value}</Typography>
+              <Typography variant='h3' sx={{ padding: '0px 0 0px 0' }}>{document.fields.title?.value}</Typography>
+              ({document.fields.archiveInitiator?.value})
             </Link>
             <Grid container rowSpacing={{ xs: 1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
-              <Grid item sm={8}>
+              <Grid item md={8} sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <Typography variant='h4'>BESKRIVNING</Typography>
                 {document.fields.description?.value}
-              </Grid>
-              <Grid item sm={4}>
-                <Typography variant='h4'>FRÅN</Typography>
-                {document.fields.archiveInitiator?.value}
               </Grid>
               <Grid item sm={4}>
                 <Typography variant='h4'>ÅRTAL</Typography>
                 {document.fields.time?.value}
               </Grid>
-              <Grid item sm={4}>
+              <Grid item xs={0} sm={4}>
                 <Typography variant='h4'>GEOGRAFI</Typography>
                 {createGeographyString(document)}
               </Grid>
               <Grid item sm={4} sx={{ overflow: 'hidden' }}>
                 <Typography variant='h4'>MOTIVID</Typography>
                 {document.fields.motiveId?.value}
+              </Grid>
+              <Grid item sm={4} sx={{ display: { xs: 'none', sm: 'block' } }}>
+                <Typography variant='h4'>MEDIETYP</Typography>
+                <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
+                  {document.pages[0].pageType} ({document.fields.format?.value}) <DownloadIcon /><br/>
+                  {document.fields.filename?.value}
+                </a>
               </Grid>
             </Grid>
           </Stack>

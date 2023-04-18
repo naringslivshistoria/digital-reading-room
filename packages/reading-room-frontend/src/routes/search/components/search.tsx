@@ -59,8 +59,10 @@ export const Search = () => {
       </IconButton>
     </Box>
     <Dialog open={showHelp} onClose={() => { setShowHelp(false)}}>
-      <DialogTitle>
-        Söktips
+      <DialogTitle variant='p'>
+        <Typography variant='h2'>
+          Söktips
+        </Typography>
       </DialogTitle>
       <DialogContent>
         <Typography variant='h3'>
@@ -70,6 +72,7 @@ export const Search = () => {
           Du kan använda <i>AND</i> och <i>OR</i> för att kombinera söktermer<br/>
           Exempel: butik AND annons - båda orden butik och annons måste förekomma.
         </Typography>
+        <br/>
         <Typography variant='h3'>
           Fraser
         </Typography>
@@ -77,6 +80,7 @@ export const Search = () => {
           Använd citattecken för att ange att ord måste komma i följd<br/>
           Exempel: &quot;svartvitt foto&quot;.
         </Typography>
+        <br/>
         <Typography variant='h3'>
           Komplexa uttryck
         </Typography>

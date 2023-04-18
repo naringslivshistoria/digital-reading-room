@@ -8,6 +8,8 @@ import { PageAbout } from './routes/about/aboutPage'
 import { PageLogin } from './routes/login/loginPage'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import { DocumentPage } from './routes/document/documentPage'
+import PublicoTextItalic from '../assets/PublicoText-Italic.woff2'
+import CentraleSansThin from '../assets/Centrale Sans Thin.woff2'
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -20,6 +22,29 @@ const queryClient = new QueryClient({
     }
   })
 })
+
+const publicoTextItalic = {
+  fontFamily: 'publicoTextItalic',
+  fontStyle: 'italic',
+  fontDisplay: 'swap',
+  fontWeight: 400,
+  src: `
+    local('PublicoText-Italic'),
+    url(${PublicoTextItalic}) format('woff2')
+  `,
+}
+
+const centraleSans = {
+  fontFamily: 'centraleSans',
+  fontStyle: 'thin',
+  fontDisplay: 'swap',
+  fontWeight: 100,
+  src: `
+    local('CentraleSans'),
+    local('Centrale Sans Thin'),
+    url(${CentraleSansThin}) format('woff2')
+  `,
+}
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
@@ -50,31 +75,40 @@ const mdTheme = createTheme({
   typography: {
     h1: {
       fontSize: 50,
-      fontFamily: 'Times new roman',
+      fontFamily: 'publicoTextItalic',
       color: 'white',
       fontStyle: 'italic'
     },
     h2: {
       fontSize: 28,
-      fontFamily: 'Times new roman',
+      fontFamily: 'publicoTextItalic',
       fontStyle: 'italic'
     },
     h3: {
       fontSize: 20,
     },
     h4: {
+      //fontFamily: 'centraleSans',
       fontSize: 16,
       textTransform: 'uppercase',
       color: '#53565a',
+      fontWeight: 100,
     },
     body1: {
       fontSize: 16,
     },
     body2: {
       fontSize: 20,
-      fontFamily: 'Times new roman',
+      fontFamily: 'publicoTextItalic',
     }
-  }
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        '@font-face': [centraleSans, publicoTextItalic],
+      },
+    },
+  },
 })
 
 function App() {
