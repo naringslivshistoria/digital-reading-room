@@ -1,6 +1,7 @@
 import { Client } from '@elastic/elasticsearch';
 import Axios from 'axios';
 import config from '../../common/config';
+import log from '../../common/log';
 
 const client = new Client({
   node: config.elasticSearch.url,
@@ -79,15 +80,15 @@ export const ocrNext = async () => {
   });
 
   if (next.hits.hits.length === 0) {
-    console.log('No more documents to process');
+    log.info('No more documents to process');
     return null;
   } else {
-    console.info('Found', next.hits.hits.length);
+    log.info(`Found ${next.hits.hits.length}`);
   }
 
   for (const document of next.hits.hits) {
     const nextDocumentId = document._id;
-    console.info('Processing document', nextDocumentId);
+    log.info('Processing document', nextDocumentId);
 
     await Axios.get(ocrUrl + '/ocr/' + nextDocumentId);
   }
