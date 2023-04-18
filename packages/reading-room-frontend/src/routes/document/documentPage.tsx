@@ -47,7 +47,7 @@ export const DocumentPage = () => {
             ({document.fields.archiveInitiator?.value})
           </Box>
           <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
-            <Button variant='text' disableElevation sx={{ color: 'secondary.main' }}>
+            <Button variant='text' disableElevation sx={{ color: 'secondary.main', '&:hover': { backgroundColor: 'secondary.main', color: 'white'} }}>
               Ladda ner <DownloadIcon />
             </Button>
           </a>
@@ -65,141 +65,141 @@ export const DocumentPage = () => {
               <Typography variant='h4'>BESKRIVNING</Typography>
               {getFieldValueString('description')}
             </Grid>
-            <Grid item sm={12}/>
-            <Grid item sm={4}>
+            <Grid item xs={12}/>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>ÅRTAL</Typography>
               {getFieldValueString('time')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>GEOGRAFI</Typography>
               {createGeographyString(document)}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>MEDIETYP</Typography>
                 {document.pages[0].pageType} ({document.fields.format?.value})<br/>
                 {document.fields.filename?.value}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>MOVTIVID</Typography>
               {getFieldValueString('motiveId')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>ORIGINALTEXT</Typography>
               {getFieldValueString('originalText')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>TAGGAR</Typography>
               {getFieldValueString('tags')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>ENGLISH TITLE</Typography>
               {getFieldValueString('englishTitle')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>ENGLISH DESCRIPTION</Typography>
               {getFieldValueString('englishDescription')}
             </Grid>
           </Grid>
           <Typography variant='h3' sx={{ paddingTop: 4, paddingBottom: 2 }}>Övrig information</Typography>
           <Grid container rowSpacing={{ xs:1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>DEPONENT</Typography>
               {getFieldValueString('depositor')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>SERIESIGNUM</Typography>
               {getFieldValueString('seriesSignature')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>SERIE</Typography>
               {getFieldValueString('seriesName')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>VOLYM</Typography>
               {getFieldValueString('volume')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>FÖRVARING/ORDNING</Typography>
               {getFieldValueString('storage')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>MEDIEBÄRARE</Typography>
               {getFieldValueString('mediaCarrier')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>ALBUM</Typography>
               {getFieldValueString('album')}
             </Grid>
-            <Grid item sm={12}>
+            <Grid item xs={12}>
               <Divider/>
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>KREATÖR</Typography>
               {getFieldValueString('creator')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>KREATÖR FIRMA</Typography>
               {getFieldValueString('company')}
             </Grid>
-            <Grid item sm={12}>
+            <Grid item xs={12}>
               <Divider/>
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>KVARTER</Typography>
               {getFieldValueString('block')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>FASTIGHET</Typography>
               {getFieldValueString('property')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>FÖRSAMLING</Typography>
               {getFieldValueString('parish')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>OMRÅDE MINDRE</Typography>
               {getFieldValueString('areaMinor')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>OMRÅDE STÖRRE</Typography>
               {getFieldValueString('areaMajor')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>KOMMUN</Typography>
               {getFieldValueString('municipality')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>LÄN</Typography>
               {getFieldValueString('region')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>GATA 2</Typography>
               {getFieldValueString('street2')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>GATUNUMMER 2</Typography>
               {getFieldValueString('streetNumber2')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>FASTIGHET 2</Typography>
               {getFieldValueString('property2')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>KVARTER 2</Typography>
               {getFieldValueString('block2')}
             </Grid>
-            <Grid item sm={12}>
+            <Grid item xs={12}>
               <Divider/>
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>PUBLICERAD</Typography>
               {getFieldValueString('published')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>RÄTTIGHETER</Typography>
               {getFieldValueString('rights')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>SPRÅK</Typography>
               {getFieldValueString('language')}
             </Grid>

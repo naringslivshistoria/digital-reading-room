@@ -39,7 +39,7 @@ export const PageLogin = () => {
         <Stack rowGap={4} justifyContent='flex-start' >
           <TextField id="username" onChange={(e) => { setUsername(e.target.value) }} label="Användarnamn" variant="standard" />
           <TextField id="password" onChange={(e) => { setPassword(e.target.value) }} label="Lösenord" variant="standard" type="password" />
-          <Button variant="text" onClick={doLogin} sx={{ marginTop: 2, borderRadius: 0, bgcolor: '#53565a', color: 'white' }}>Logga in</Button>
+          <Button variant="text" onClick={doLogin} sx={{ marginTop: 2, borderRadius: 0, bgcolor: '#53565a', color: 'white', '&:hover': { backgroundColor: 'secondary.main', color: 'white'} }}>Logga in</Button>
           { error &&
             <Alert severity="error">Inloggning misslyckades!</Alert>
           }

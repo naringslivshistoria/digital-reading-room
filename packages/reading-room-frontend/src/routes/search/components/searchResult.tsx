@@ -10,6 +10,7 @@ import { useState } from 'react'
 
 import { createGeographyString } from '..'
 import { Document } from '../../../common/types'
+import noImage from '../../../../assets/no-image.png'
 
 interface Props {
   documents: Document[] | undefined
@@ -29,10 +30,10 @@ export function SearchResult({
   page,
   pageSize,
   totalHits,
+  isLoading,
   onPageChange
 }: Props) {
   const [showGrid, setShowGrid] = useState<boolean>(false)
-
   const getFieldValueString = (document: Document, fieldName: string) => {
     if (!document.fields[fieldName] || !document.fields[fieldName].value || document.fields[fieldName].value === '') {
       return '-'
@@ -63,20 +64,18 @@ export function SearchResult({
     <Box justifyContent='center' sx={{ marginBottom: 4 }}>
       {
         (documents && documents.length > 0) &&
-        <Pagination count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2, fontFamily: 'Centrale Sans Regular' }} siblingCount={4} />
+        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2, fontFamily: 'Centrale Sans Regular' }} siblingCount={4} />
       }
     </Box>
     {
-      (!documents || documents.length <= 0) &&
+      (!isLoading && (!documents || documents.length <= 0)) &&
       'Inga sökresultat'
     }
     {! showGrid && documents && documents.map((document) => (
       <Grid container columnSpacing={{ xs: 1, sm: 2, md: 3}} sx={{ marginBottom: '20px', bgcolor: 'white' }} key={document.id}>
         <Grid item xs={4} sm={2}>
           <Link to={'/dokument/' + document.id + '?query=' + query} style={{ minWidth: '100%' }}>
-              { document.pages[0].thumbnailUrl && (
-                <img src={searchUrl + "/thumbnail/" + document.id} style={{  width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
-              )}
+            <img src={ document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage } style={{  width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
           </Link>
         </Grid>
         <Grid item xs={8} sm={10}>
@@ -90,15 +89,15 @@ export function SearchResult({
                 <Typography variant='h4'>BESKRIVNING</Typography>
                 {getFieldValueString(document, 'description')}
               </Grid>
-              <Grid item sm={4}>
+              <Grid item xs={12} sm={4}>
                 <Typography variant='h4'>ÅRTAL</Typography>
                 {getFieldValueString(document, 'time')}
               </Grid>
-              <Grid item xs={0} sm={4}>
+              <Grid item xs={0} sm={4} sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <Typography variant='h4'>GEOGRAFI</Typography>
                 {createGeographyString(document)}
               </Grid>
-              <Grid item sm={4} sx={{ overflow: 'hidden' }}>
+              <Grid item xs={12} sm={4} sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 <Typography variant='h4'>MOTIVID</Typography>
                 {getFieldValueString(document, 'motiveId')}
               </Grid>
@@ -121,19 +120,13 @@ export function SearchResult({
         {documents.map((document) => (
           <Grid item xs={6} md={3} xl={12/5} key={`${document.id}-gallery`}>
             <Link to={'/dokument/' + document.id + '?query=' + query}>
-              { document.pages[0].thumbnailUrl ? (
-                <img src={searchUrl + "/thumbnail/" + document.id} style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
-              ) : (
-                <Box>
-                  <NoPhotographyIcon/>
-                </Box>
-              )}
+              <img src={ document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage } style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
             </Link>
-            <Box sx={{ maxHeight: '22px', overflow: 'hidden', fontSize: { xs: '14px', sm: '16px' } }}>
+            <Box sx={{ maxHeight: '22px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: { xs: '14px', sm: '16px' } }}>
               {document.fields.title?.value}
             </Box>
-            <Box sx={{ maxHeight: '22px', overflow: 'hidden', fontSize: { xs: '12px', sm: '14px' } }}>
-              {document.fields.archiveInitiator?.value}
+            <Box sx={{ maxHeight: '22px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: { xs: '12px', sm: '14px' } }}>
+              ({document.fields.archiveInitiator?.value})
             </Box>
           </Grid>
       ))}
@@ -142,7 +135,7 @@ export function SearchResult({
     <Box>
     {
         (documents && documents.length > 0) &&
-        <Pagination count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ marginTop: 2, marginBottom: 2 }} siblingCount={4} />
+        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ marginTop: 2, marginBottom: 2 }} siblingCount={4} />
     }
     </Box>
     </>

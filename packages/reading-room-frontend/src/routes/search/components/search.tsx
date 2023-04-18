@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogTitle, IconButton, TextField } from '@mui/material'
+import { Dialog, DialogContent, DialogTitle, IconButton, Stack, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import SearchIcon from '@mui/icons-material/Search'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
@@ -30,33 +30,36 @@ export const Search = () => {
   return (
     <>
     <Box sx={{ paddingTop: 10 }}>
-      <Link to='/'>
-        <Typography variant='h1' sx={{ marginBottom: '10px' }}>Digital läsesal</Typography>
-      </Link>
+      <Stack direction='row' justifyContent='space-between' sx={{ width: '85%' }}>
+        <Link to='/'>
+          <Typography variant='h1' sx={{ marginBottom: '10px' }}>Digital läsesal</Typography>
+        </Link>
+        <Box>
+          <IconButton onClick={() => { setShowHelp(true) }}>
+            <Typography variant='body1' sx={{ color: 'white' }}>
+              <HelpOutlineIcon/> Söktips
+            </Typography>
+          </IconButton>
+        </Box>
+      </Stack>
       <TextField
         variant='filled'
-        sx={{ bgcolor: 'background.default', width: { xs: '80%' } }}
+        sx={{ width: { xs: '80%' } }}
         placeholder='Sök efter dokument'
         defaultValue={query}
-        type="text"
+        type="string"
         onKeyUp={onSubmit}
         inputProps={{
           style: {
             height: '10px',
             padding: '17px 10px 17px 10px',
             color: 'black',
+            backgroundColor: 'white',
           },
         }}
       />
       <IconButton disableRipple onClick={() => search()} sx={{ color: 'white', bgcolor: '#53565a', borderRadius: 0, height: '43px', width: '43px' }}>
         <SearchIcon/>
-      </IconButton>
-    </Box>
-    <Box>
-      <IconButton onClick={() => { setShowHelp(true) }}>
-        <Typography variant='body1' sx={{ color: 'white' }}>
-          <HelpOutlineIcon/> Söktips
-        </Typography>
       </IconButton>
     </Box>
     <Dialog open={showHelp} onClose={() => { setShowHelp(false)}}>
