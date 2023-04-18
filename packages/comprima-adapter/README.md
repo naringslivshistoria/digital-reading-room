@@ -22,3 +22,7 @@ curl -X PUT http://localhost:9200/comprima-prod-3
 ```shell
 npm run dev
 ```
+
+## Configuration
+
+Some thumbnails in Cromprima are actually video files, some of them over 1 GB in size. We currently have no need for these "thumbnails" and they are also causing problems, because the comprima-adapter will attempt downloading them entirely (and storing them in RAM) before deciding they are not going to be saved anyway. Therefore we configure Axios with a maxContentLength of 20 MB. This limit is configurable using the `THUMBNAIL_MAX_SIZE_MB` env variable.
