@@ -6,7 +6,30 @@ import { routes as comprimaRoutes } from './services/comprimaService';
 const router = new KoaRouter();
 
 router.get('/', async (ctx) => {
-  ctx.body = 'Hello world';
+  ctx.body = 'Comprima Adapter API';
+});
+
+router.get('/healthz', async (ctx) => {
+  ctx.body = {
+    comprima: 'Not OK',
+    elasticSearch: 'Not OK',
+  };
+
+  try {
+    await comprima.healthCheck();
+    ctx.body.comprima = 'OK';
+  } catch (error) {
+    console.error(error);
+    ctx.status = 500;
+  }
+
+  try {
+    await index.healthCheck();
+    ctx.body.elasticSearch = 'OK';
+  } catch (error) {
+    console.error(error);
+    ctx.status = 500;
+  }
 });
 
 router.get('/index/:documentId', async (ctx) => {

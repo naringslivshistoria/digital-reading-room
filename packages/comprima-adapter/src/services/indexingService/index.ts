@@ -1,11 +1,13 @@
 import { Client } from '@elastic/elasticsearch';
 import { promises as fs } from 'fs';
+import { Document } from '../../common/types';
 import axios, { AxiosError } from 'axios';
 
-import { Document } from '../../common/types';
+const ELASTICSEARCH_URL =
+  process.env.ELASTICSEARCH_URL || 'http://localhost:9200';
 
 const client = new Client({
-  node: process.env.ELASTICSEARCH_URL || 'http://localhost:9200',
+  node: ELASTICSEARCH_URL,
 });
 
 const thumbnailTypes = [
@@ -83,6 +85,11 @@ const indexDocument = async (document: Document) => {
   }
 };
 
+const healthCheck = async () => {
+  await axios.get(ELASTICSEARCH_URL + '/_cluster/health');
+};
+
 export default {
+  healthCheck,
   indexDocument,
 };

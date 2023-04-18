@@ -5,6 +5,10 @@ import comprimaAdapter from './comprimaAdapter';
 
 const batchSize = 10;
 
+const healthCheck = async () => {
+  await comprimaAdapter.getDocuments('34913', 0, 1);
+};
+
 const search = async (level: string, skip?: number): Promise<Document[]> => {
   let lastSetSize = batchSize;
   const totalResults = Array<Document>();
@@ -97,6 +101,7 @@ export const routes = (router: KoaRouter) => {
 };
 
 export default {
+  healthCheck,
   search,
   getDocument: comprimaAdapter.getDocument,
 };
