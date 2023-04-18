@@ -1,8 +1,17 @@
 import KoaRouter from '@koa/router'
-import { Client } from '@elastic/elasticsearch'
+import { Client, errors } from '@elastic/elasticsearch'
 import { Document } from '../../common/types'
 import config from '../../common/config'
 import axios from 'axios'
+
+class DocumentNotFoundError extends Error {
+  constructor(msg: string) {
+    super(msg)
+
+    // Set the prototype explicitly.
+    Object.setPrototypeOf(this, DocumentNotFoundError.prototype)
+  }
+}
 
 const getAttachmentStream = async (id: string) => {
   const url = `${config.comprimaAdapter?.url || 'https://comprima.dev.cfn.iteam.se'}/document/${id}/attachment`
@@ -21,14 +30,25 @@ const client = new Client({
 })
 
 const getDocument = async (id: string) => {
-  const result = await client.get({
-    index: config.elasticSearch.indexName,
-    id: id
-  })
+  try {
+    const result = await client.get({
+      index: config.elasticSearch.indexName,
+      id: id
+    })
 
-  const document = result._source as Document
+    const document = result._source as Document
+    return document
+  } catch (err) {
+    console.log(err instanceof errors.ResponseError)
+    if (err instanceof errors.ResponseError) {
+      if ((err as errors.ResponseError).meta.statusCode === 404) {
+        throw new DocumentNotFoundError('Document not found')
+      }
+    }
 
-  return document
+    throw err
+  }
+
 }
 
 export const routes = (router: KoaRouter) => {
@@ -55,12 +75,26 @@ export const routes = (router: KoaRouter) => {
   
     try
     {
+      // Try to get document to verify that it is indexed in elasticsearch and
+      // that attachment thereby is allowed to be retrieved
+      const document = await getDocument(id)
+
+      if (!document) {
+        ctx.status = 404
+        return 
+      }
+
       const response = await getAttachmentStream(id)
       ctx.type = response.headers['content-type']?.toString() ?? 'image/jpeg'
       ctx.body = response.data
     } catch (err) {
-      ctx.status = 500
-      ctx.body = { results: 'error: ' + err}
+      if (err instanceof DocumentNotFoundError) {
+        ctx.status = 404
+        ctx.body = { results: 'error: document not found'}
+      } else {
+        ctx.status = 500
+        ctx.body = { results: 'error: ' + err}
+      }
     }
   })
 }
