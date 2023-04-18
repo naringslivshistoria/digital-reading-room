@@ -6,7 +6,7 @@ import { routes as comprimaRoutes } from './services/comprimaService';
 const router = new KoaRouter();
 
 router.get('/', async (ctx) => {
-  ctx.body = 'Hello world';
+  ctx.body = 'Comprima Adapter API';
 });
 
 router.get('/healthz', async (ctx) => {
