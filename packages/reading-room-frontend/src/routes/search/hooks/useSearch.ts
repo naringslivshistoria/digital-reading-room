@@ -50,6 +50,13 @@ export const useSearch = ({ query, startIndex, token }: { query: string, startIn
           results: []
         }
       }
+    },
+    retry: (failureCount: number, error: AxiosError) => {
+      if (error.response?.status === 401) {
+        return false
+      } else {
+        return failureCount < 3
+      }
     }
   })
   

@@ -49,7 +49,7 @@ const indexTranslatedNames : IndexName = {
   'originaltext': 'originalText',
   'kommentar': 'comment',
   'tidpunkt': 'time',
-  'kreatörnamn': 'creator',
+  'kreatörnamn': 'creatorName',
   'kreatör': 'creator',
   'yrke': 'occupation',
   'kreatör-adress': 'creatorAddress',
