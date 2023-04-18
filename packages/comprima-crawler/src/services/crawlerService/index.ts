@@ -32,9 +32,17 @@ export const crawlLevels = async () => {
       log.error(`Crawling level ${level.level} failed!`);
 
       level.crawled = new Date();
-      level.attempts++;
 
       level.error = JSON.parse(JSON.stringify(error));
+
+      if (
+        level.error &&
+        level.error?.indexOf('ECONNREFUSED') === -1 &&
+        level.error?.indexOf('ECONNRESET') === -1 &&
+        level.error?.indexOf('ETIMEDOUT') === -1
+      ) {
+        level.attempts++;
+      }
 
       await updateLevel(level);
     }
