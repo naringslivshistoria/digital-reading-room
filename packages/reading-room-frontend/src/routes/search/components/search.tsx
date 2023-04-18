@@ -59,7 +59,7 @@ export const Search = () => {
       </IconButton>
     </Box>
     <Dialog open={showHelp} onClose={() => { setShowHelp(false)}}>
-      <DialogTitle variant='p'>
+      <DialogTitle variant='body1'>
         <Typography variant='h2'>
           Söktips
         </Typography>
