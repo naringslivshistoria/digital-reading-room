@@ -29,4 +29,14 @@ export COMPRIMA_PASSWORD=
 export POSTGRES_PASSWORD=
 ```
 
-test
+### Configuration
+
+The following environment variables are needed when running locally:
+
+#### reading-room-search
+
+COOKIE_DOMAIN=localhost
+
+#### reading-room-frontend
+
+VITE_COOKIE_DOMAIN=localhost
