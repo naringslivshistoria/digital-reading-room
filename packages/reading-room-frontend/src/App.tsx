@@ -8,8 +8,8 @@ import { PageAbout } from './routes/about/aboutPage'
 import { PageLogin } from './routes/login/loginPage'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import { DocumentPage } from './routes/document/documentPage'
+import CentraleSansRegular from '../assets/CentraleSans-Regular.woff2'
 import PublicoTextItalic from '../assets/PublicoText-Italic.woff2'
-import CentraleSansThin from '../assets/Centrale Sans Thin.woff2'
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -29,20 +29,17 @@ const publicoTextItalic = {
   fontDisplay: 'swap',
   fontWeight: 400,
   src: `
-    local('PublicoText-Italic'),
     url(${PublicoTextItalic}) format('woff2')
   `,
 }
 
 const centraleSans = {
   fontFamily: 'centraleSans',
-  fontStyle: 'thin',
+  fontStyle: 'regular',
   fontDisplay: 'swap',
-  fontWeight: 100,
+  fontWeight: 400,
   src: `
-    local('CentraleSans'),
-    local('Centrale Sans Thin'),
-    url(${CentraleSansThin}) format('woff2')
+    url(${CentraleSansRegular}) format('woff2')
   `,
 }
 
@@ -74,27 +71,29 @@ const mdTheme = createTheme({
   },
   typography: {
     h1: {
-      fontSize: 50,
+      fontSize: 40,
       fontFamily: 'publicoTextItalic',
       color: 'white',
       fontStyle: 'italic'
     },
     h2: {
-      fontSize: 28,
+      fontSize: 24,
       fontFamily: 'publicoTextItalic',
       fontStyle: 'italic'
     },
     h3: {
+      fontFamily: 'centraleSans',
       fontSize: 20,
     },
     h4: {
-      //fontFamily: 'centraleSans',
-      fontSize: 16,
+      fontFamily: 'centraleSans',
+      fontSize: 14,
       textTransform: 'uppercase',
       color: '#53565a',
       fontWeight: 100,
     },
     body1: {
+      fontFamily: 'centraleSans',
       fontSize: 16,
     },
     body2: {
@@ -105,7 +104,10 @@ const mdTheme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        '@font-face': [centraleSans, publicoTextItalic],
+        html: [
+          {'@font-face': publicoTextItalic},
+          {'@font-face': centraleSans},
+        ],
       },
     },
   },

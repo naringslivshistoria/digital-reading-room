@@ -18,7 +18,7 @@ export const PageSearch = () => {
   return (
     <>
       <SearchHeader></SearchHeader>
-      <Grid container>
+      <Grid container sx={{ bgcolor: 'white' }}>
         <Grid item xs={1} />
         <Grid item xs={10} >
           <SearchResult isLoading={isLoading} query={query} documents={data?.results} page={page} pageSize={pageSize} totalHits={(data?.hits ?? 0)} onPageChange={(page: number) => { setPage(page) }} />

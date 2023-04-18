@@ -29,7 +29,7 @@ export const Search = () => {
 
   return (
     <>
-    <Box>
+    <Box sx={{ paddingTop: 10 }}>
       <Link to='/'>
         <Typography variant='h1' sx={{ marginBottom: '10px' }}>Digital läsesal</Typography>
       </Link>
@@ -43,11 +43,12 @@ export const Search = () => {
         inputProps={{
           style: {
             height: '10px',
-            padding: '17px 10px 17px 10px'
+            padding: '17px 10px 17px 10px',
+            color: 'black',
           },
         }}
       />
-      <IconButton onClick={() => search()} sx={{ color: 'white', bgcolor: '#53565a', borderRadius: 0, height: '43px', width: '43px' }}>
+      <IconButton disableRipple onClick={() => search()} sx={{ color: 'white', bgcolor: '#53565a', borderRadius: 0, height: '43px', width: '43px' }}>
         <SearchIcon/>
       </IconButton>
     </Box>
@@ -59,7 +60,7 @@ export const Search = () => {
       </IconButton>
     </Box>
     <Dialog open={showHelp} onClose={() => { setShowHelp(false)}}>
-      <DialogTitle variant='p'>
+      <DialogTitle variant='body1'>
         <Typography variant='h2'>
           Söktips
         </Typography>

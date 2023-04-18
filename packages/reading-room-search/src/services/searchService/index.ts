@@ -15,6 +15,7 @@ const search = async (query: string | string[], start = 0, size = 20) => {
   const searchResults = await client.search({
     from: start,
     size: size,
+    track_total_hits: true,
     index: config.elasticSearch.indexName,
     query: {
       query_string: {
