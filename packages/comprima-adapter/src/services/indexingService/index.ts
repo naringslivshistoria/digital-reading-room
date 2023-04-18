@@ -1,12 +1,14 @@
-import { Client } from '@elastic/elasticsearch'
-import { promises as fs } from 'fs'
-import axios from 'axios'
+import { Client } from '@elastic/elasticsearch';
+import { promises as fs } from 'fs';
+import axios from 'axios';
 
-import { Document } from '../../common/types'
+import { Document } from '../../common/types';
+const ELASTICSEARCH_URL =
+  process.env.ELASTICSEARCH_URL || 'http://localhost:9200';
 
 const client = new Client({
-  node: process.env.ELASTICSEARCH_URL || 'http://localhost:9200'
-})
+  node: ELASTICSEARCH_URL,
+});
 
 const thumbnailTypes = [
   'image/jpeg',
@@ -18,41 +20,57 @@ const thumbnailTypes = [
   'image/avif',
   'image/svg',
   'image/svg+xml',
-]
+];
 
 const saveThumbnail = async (document: Document) => {
   if (document.pages[0].thumbnailUrl) {
-    const response = await axios.get(document.pages[0].thumbnailUrl, { responseType: 'arraybuffer' })
+    const response = await axios.get(document.pages[0].thumbnailUrl, {
+      responseType: 'arraybuffer',
+    });
 
-    if (thumbnailTypes.includes(response.headers['content-type'].toLowerCase())) {
-      await fs.writeFile(process.cwd() + '/../thumbnails/' + document.id + '.jpg', response.data, 'binary')
-      return true
+    if (
+      thumbnailTypes.includes(response.headers['content-type'].toLowerCase())
+    ) {
+      await fs.writeFile(
+        process.cwd() + '/../thumbnails/' + document.id + '.jpg',
+        response.data,
+        'binary'
+      );
+      return true;
     } else {
-      console.error('Rejected thumbnail type', response.headers['content-type'].toLowerCase())
+      console.error(
+        'Rejected thumbnail type',
+        response.headers['content-type'].toLowerCase()
+      );
     }
   }
 
-  return false
-}
+  return false;
+};
 
 const indexDocument = async (document: Document) => {
   try {
-    const hasValidThumbnail = await saveThumbnail(document)
+    const hasValidThumbnail = await saveThumbnail(document);
 
     if (!hasValidThumbnail) {
-      document.pages[0].thumbnailUrl = undefined
+      document.pages[0].thumbnailUrl = undefined;
     }
 
     await client.index({
       index: 'comprima',
       id: document.id.toString(),
-      document
-    })
+      document,
+    });
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
-}
+};
+
+const healthCheck = async () => {
+  await axios.get(ELASTICSEARCH_URL + '/_cluster/health');
+};
 
 export default {
-  indexDocument
-}
+  healthCheck,
+  indexDocument,
+};
