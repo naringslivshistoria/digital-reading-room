@@ -102,5 +102,67 @@ describe('crawler', () => {
         });
       });
     });
+
+    describe('does not increases crawl attempts', () => {
+      beforeEach(() => {
+        level.attempts = 5;
+      });
+
+      describe('when the comprima-adapter connection fails due to', () => {
+        it('ECONNREFUSED', async () => {
+          jest
+            .spyOn(comprimaService, 'indexLevel')
+            .mockRejectedValueOnce('connect ECONNREFUSED 127.0.0.1');
+
+          jest
+            .spyOn(postgresAdapter, 'getUnindexedLevel')
+            .mockResolvedValueOnce(level)
+            .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
+
+          await crawlLevels();
+          expect(comprimaService.indexLevel).toBeCalledWith(level.level);
+          expect(postgresAdapter.updateLevel).toBeCalledWith({
+            ...level,
+            attempts: 5,
+          });
+        });
+
+        it('ECONNRESET', async () => {
+          jest
+            .spyOn(comprimaService, 'indexLevel')
+            .mockRejectedValueOnce('ECONNRESET');
+
+          jest
+            .spyOn(postgresAdapter, 'getUnindexedLevel')
+            .mockResolvedValueOnce(level)
+            .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
+
+          await crawlLevels();
+          expect(comprimaService.indexLevel).toBeCalledWith(level.level);
+          expect(postgresAdapter.updateLevel).toBeCalledWith({
+            ...level,
+            attempts: 5,
+          });
+        });
+
+        it('ETIMEDOUT', async () => {
+          jest
+            .spyOn(comprimaService, 'indexLevel')
+            .mockRejectedValueOnce('ETIMEDOUT');
+
+          jest
+            .spyOn(postgresAdapter, 'getUnindexedLevel')
+            .mockResolvedValueOnce(level)
+            .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
+
+          await crawlLevels();
+          expect(comprimaService.indexLevel).toBeCalledWith(level.level);
+          expect(postgresAdapter.updateLevel).toBeCalledWith({
+            ...level,
+            attempts: 5,
+          });
+        });
+      });
+    });
   });
 });

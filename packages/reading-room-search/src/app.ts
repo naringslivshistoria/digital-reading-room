@@ -7,7 +7,6 @@ import jwt from 'koa-jwt'
 
 import api from './api'
 import { routes as authRoutes } from './services/authenticationService'
-import { routes as documentRoutes } from './services/documentService'
 import config from './common/config'
 
 const app = new Koa({proxy: true})
@@ -37,7 +36,6 @@ app.use(bodyParser())
 const publicRouter = new KoaRouter()
 
 authRoutes(publicRouter)
-documentRoutes(publicRouter)
 app.use(publicRouter.routes())
 
 // Unprotected routes above this line, protected by login below

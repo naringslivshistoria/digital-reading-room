@@ -20,13 +20,20 @@ Assuming you are using direnv, create a `.envrc` file in this dir. Then run `doc
 
 ```
 # Template .envrc
-export COMPRIMA_SERVICE_URL_TEST=
-export COMPRIMA_USER_TEST=
-export COMPRIMA_PASSWORD_TEST=
+export COMPRIMA_PASSWORD=
 export COMPRIMA_SERVICE_URL=
 export COMPRIMA_USER=
-export COMPRIMA_PASSWORD=
 export POSTGRES_PASSWORD=
 ```
 
-test
+### Configuration
+
+The following environment variables are needed when running locally:
+
+#### reading-room-search
+
+COOKIE_DOMAIN=localhost
+
+#### reading-room-frontend
+
+VITE_COOKIE_DOMAIN=localhost

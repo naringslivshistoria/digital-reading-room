@@ -8,12 +8,9 @@ services:
     build: ./packages/comprima-adapter
     container_name: comprima-adapter
     environment:
-    - COMPRIMA_SERVICE_URL_TEST
-    - COMPRIMA_USER_TEST
-    - COMPRIMA_PASSWORD_TEST
-    - COMPRIMA_SERVICE_URL
-    - COMPRIMA_USER
-    - COMPRIMA_PASSWORD
+    - COMPRIMA_PASSWORD     # Set in .envrc or similar.
+    - COMPRIMA_SERVICE_URL  # Set in .envrc or similar.
+    - COMPRIMA_USER         # Set in .envrc or similar.
     - ELASTICSEARCH_URL=http://elasticsearch:9200
     - POSTGRES__PASSWORD=${POSTGRES_PASSWORD}
     - POSTGRES__USER=readingroom
@@ -80,7 +77,7 @@ services:
       args:
       - COMPRIMA_ADAPTER_URL=http://localhost:14000
       - SEARCH_URL=http://localhost:14001
-#      - COOKIE_DOMAIN=localhost
+      - COOKIE_DOMAIN=localhost
     container_name: reading-room-frontend
     depends_on:
     - comprima-adapter
@@ -98,7 +95,7 @@ services:
     - DATABASE_URL=postgres://readingroom:${POSTGRES_PASSWORD}@postgres:5432/readingroom
     - ELASTIC_SEARCH__URL=http://elasticsearch:9200
     - NODE_ENV=ci
-#    - COOKIE_DOMAIN=localhost
+    - COOKIE_DOMAIN=localhost
     - POSTGRES__HOST=postgres
     - POSTGRES__PASSWORD=postgres
     - POSTGRES__PORT=5432

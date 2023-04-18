@@ -1,8 +1,8 @@
 import { Client } from '@elastic/elasticsearch';
 import { promises as fs } from 'fs';
-import axios from 'axios';
-
 import { Document } from '../../common/types';
+import axios, { AxiosError } from 'axios';
+
 const ELASTICSEARCH_URL =
   process.env.ELASTICSEARCH_URL || 'http://localhost:9200';
 
@@ -22,26 +22,45 @@ const thumbnailTypes = [
   'image/svg+xml',
 ];
 
+const maxContentLengthMB = process.env.THUMBNAIL_MAX_SIZE_MB || '20';
+const maxContentLength = parseInt(maxContentLengthMB) * 1_000_000;
+
 const saveThumbnail = async (document: Document) => {
   if (document.pages[0].thumbnailUrl) {
-    const response = await axios.get(document.pages[0].thumbnailUrl, {
-      responseType: 'arraybuffer',
-    });
+    try {
+      const response = await axios.get(document.pages[0].thumbnailUrl, {
+        responseType: 'arraybuffer',
+        maxContentLength,
+      });
 
-    if (
-      thumbnailTypes.includes(response.headers['content-type'].toLowerCase())
-    ) {
-      await fs.writeFile(
-        process.cwd() + '/../thumbnails/' + document.id + '.jpg',
-        response.data,
-        'binary'
-      );
-      return true;
-    } else {
-      console.error(
-        'Rejected thumbnail type',
-        response.headers['content-type'].toLowerCase()
-      );
+      if (
+        thumbnailTypes.includes(response.headers['content-type'].toLowerCase())
+      ) {
+        await fs.writeFile(
+          process.cwd() + '/../thumbnails/' + document.id + '.jpg',
+          response.data,
+          'binary'
+        );
+        return true;
+      } else {
+        console.error(
+          'Rejected thumbnail type',
+          response.headers['content-type'].toLowerCase()
+        );
+      }
+    } catch (error: AxiosError | any) {
+      const errorString = error.toString();
+
+      if (errorString.includes('maxContentLength size of')) {
+        console.debug(
+          'Aborting download of oversized thumbnail file',
+          errorString
+        );
+        return true;
+      }
+
+      console.error(error);
+      return false;
     }
   }
 
