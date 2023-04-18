@@ -145,6 +145,24 @@ describe('crawler', () => {
           });
         });
 
+        it('ENOTFOUND', async () => {
+          jest
+            .spyOn(comprimaService, 'indexLevel')
+            .mockRejectedValueOnce('getaddrinfo ENOTFOUND comprima-adapter');
+
+          jest
+            .spyOn(postgresAdapter, 'getUnindexedLevel')
+            .mockResolvedValueOnce(level)
+            .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
+
+          await crawlLevels();
+          expect(comprimaService.indexLevel).toBeCalledWith(level.level);
+          expect(postgresAdapter.updateLevel).toBeCalledWith({
+            ...level,
+            attempts: 5,
+          });
+        });
+
         it('ETIMEDOUT', async () => {
           jest
             .spyOn(comprimaService, 'indexLevel')
