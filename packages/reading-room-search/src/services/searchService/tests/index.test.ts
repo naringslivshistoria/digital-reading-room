@@ -40,6 +40,7 @@ describe('searchService', () => {
         },
         from: 0,
         size: 20,
+        track_total_hits: true,
       })
     })
 
