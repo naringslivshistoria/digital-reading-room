@@ -1,11 +1,9 @@
-import { Box, Button, Divider, Grid, IconButton, Pagination } from '@mui/material'
+import { Box, Divider, Grid, IconButton, Pagination } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { Stack } from '@mui/system'
 import { Link } from 'react-router-dom'
-import DownloadIcon from '@mui/icons-material/Download'
 import AppsIcon from '@mui/icons-material/Apps'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
-import NoPhotographyIcon from '@mui/icons-material/NoPhotography'
 import { useState } from 'react'
 
 import { createGeographyString } from '..'

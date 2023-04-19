@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogTitle, IconButton, Stack, TextField } from '@mui/material'
+import { Dialog, DialogContent, DialogTitle, Grid, IconButton, InputAdornment, Stack, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import SearchIcon from '@mui/icons-material/Search'
+import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Typography from '@mui/material/Typography'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
@@ -17,6 +18,10 @@ export const Search = () => {
       navigate('/search?query=' + query)
     }
   }
+  
+  const clearQuery = () => {
+    navigate('.')
+  }
 
   const onSubmit = (event: React.KeyboardEvent<HTMLDivElement>) => {
     setQuery((event.target as HTMLInputElement).value)
@@ -30,37 +35,59 @@ export const Search = () => {
   return (
     <>
     <Box sx={{ paddingTop: 10 }}>
-      <Stack direction='row' justifyContent='space-between' sx={{ width: '85%' }}>
-        <Link to='/'>
-          <Typography variant='h1' sx={{ marginBottom: '10px' }}>Digital läsesal</Typography>
-        </Link>
-        <Box>
-          <IconButton onClick={() => { setShowHelp(true) }}>
-            <Typography variant='body1' sx={{ color: 'white' }}>
-              <HelpOutlineIcon/> Söktips
-            </Typography>
-          </IconButton>
-        </Box>
-      </Stack>
-      <TextField
-        variant='filled'
-        sx={{ width: { xs: '80%' } }}
-        placeholder='Sök efter dokument'
-        defaultValue={query}
-        type="string"
-        onKeyUp={onSubmit}
-        inputProps={{
-          style: {
-            height: '10px',
-            padding: '17px 10px 17px 10px',
-            color: 'black',
-            backgroundColor: 'white',
-          },
-        }}
-      />
-      <IconButton disableRipple onClick={() => search()} sx={{ color: 'white', bgcolor: '#53565a', borderRadius: 0, height: '43px', width: '43px' }}>
-        <SearchIcon/>
-      </IconButton>
+      <Grid container>
+        <Grid item xs={11} lg={10}>
+          <Stack direction='row' justifyContent='space-between'>
+            <Link to='/'>
+              <Typography variant='h1' sx={{ marginBottom: '10px' }}>Digital läsesal</Typography>
+            </Link>
+            <Box>
+              <IconButton onClick={() => { setShowHelp(true) }}>
+                <Typography variant='body1' sx={{ color: 'white' }}>
+                  <HelpOutlineIcon/> Söktips
+                </Typography>
+              </IconButton>
+            </Box>
+          </Stack>
+          <TextField
+            variant='filled'
+            sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
+            placeholder='Sök efter dokument'
+            defaultValue={query}
+            onKeyUp={onSubmit}
+            inputProps={{
+              style: {
+                height: '12px',
+                padding: '19px 10px 15px 10px',
+                color: 'black',
+                backgroundColor: 'white',
+              },
+            }}
+            InputProps={{
+              style: {
+                backgroundColor: 'white'
+              },
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Stack direction='row'>
+                    { query && 
+                      <IconButton onClick={() => clearQuery()} sx={{ bgcolor: 'white', height: '44px', width: '44px', borderRadius: 0, '&:hover': { bgcolor: 'white '} }}>
+                        <HighlightOffIcon />
+                      </IconButton>
+                    }
+                    <IconButton edge="end" disableRipple onClick={() => search()} sx={{ color: 'white', bgcolor: '#53565a', borderRadius: 0, height: '46px', width: '46px' }}>
+                      <SearchIcon/>
+                    </IconButton>
+                  </Stack>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+        <Grid item xs={1} lg={2}>
+        </Grid>
+      </Grid>
+
     </Box>
     <Dialog open={showHelp} onClose={() => { setShowHelp(false)}}>
       <DialogTitle variant='body1'>
