@@ -1,214 +1,216 @@
-import { Box, Divider, Grid, Stack, Typography } from '@mui/material'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Box, Button, Divider, Grid, Stack, Typography } from '@mui/material'
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import DownloadIcon from '@mui/icons-material/Download'
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 
 import { SearchHeader } from '../../components/searchHeader'
 import { useGetDocument } from './hooks/useGetDocument'
 import { useAuth } from '../../hooks/useAuth'
-import { Document, Field } from '../../common/types'
+import { Document } from '../../common/types'
 import { createGeographyString } from '../search'
+import noImage from '../../../assets/no-image.png'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
 export const DocumentPage = () => {
   const { token } = useAuth()
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
   const { data } = useGetDocument({ id: id ?? '', token })
   const navigate = useNavigate()
 
   const document = data?.results as Document
 
-  const getRemainingFields = (document: Document) => {
-    const usedFields: string[] = [
-      'title',
-      'description',
-      'motiveId',
-      'comment',
-      'time',
-      'format',
-      'filename',
-      'archiveInitiator',
-      'language',
-      'tags',
-    ]
+  const getFieldValueString = (fieldName: string) => {
+    if (!document.fields[fieldName] || !document.fields[fieldName].value || document.fields[fieldName].value === '') {
+      return '-'
+    } else {
+      return document.fields[fieldName].value
+    }
+  }
 
-    const remainingFields: Field[] = []
-
-    Object.keys(document.fields).forEach((propertyName) => {
-      if (!usedFields.includes(propertyName) && document.fields[propertyName].value) {
-        remainingFields.push(document.fields[propertyName])
-      }
-    })
-
-    return remainingFields.sort((a: Field, b: Field) => {
-      if (a.originalName > b.originalName) {
-        return 1
-      } else {
-        return -1
-      }
-    })
+  const goBack = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    event.preventDefault()
+    if (searchParams.get('query')) {
+      navigate(-1)
+    } else {
+      navigate('/search')
+    }
   }
 
   return (
     <>
     <SearchHeader></SearchHeader>
-    <Grid container>
+    <Grid container bgcolor='white'>
       <Grid item xs={1} />
       <Grid item xs={10} sx={{ marginBottom: 10 }}>
       { document ? (
       <>
         <Box sx={{ marginTop: 3, marginBottom: 2 }}>
-        <Link to='' onClick={(e) => { e.preventDefault(); navigate(-1) }}>
-          &lt; Sökträffar
-        </Link>
+          <Link to='' onClick={goBack}>
+            <ChevronLeftIcon sx={{ marginTop: '-2px' }}/> Sökträffar
+          </Link>
         </Box>
         <Divider sx={{ borderColor: 'red' }} />
-        <Typography variant='h2' sx={{ padding: '20px 0 20px 0' }}>{document.fields.title?.value}</Typography>
-        { document.pages[0].thumbnailUrl && (
-          <Box sx={{ marginBottom: 2 }}>
-            <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
-              <img src={searchUrl + "/thumbnail/" + document.id} alt='Liten bild för dokumentet' />
-            </a>
-            {document.fields.description?.value}
+        <Stack direction='row' justifyContent='space-between' alignItems='flex-end' sx={{ padding: '20px 0 20px 0' }}>
+          <Box>
+            <Typography variant='h3' >{document.fields.title?.value}</Typography>
+            ({document.fields.archiveInitiator?.value})
           </Box>
-        )}
+          <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
+            <Button variant='text' disableElevation sx={{ color: 'secondary.main', '&:hover': { backgroundColor: 'secondary.main', color: 'white'} }}>
+              Ladda ner <DownloadIcon />
+            </Button>
+          </a>
+        </Stack>
+        <Box sx={{ marginTop: 1, marginBottom: 5 }}>
+          <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
+            <img src={document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage} alt='Liten bild för dokumentet' />
+          </a>
+        </Box>
         <Stack direction='column' width='100%' rowGap={2}>
           <Grid container rowSpacing={{ xs:1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
-            <Grid item sm={4}>
-              <Typography variant='h4'>ÅRTAL</Typography>
-              {document.fields.time?.value}
+            <Grid item sm={8}>
+              <Typography variant='h4'>BESKRIVNING</Typography>
+              {getFieldValueString('description')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={12}/>
+            <Grid item xs={6} sm={4}>
+              <Typography variant='h4'>ÅRTAL</Typography>
+              {getFieldValueString('time')}
+            </Grid>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>GEOGRAFI</Typography>
               {createGeographyString(document)}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>MEDIETYP</Typography>
-              <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
-                {document.pages[0].pageType} ({document.fields.format?.value}) <DownloadIcon /><br/>
+                {document.pages[0].pageType} ({document.fields.format?.value})<br/>
                 {document.fields.filename?.value}
-              </a>
             </Grid>
-            <Grid item sm={4}>
-              <Typography variant='h4'>FRÅN</Typography>
-              {document.fields.archiveInitiator?.value}
-            </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>MOVTIVID</Typography>
-              {document.fields.motiveId?.value}
+              {getFieldValueString('motiveId')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>ORIGINALTEXT</Typography>
-              {document.fields.originalText?.value}
+              {getFieldValueString('originalText')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>TAGGAR</Typography>
-              {document.fields.tags?.value}
+              {getFieldValueString('tags')}
             </Grid>
-            <Grid item sm={4}>
-              <Typography variant='h4'>TITLE</Typography>
-              {document.fields.englishTitle?.value}
+            <Grid item xs={6} sm={4}>
+              <Typography variant='h4'>ENGLISH TITLE</Typography>
+              {getFieldValueString('englishTitle')}
             </Grid>
-            <Grid item sm={4}>
-              <Typography variant='h4'>DESCRIPTION</Typography>
-              {document.fields.englishDescription?.value}
+            <Grid item xs={6} sm={4}>
+              <Typography variant='h4'>ENGLISH DESCRIPTION</Typography>
+              {getFieldValueString('englishDescription')}
             </Grid>
           </Grid>
-          <Typography variant='h3'>Övrig information</Typography>
+          <Typography variant='h3' sx={{ paddingTop: 4, paddingBottom: 2 }}>Övrig information</Typography>
           <Grid container rowSpacing={{ xs:1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>DEPONENT</Typography>
-              {document.fields.depositor?.value}
+              {getFieldValueString('depositor')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>SERIESIGNUM</Typography>
-              {document.fields.seriesSignature?.value}
+              {getFieldValueString('seriesSignature')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>SERIE</Typography>
-              {document.fields.seriesName?.value}
+              {getFieldValueString('seriesName')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>VOLYM</Typography>
-              {document.fields.volume?.value}
+              {getFieldValueString('volume')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>FÖRVARING/ORDNING</Typography>
-              {document.fields.storage?.value}
+              {getFieldValueString('storage')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>MEDIEBÄRARE</Typography>
-              {document.fields.mediaCarrier?.value}
+              {getFieldValueString('mediaCarrier')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>ALBUM</Typography>
-              {document.fields.album?.value}
+              {getFieldValueString('album')}
             </Grid>
-            <Grid item sm={12} />
-            <Grid item sm={6}>
+            <Grid item xs={12}>
+              <Divider/>
+            </Grid>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>KREATÖR</Typography>
-              {document.fields.creator?.value}
+              {getFieldValueString('creator')}
             </Grid>
-            <Grid item sm={6}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>KREATÖR FIRMA</Typography>
-              {document.fields.company?.value}
+              {getFieldValueString('company')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={12}>
+              <Divider/>
+            </Grid>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>KVARTER</Typography>
-              {document.fields.block?.value}
+              {getFieldValueString('block')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>FASTIGHET</Typography>
-              {document.fields.property?.value}
+              {getFieldValueString('property')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>FÖRSAMLING</Typography>
-              {document.fields.parish?.value}
+              {getFieldValueString('parish')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>OMRÅDE MINDRE</Typography>
-              {document.fields.areaMinor?.value}
+              {getFieldValueString('areaMinor')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>OMRÅDE STÖRRE</Typography>
-              {document.fields.areaMajor?.value}
+              {getFieldValueString('areaMajor')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>KOMMUN</Typography>
-              {document.fields.municipality?.value}
+              {getFieldValueString('municipality')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>LÄN</Typography>
-              {document.fields.region?.value}
+              {getFieldValueString('region')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>GATA 2</Typography>
-              {document.fields.street2?.value}
+              {getFieldValueString('street2')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>GATUNUMMER 2</Typography>
-              {document.fields.streetNumber2?.value}
+              {getFieldValueString('streetNumber2')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>FASTIGHET 2</Typography>
-              {document.fields.property2?.value}
+              {getFieldValueString('property2')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>KVARTER 2</Typography>
-              {document.fields.block2?.value}
+              {getFieldValueString('block2')}
             </Grid>
-            <Grid item sm={12} />
-            <Grid item sm={4}>
+            <Grid item xs={12}>
+              <Divider/>
+            </Grid>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>PUBLICERAD</Typography>
-              {document.fields.published?.value}
+              {getFieldValueString('published')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>RÄTTIGHETER</Typography>
-              {document.fields.rights?.value}
+              {getFieldValueString('rights')}
             </Grid>
-            <Grid item sm={4}>
+            <Grid item xs={6} sm={4}>
               <Typography variant='h4'>SPRÅK</Typography>
-              {document.fields.language?.value}
+              {getFieldValueString('language')}
             </Grid>
           </Grid>
         </Stack>

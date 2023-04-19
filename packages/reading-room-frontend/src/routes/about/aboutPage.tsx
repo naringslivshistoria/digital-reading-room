@@ -6,7 +6,7 @@ export const PageAbout = () => {
   return (
     <>
     <SearchHeader></SearchHeader>
-    <Grid container>
+    <Grid container bgcolor='white'>
         <Grid item xs={1} />
         <Grid item xs={10} sx={{ paddingTop: 10  }} >
           <Typography variant='body2'>

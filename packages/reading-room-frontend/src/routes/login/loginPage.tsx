@@ -32,14 +32,14 @@ export const PageLogin = () => {
       <Grid item sm={5} xs={0} style={{ backgroundColor: 'red', backgroundImage: `url(${header})`, backgroundSize: 'cover' }} sx={{ height: '100%' }} >
       </Grid>
     </Grid>
-    <Grid container>
+    <Grid container bgcolor='white'>
       <Grid item xs={1} md={1} />
       <Grid item xs={10} md={5} lg={3} justifyContent='flex-start'>
-        <Typography variant='h2' sx={{ marginTop: '30px', marginBottom: '10px' }}>Logga in</Typography>
-        <Stack rowGap={2} justifyContent='flex-start' >
+        <Typography variant='h2' sx={{ marginTop: '75px', marginBottom: '20px' }}>Logga in</Typography>
+        <Stack rowGap={4} justifyContent='flex-start' >
           <TextField id="username" onChange={(e) => { setUsername(e.target.value) }} label="Användarnamn" variant="standard" />
           <TextField id="password" onChange={(e) => { setPassword(e.target.value) }} label="Lösenord" variant="standard" type="password" />
-          <Button variant="outlined" onClick={doLogin}>Logga in</Button>
+          <Button variant="text" onClick={doLogin} sx={{ marginTop: 2, borderRadius: 0, bgcolor: '#53565a', color: 'white', '&:hover': { backgroundColor: 'secondary.main', color: 'white'} }}>Logga in</Button>
           { error &&
             <Alert severity="error">Inloggning misslyckades!</Alert>
           }
