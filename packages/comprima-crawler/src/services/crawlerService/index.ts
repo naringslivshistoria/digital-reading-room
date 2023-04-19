@@ -39,6 +39,7 @@ export const crawlLevels = async () => {
         level.error &&
         level.error?.indexOf('ECONNREFUSED') === -1 &&
         level.error?.indexOf('ECONNRESET') === -1 &&
+        level.error?.indexOf('ENOTFOUND') === -1 &&
         level.error?.indexOf('ETIMEDOUT') === -1
       ) {
         level.attempts++;
