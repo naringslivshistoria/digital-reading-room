@@ -8,6 +8,7 @@ import { useGetDocument } from './hooks/useGetDocument'
 import { useAuth } from '../../hooks/useAuth'
 import { Document } from '../../common/types'
 import { createGeographyString } from '../search'
+import noImage from '../../../assets/no-image.png'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
@@ -62,13 +63,11 @@ export const DocumentPage = () => {
             </Button>
           </a>
         </Stack>
-        { document.pages[0].thumbnailUrl && (
-          <Box sx={{ marginTop: 1, marginBottom: 5 }}>
-            <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
-              <img src={searchUrl + "/thumbnail/" + document.id} alt='Liten bild för dokumentet' />
-            </a>
-          </Box>
-        )}
+        <Box sx={{ marginTop: 1, marginBottom: 5 }}>
+          <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
+            <img src={document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage} alt='Liten bild för dokumentet' />
+          </a>
+        </Box>
         <Stack direction='column' width='100%' rowGap={2}>
           <Grid container rowSpacing={{ xs:1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
             <Grid item sm={8}>

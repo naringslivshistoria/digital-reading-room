@@ -59,10 +59,10 @@ export function SearchResult({
       </Box>
     </Stack>
     <Divider sx={{ borderColor: 'red' }} />
-    <Box justifyContent='center' sx={{ marginBottom: 4 }}>
+    <Box display='flex' justifyContent='center' sx={{ marginBottom: 2 }}>
       {
         (documents && documents.length > 0) &&
-        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2, fontFamily: 'Centrale Sans Regular' }} siblingCount={4} />
+        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2, '& li button': { fontSize: '16px', fontFamily: 'centraleSans' }}} siblingCount={4} />
       }
     </Box>
     {
@@ -72,13 +72,13 @@ export function SearchResult({
     {! showGrid && documents && documents.map((document) => (
       <Grid container columnSpacing={{ xs: 1, sm: 2, md: 3}} sx={{ marginBottom: '20px', bgcolor: 'white' }} key={document.id}>
         <Grid item xs={4} sm={2}>
-          <Link to={'/dokument/' + document.id + '?query=' + query} style={{ minWidth: '100%' }}>
+          <Link to={'/dokument/' + document.id + '?query=' + query + '&page=' + page} style={{ minWidth: '100%' }}>
             <img src={ document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage } style={{  width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
           </Link>
         </Grid>
         <Grid item xs={8} sm={10}>
         <Stack direction='column' width='100%' rowGap={2}>
-            <Link to={'/dokument/' + document.id + '?query=' + query }>
+            <Link to={'/dokument/' + document.id + '?query=' + query + '&page=' + page }>
               <Typography variant='h3' sx={{ padding: '0px 0 0px 0' }}>{document.fields.title?.value !== '' ? document.fields.title?.value : '-'}</Typography>
               ({document.fields.archiveInitiator?.value})
             </Link>
@@ -130,11 +130,11 @@ export function SearchResult({
       ))}
       </Grid>
     )}
-    <Box>
-    {
+    <Box display='flex' justifyContent='center' sx={{ marginBottom: 2 }}>
+      {
         (documents && documents.length > 0) &&
-        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ marginTop: 2, marginBottom: 2 }} siblingCount={4} />
-    }
+        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2, '& li button': { fontSize: '16px', fontFamily: 'centraleSans' }}} siblingCount={4} />
+      }
     </Box>
     </>
   )
