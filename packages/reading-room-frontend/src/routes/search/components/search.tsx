@@ -7,6 +7,8 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Typography from '@mui/material/Typography'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
+import cfnLogo from '../../../../assets/cfn-logo.png'
+
 export const Search = () => {
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState<string|null>(searchParams.get('query'))
@@ -34,61 +36,71 @@ export const Search = () => {
 
   return (
     <>
-    <Box sx={{ paddingTop: 10 }}>
-      <Grid container>
-        <Grid item xs={11} lg={10}>
-          <Stack direction='row' justifyContent='space-between'>
-            <Link to='/'>
-              <Typography variant='h1' sx={{ marginBottom: '10px' }}>Digital läsesal</Typography>
-            </Link>
-            <Box>
-              <IconButton onClick={() => { setShowHelp(true) }}>
-                <Typography variant='body1' sx={{ color: 'white' }}>
-                  <HelpOutlineIcon/> Söktips
-                </Typography>
-              </IconButton>
-            </Box>
-          </Stack>
-          <TextField
-            variant='filled'
-            sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
-            placeholder='Sök efter dokument'
-            defaultValue={query}
-            onKeyUp={onSubmit}
-            inputProps={{
-              style: {
-                height: '12px',
-                padding: '19px 10px 15px 10px',
-                color: 'black',
-                backgroundColor: 'white',
-              },
-            }}
-            InputProps={{
-              style: {
-                backgroundColor: 'white'
-              },
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Stack direction='row'>
-                    { query && 
-                      <IconButton onClick={() => clearQuery()} sx={{ bgcolor: 'white', height: '44px', width: '44px', borderRadius: 0, '&:hover': { bgcolor: 'white '} }}>
-                        <HighlightOffIcon />
-                      </IconButton>
-                    }
-                    <IconButton edge="end" disableRipple onClick={() => search()} sx={{ color: 'white', bgcolor: '#53565a', borderRadius: 0, height: '46px', width: '46px' }}>
-                      <SearchIcon/>
+    <Grid container>
+      <Grid item xs={11} lg={10} sx={{ paddingTop: '20px' }}>
+        <Link to='https://naringslivshistoria.se'>
+          <Stack direction='row' alignItems='flex-end'>
+            <img src={cfnLogo} width='50px'></img>
+            <Typography sx={{ color: 'white', fontSize: { xs: '12px', sm: '14px' }, marginBottom: '-4px', marginLeft: '2px' }}>
+              En tjänst från Centrum för Näringslivshistoria
+            </Typography>
+            </Stack>
+        </Link>
+        <Stack direction='row' justifyContent='space-between' sx={{ paddingTop: '72px' }}>
+          <Link to='/'>
+            <Stack direction='row'>
+              <Typography variant='h1' sx={{ marginBottom: '10px', fontSize: { xs: '27px', sm: '40px' } }}>Digital läsesal</Typography>
+              &nbsp;
+              <Typography variant='h2' sx={{ marginTop: { xs: '8px', sm: '12px'}, marginLeft: 1, color: 'white', fontSize: { xs: '17px', sm: '24px' } }}>(beta)</Typography>
+            </Stack>
+          </Link>
+          <Box sx={{ marginTop: { xs: '0px', sm: '7px' }, transform: { xs: 'scale(0.75)', sm: 'scale(1)' } }}>
+            <IconButton onClick={() => { setShowHelp(true) }}>
+              <Typography variant='body1' sx={{ color: 'white' }}>
+                <HelpOutlineIcon/> Söktips
+              </Typography>
+            </IconButton>
+          </Box>
+        </Stack>
+        <TextField
+          variant='filled'
+          sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
+          placeholder='Sök efter dokument'
+          defaultValue={query}
+          onKeyUp={onSubmit}
+          inputProps={{
+            style: {
+              height: '12px',
+              padding: '19px 10px 15px 10px',
+              color: 'black',
+              backgroundColor: 'white',
+            },
+          }}
+          InputProps={{
+            style: {
+              backgroundColor: 'white'
+            },
+            endAdornment: (
+              <InputAdornment position="end">
+                <Stack direction='row'>
+                  { query && 
+                    <IconButton onClick={() => clearQuery()} sx={{ bgcolor: 'white', height: '44px', width: '44px', borderRadius: 0, '&:hover': { bgcolor: 'white '} }}>
+                      <HighlightOffIcon />
                     </IconButton>
-                  </Stack>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Grid>
-        <Grid item xs={1} lg={2}>
-        </Grid>
+                  }
+                  <IconButton edge="end" disableRipple onClick={() => search()} sx={{ color: 'white', bgcolor: '#53565a', borderRadius: 0, height: '46px', width: '46px' }}>
+                    <SearchIcon/>
+                  </IconButton>
+                </Stack>
+              </InputAdornment>
+            ),
+          }}
+        />
       </Grid>
+      <Grid item xs={1} lg={2}>
+      </Grid>
+    </Grid>
 
-    </Box>
     <Dialog open={showHelp} onClose={() => { setShowHelp(false)}}>
       <DialogTitle variant='body1'>
         <Typography variant='h2'>
