@@ -1,11 +1,11 @@
 import { Grid, Typography } from '@mui/material'
 
-import { SearchHeader } from '../../components/searchHeader'
+import { SiteHeader } from '../../components/siteHeader'
 
 export const PageAbout = () => {
   return (
     <>
-    <SearchHeader></SearchHeader>
+    <SiteHeader/>
     <Grid container bgcolor='white'>
         <Grid item xs={1} />
         <Grid item xs={10} sx={{ paddingTop: 10  }} >

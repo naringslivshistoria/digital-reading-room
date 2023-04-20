@@ -2,7 +2,6 @@ import KoaRouter from '@koa/router'
 import { Client } from '@elastic/elasticsearch'
 import { Document } from '../../common/types'
 import config from '../../common/config'
-import { serialize } from 'node:v8'
 import { SearchTotalHits } from '@elastic/elasticsearch/lib/api/types'
 
 const client = new Client({

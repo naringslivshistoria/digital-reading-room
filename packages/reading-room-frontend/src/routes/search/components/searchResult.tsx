@@ -2,14 +2,13 @@ import { Box, Divider, Grid, IconButton, Pagination } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { Stack } from '@mui/system'
 import { Link } from 'react-router-dom'
-import DownloadIcon from '@mui/icons-material/Download'
 import AppsIcon from '@mui/icons-material/Apps'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
-import NoPhotographyIcon from '@mui/icons-material/NoPhotography'
 import { useState } from 'react'
 
 import { createGeographyString } from '..'
 import { Document } from '../../../common/types'
+import noImage from '../../../../assets/no-image.png'
 
 interface Props {
   documents: Document[] | undefined
@@ -29,9 +28,17 @@ export function SearchResult({
   page,
   pageSize,
   totalHits,
+  isLoading,
   onPageChange
 }: Props) {
   const [showGrid, setShowGrid] = useState<boolean>(false)
+  const getFieldValueString = (document: Document, fieldName: string) => {
+    if (!document.fields[fieldName] || !document.fields[fieldName].value || document.fields[fieldName].value === '') {
+      return '-'
+    } else {
+      return document.fields[fieldName].value
+    }
+  }
 
   return (
     <>
@@ -43,60 +50,75 @@ export function SearchResult({
     <Stack direction='row' justifyContent='space-between' alignItems='center' sx={{ marginTop: '5px', marginBottom: '5px' }}>
       <Typography variant='h3'>{query}</Typography>
       <Box>
-        <IconButton onClick={() => { setShowGrid(true) }}>
+        <IconButton onClick={() => { setShowGrid(true) }} sx={{ color: showGrid ? 'secondary.main' : '#adafaf' }}>
           <AppsIcon/>
         </IconButton>
-        <IconButton  onClick={() => { setShowGrid(false) }}>
+        <IconButton  onClick={() => { setShowGrid(false) }} sx={{ color: !showGrid ? 'secondary.main' : '#adafaf' }}>
           <FormatListBulletedIcon/>
         </IconButton>
       </Box>
     </Stack>
     <Divider sx={{ borderColor: 'red' }} />
-    <Box>
-      <Pagination count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2 }} siblingCount={4} />
+    <Box display='flex' justifyContent='center' sx={{ marginBottom: 2 }}>
+      {
+        (documents && documents.length > 0) &&
+        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2, '& li button': { fontSize: '16px', fontFamily: 'centraleSans' }}} siblingCount={4} />
+      }
     </Box>
+    {
+      (!isLoading && (!documents || documents.length <= 0)) &&
+      'Inga sökresultat'
+    }
     {! showGrid && documents && documents.map((document) => (
-      <Grid container columnSpacing={{ xs: 1, sm: 2, md: 3}} sx={{ marginBottom: '20px' }} key={document.id}>
+      <Grid container columnSpacing={{ xs: 1, sm: 2, md: 3}} sx={{ marginBottom: '20px', bgcolor: 'white' }} key={document.id}>
         <Grid item xs={4} sm={2}>
-          <Link to={'/dokument/' + document.id + '?query=' + query} style={{ minWidth: '100%' }}>
-              { document.pages[0].thumbnailUrl && (
-                <img src={searchUrl + "/thumbnail/" + document.id} style={{  minWidth: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
-              )}
+          <Link to={'/dokument/' + document.id + '?query=' + query + '&page=' + page} style={{ minWidth: '100%' }}>
+            <img
+              src={ document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage } 
+              style={{  width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} 
+              alt="Tumnagelbild"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null // prevents looping
+                currentTarget.src = noImage
+              }}
+            >
+            </img>
           </Link>
         </Grid>
         <Grid item xs={8} sm={10}>
         <Stack direction='column' width='100%' rowGap={2}>
-            <Link to={'/dokument/' + document.id + '?query=' + query }>
-              <Typography variant='h3' sx={{ padding: '0px 0 0px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{document.fields.title?.value}</Typography>
+            <Link to={'/dokument/' + document.id + '?query=' + query + '&page=' + page }>
+              <Typography variant='h3' sx={{ padding: '0px 0 0px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{document.fields.title?.value !== '' ? document.fields.title?.value : '-'}</Typography>
               ({document.fields.archiveInitiator?.value})
             </Link>
             <Grid container rowSpacing={{ xs: 1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
               <Grid item md={8} sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <Typography variant='h4'>BESKRIVNING</Typography>
-                {document.fields.description?.value}
+                {getFieldValueString(document, 'description')}
               </Grid>
-              <Grid item sm={4}>
+              <Grid item xs={12} sm={4}>
                 <Typography variant='h4'>ÅRTAL</Typography>
-                {document.fields.time?.value}
+                {getFieldValueString(document, 'time')}
               </Grid>
               <Grid item xs={0} sm={4} sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <Typography variant='h4'>GEOGRAFI</Typography>
                 {createGeographyString(document)}
               </Grid>
-              <Grid item sm={4} sx={{ overflow: 'hidden' }}>
+              <Grid item xs={12} sm={4} sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 <Typography variant='h4'>MOTIVID</Typography>
-                {document.fields.motiveId?.value}
+                {getFieldValueString(document, 'motiveId')}
               </Grid>
               <Grid item sm={4} sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <Typography variant='h4'>MEDIETYP</Typography>
-                <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
-                  {document.pages[0].pageType} ({document.fields.format?.value}) <DownloadIcon /><br/>
+                  {document.pages[0].pageType} ({document.fields.format?.value})<br/>
                   {document.fields.filename?.value}
-                </a>
               </Grid>
             </Grid>
           </Stack>
         <Grid/>
+      </Grid>
+      <Grid item xs={12} sx={{ marginTop: '20px' }}>
+        <Divider/>
       </Grid>
     </Grid>
     ))}
@@ -105,26 +127,23 @@ export function SearchResult({
         {documents.map((document) => (
           <Grid item xs={6} md={3} xl={12/5} key={`${document.id}-gallery`}>
             <Link to={'/dokument/' + document.id + '?query=' + query}>
-              { document.pages[0].thumbnailUrl ? (
-                <img src={searchUrl + "/thumbnail/" + document.id} style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
-              ) : (
-                <Box>
-                  <NoPhotographyIcon/>
-                </Box>
-              )}
+              <img src={ document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage } style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
             </Link>
-            <Box sx={{ maxHeight: '22px', overflow: 'hidden', fontSize: { xs: '12px', sm: '14px', md: '16px' } }}>
+            <Box sx={{ maxHeight: '22px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: { xs: '14px', sm: '16px' } }}>
               {document.fields.title?.value}
             </Box>
-            <Box sx={{ maxHeight: '22px', overflow: 'hidden', fontSize: { xs: '12px', sm: '14px', md: '16px' } }}>
-              {document.fields.archiveInitiator?.value}
+            <Box sx={{ maxHeight: '22px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: { xs: '12px', sm: '14px' } }}>
+              ({document.fields.archiveInitiator?.value})
             </Box>
           </Grid>
       ))}
       </Grid>
     )}
-    <Box>
-      <Pagination count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ marginTop: 2, marginBottom: 2 }} siblingCount={4} />
+    <Box display='flex' justifyContent='center' sx={{ marginBottom: 2 }}>
+      {
+        (documents && documents.length > 0) &&
+        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2, '& li button': { fontSize: '16px', fontFamily: 'centraleSans' }}} siblingCount={4} />
+      }
     </Box>
     </>
   )

@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { TextField, Button, Alert, Grid, Typography } from '@mui/material'
-import { Box, Stack } from '@mui/system'
+import { Stack } from '@mui/system'
 
 import { useAuth } from '../../hooks/useAuth'
-import header from '../../../assets/header.jpg'
+import { SiteHeader } from '../../components/siteHeader'
 
 export const PageLogin = () => {
   const { onLogin } = useAuth()
@@ -22,16 +22,7 @@ export const PageLogin = () => {
 
   return (
     <>
-    <Grid container direction='row' alignItems='center' alignContent="center" sx={{ height: '285px', bgcolor: 'primary.main' }}>
-      <Grid item sm={1} xs={1} />
-      <Grid item sm={6} xs={11} alignItems='center' alignContent="center">
-        <Box>
-          <Typography variant='h1' sx={{ marginBottom: '10px' }}>Digital läsesal</Typography>
-        </Box>
-      </Grid>
-      <Grid item sm={5} xs={0} style={{ backgroundColor: 'red', backgroundImage: `url(${header})`, backgroundSize: 'cover' }} sx={{ height: '100%' }} >
-      </Grid>
-    </Grid>
+    <SiteHeader />
     <Grid container bgcolor='white'>
       <Grid item xs={1} md={1} />
       <Grid item xs={10} md={5} lg={3} justifyContent='flex-start'>

@@ -39,7 +39,6 @@ const getDocument = async (id: string) => {
     const document = result._source as Document
     return document
   } catch (err) {
-    console.log(err instanceof errors.ResponseError)
     if (err instanceof errors.ResponseError) {
       if ((err as errors.ResponseError).meta.statusCode === 404) {
         throw new DocumentNotFoundError('Document not found')

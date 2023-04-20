@@ -3,7 +3,7 @@ import { Grid } from '@mui/material'
 
 import { useAuth } from '../../hooks/useAuth'
 import { SearchResult, useSearch } from '.'
-import { SearchHeader } from '../../components/searchHeader'
+import { SiteHeader } from '../../components/siteHeader'
 
 export const PageSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -24,7 +24,7 @@ export const PageSearch = () => {
 
   return (
     <>
-      <SearchHeader></SearchHeader>
+      <SiteHeader/>
       <Grid container sx={{ bgcolor: 'white' }}>
         <Grid item xs={1} />
         <Grid item xs={10} >
