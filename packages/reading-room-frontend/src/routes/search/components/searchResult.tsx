@@ -73,13 +73,22 @@ export function SearchResult({
       <Grid container columnSpacing={{ xs: 1, sm: 2, md: 3}} sx={{ marginBottom: '20px', bgcolor: 'white' }} key={document.id}>
         <Grid item xs={4} sm={2}>
           <Link to={'/dokument/' + document.id + '?query=' + query + '&page=' + page} style={{ minWidth: '100%' }}>
-            <img src={ document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage } style={{  width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} alt=""></img>
+            <img
+              src={ document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage } 
+              style={{  width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} 
+              alt="Tumnagelbild"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null // prevents looping
+                currentTarget.src = noImage
+              }}
+            >
+            </img>
           </Link>
         </Grid>
         <Grid item xs={8} sm={10}>
         <Stack direction='column' width='100%' rowGap={2}>
             <Link to={'/dokument/' + document.id + '?query=' + query + '&page=' + page }>
-              <Typography variant='h3' sx={{ padding: '0px 0 0px 0' }}>{document.fields.title?.value !== '' ? document.fields.title?.value : '-'}</Typography>
+              <Typography variant='h3' sx={{ padding: '0px 0 0px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{document.fields.title?.value !== '' ? document.fields.title?.value : '-'}</Typography>
               ({document.fields.archiveInitiator?.value})
             </Link>
             <Grid container rowSpacing={{ xs: 1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>

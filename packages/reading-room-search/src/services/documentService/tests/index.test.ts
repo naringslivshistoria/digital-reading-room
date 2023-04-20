@@ -66,7 +66,7 @@ describe('documentService', () => {
   describe('GET /document/:id/attachment/:filename', () => {
     it('calls comprima-adapter', async () => {
       const id = "1337"
-      mockedAxios.mockReturnValue('SUCCESS' as any)
+      mockedAxios.mockReturnValue(Promise.resolve('SUCCESS') as Promise<unknown>)
 
       await request(app.callback()).get(`/document/${id}/attachment/filename.jpg`)
 

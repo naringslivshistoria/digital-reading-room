@@ -41,7 +41,7 @@ describe('authenticationService', () => {
         password: 'hash5678',
       }
       const hashSpy = jest.spyOn(hash, 'createSaltAndHash').mockResolvedValue(mockResolve)
-      const res = await request(app.callback()).get('/auth/generatehash?password=abc1337')
+      await request(app.callback()).get('/auth/generatehash?password=abc1337')
       expect(hashSpy).toBeCalledWith('abc1337')
     })
 
@@ -71,7 +71,7 @@ describe('authenticationService', () => {
       const token = 'abc123'
       const jwtSpy = jest.spyOn(jwt, 'createToken').mockResolvedValue({ token })
 
-      const res = await (await request(app.callback()).post('/auth/generate-token').send({
+      await (await request(app.callback()).post('/auth/generate-token').send({
         username: 'foo',
         password: 'bar',
       }))

@@ -7,7 +7,9 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Typography from '@mui/material/Typography'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
-export const Search = () => {
+import cfnLogo from '../../../../assets/cfn-logo.png'
+
+export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState<string|null>(searchParams.get('query'))
   const [showHelp, setShowHelp] = useState<boolean>(false)
@@ -34,21 +36,35 @@ export const Search = () => {
 
   return (
     <>
-    <Box sx={{ paddingTop: 10 }}>
-      <Grid container>
-        <Grid item xs={11} lg={10}>
-          <Stack direction='row' justifyContent='space-between'>
-            <Link to='/'>
-              <Typography variant='h1' sx={{ marginBottom: '10px' }}>Digital läsesal</Typography>
-            </Link>
-            <Box>
+    <Grid container>
+      <Grid item xs={11} lg={10} sx={{ paddingTop: '20px' }}>
+        <Link to='https://naringslivshistoria.se'>
+          <Stack direction='row' alignItems='flex-end'>
+            <img src={cfnLogo} width='50px' alt='CFN logotyp'></img>
+            <Typography sx={{ color: 'white', fontSize: { xs: '12px', sm: '14px' }, marginBottom: '-4px', marginLeft: '2px' }}>
+              En tjänst från Centrum för Näringslivshistoria
+            </Typography>
+            </Stack>
+        </Link>
+        <Stack direction='row' justifyContent='space-between' sx={{ paddingTop: '72px' }}>
+          <Link to='/'>
+            <Stack direction='row'>
+              <Typography variant='h1' sx={{ marginBottom: '10px', fontSize: { xs: '27px', sm: '40px' } }}>Digital läsesal</Typography>
+              &nbsp;
+              <Typography variant='h2' sx={{ marginTop: { xs: '8px', sm: '12px'}, marginLeft: 1, color: 'white', fontSize: { xs: '17px', sm: '24px' } }}>(beta)</Typography>
+            </Stack>
+          </Link>
+          { searchEnabled &&
+            <Box sx={{ marginTop: { xs: '0px', sm: '7px' }, transform: { xs: 'scale(0.75)', sm: 'scale(1)' } }}>
               <IconButton onClick={() => { setShowHelp(true) }}>
                 <Typography variant='body1' sx={{ color: 'white' }}>
                   <HelpOutlineIcon/> Söktips
                 </Typography>
               </IconButton>
             </Box>
-          </Stack>
+          }
+        </Stack>
+        { searchEnabled &&
           <TextField
             variant='filled'
             sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
@@ -83,12 +99,12 @@ export const Search = () => {
               ),
             }}
           />
-        </Grid>
-        <Grid item xs={1} lg={2}>
-        </Grid>
+        }
       </Grid>
+      <Grid item xs={1} lg={2}>
+      </Grid>
+    </Grid>
 
-    </Box>
     <Dialog open={showHelp} onClose={() => { setShowHelp(false)}}>
       <DialogTitle variant='body1'>
         <Typography variant='h2'>
