@@ -106,7 +106,7 @@ export const DocumentPage = () => {
                 {document.fields.filename?.value}
             </Grid>
             <Grid item xs={6} sm={4} sx={{ overflow: 'hidden' }}>
-              <MetaDataField document={document} heading='MOVTIVID' fieldName={'motiveId'} />
+              <MetaDataField document={document} heading='MOTIVID' fieldName={'motiveId'} />
             </Grid>
             <Grid item xs={6} sm={4}>
               <MetaDataField document={document} heading='TAGGAR' fieldName={'tags'} />
