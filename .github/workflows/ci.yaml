@@ -77,9 +77,8 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         build-args: |
-          COMPRIMA_ADAPTER_URL=https://comprima.dev.cfn.iteam.se
-          COOKIE_DOMAIN=dev.cfn.iteam.se
-          SEARCH_URL=https://search.dev.cfn.iteam.se
+          COOKIE_DOMAIN=arkivet.naringslivshistoria.se
+          SEARCH_URL=https://api.arkivet.naringslivshistoria.se
         context: ./packages/${{ matrix.context }}
         push: true
         tags: |
