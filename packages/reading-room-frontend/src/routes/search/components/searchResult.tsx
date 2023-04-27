@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { createGeographyString } from '..'
 import { Document } from '../../../common/types'
 import noImage from '../../../../assets/no-image.png'
+import { MetaDataField } from '../../../components/metaDataField'
 
 interface Props {
   documents: Document[] | undefined
@@ -32,13 +33,6 @@ export function SearchResult({
   onPageChange
 }: Props) {
   const [showGrid, setShowGrid] = useState<boolean>(false)
-  const getFieldValueString = (document: Document, fieldName: string) => {
-    if (!document.fields[fieldName] || !document.fields[fieldName].value || document.fields[fieldName].value === '') {
-      return '-'
-    } else {
-      return document.fields[fieldName].value
-    }
-  }
 
   return (
     <>
@@ -93,20 +87,17 @@ export function SearchResult({
             </Link>
             <Grid container rowSpacing={{ xs: 1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
               <Grid item md={8} sx={{ display: { xs: 'none', sm: 'block' } }}>
-                <Typography variant='h4'>BESKRIVNING</Typography>
-                {getFieldValueString(document, 'description')}
+                <MetaDataField document={document} heading='BESKRIVNING' fieldName={'description'} />
               </Grid>
               <Grid item xs={12} sm={4}>
-                <Typography variant='h4'>ÅRTAL</Typography>
-                {getFieldValueString(document, 'time')}
+                <MetaDataField document={document} heading='ÅRTAL' fieldName={'time'} />
               </Grid>
               <Grid item xs={0} sm={4} sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <Typography variant='h4'>GEOGRAFI</Typography>
                 {createGeographyString(document)}
               </Grid>
               <Grid item xs={12} sm={4} sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                <Typography variant='h4'>MOTIVID</Typography>
-                {getFieldValueString(document, 'motiveId')}
+                <MetaDataField document={document} heading='MOTIVID' fieldName={'motiveId'} />
               </Grid>
               <Grid item sm={4} sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <Typography variant='h4'>MEDIETYP</Typography>

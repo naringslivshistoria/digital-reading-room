@@ -170,6 +170,7 @@ const transformDocument = (xmlDocument : ComprimaDocument) : Document => {
   xmlDocument.Indices.Index.forEach((index : ComprimaIndex) => {
     const translationKey = index.FieldName?.toLowerCase().replace(' ', '-') ?? index.Number
     const indexName = getIndexName(translationKey)
+
     fields[indexName] = {
       id: index.Number,
       originalName: index.FieldName,

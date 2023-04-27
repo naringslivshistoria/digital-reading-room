@@ -1,7 +1,8 @@
-import { Box, Button, Divider, Grid, Stack, Typography } from '@mui/material'
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, Stack, Typography } from '@mui/material'
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import DownloadIcon from '@mui/icons-material/Download'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import { useEffect, useState } from 'react'
 
 import { SiteHeader } from '../../components/siteHeader'
 import { useGetDocument } from './hooks/useGetDocument'
@@ -9,6 +10,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { Document } from '../../common/types'
 import { createGeographyString } from '../search'
 import noImage from '../../../assets/no-image.png'
+import { MetaDataField } from '../../components/metaDataField'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
@@ -18,16 +20,13 @@ export const DocumentPage = () => {
   const [searchParams] = useSearchParams()
   const { data } = useGetDocument({ id: id ?? '', token })
   const navigate = useNavigate()
+  const [showDownload, setShowDownload] = useState<boolean>(false)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   const document = data?.results as Document
-
-  const getFieldValueString = (fieldName: string) => {
-    if (!document.fields[fieldName] || !document.fields[fieldName].value || document.fields[fieldName].value === '') {
-      return '-'
-    } else {
-      return document.fields[fieldName].value
-    }
-  }
 
   const goBack = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     event.preventDefault()
@@ -36,6 +35,12 @@ export const DocumentPage = () => {
     } else {
       navigate('/search')
     }
+  }
+
+  const hasFields = (...args: string[]) => {
+    return args.find((fieldName: string) => {
+      return document.fields[fieldName]?.value
+    })
   }
 
   return (
@@ -57,11 +62,25 @@ export const DocumentPage = () => {
             <Typography variant='h3' >{document.fields.title?.value}</Typography>
             ({document.fields.archiveInitiator?.value})
           </Box>
-          <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
-            <Button variant='text' disableElevation sx={{ color: 'secondary.main', '&:hover': { backgroundColor: 'secondary.main', color: 'white'} }}>
-              Ladda ner <DownloadIcon />
-            </Button>
-          </a>
+          <Button variant='text' disableElevation sx={{ color: 'secondary.main', '&:hover': { backgroundColor: 'secondary.main', color: 'white'} }} onClick={() => { setShowDownload(true) }}>
+            Ladda ner <DownloadIcon />
+          </Button>
+          <Dialog open={showDownload}>
+            <DialogTitle>
+              <Typography variant='h2'>Ladda ner media</Typography>
+            </DialogTitle>
+            <DialogContent>
+              Disclaimer: att du kan ladda ner filen här betyder inte att du har rätt att använda den fritt. <b><a href='http://cfnonline.se/en/terms-of-use/' target='_blank' rel='noreferrer'>Läs mer här</a></b>. Genom att fortsätta med nedladdningen accepterar du villkoren.
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { setShowDownload(false)}} sx={{ marginRight: 2 }}>Stäng</Button>
+              <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
+                <Button onClick={() => { setShowDownload(false) }}>
+                  Ladda ner
+                </Button>
+              </a>
+            </DialogActions>
+          </Dialog>
         </Stack>
         <Box sx={{ marginTop: 1, marginBottom: 5 }}>
           <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
@@ -71,13 +90,11 @@ export const DocumentPage = () => {
         <Stack direction='column' width='100%' rowGap={2}>
           <Grid container rowSpacing={{ xs:1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
             <Grid item sm={8}>
-              <Typography variant='h4'>BESKRIVNING</Typography>
-              {getFieldValueString('description')}
+              <MetaDataField document={document} heading='BESKRIVNING' fieldName={'description'} />
             </Grid>
             <Grid item xs={12}/>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>ÅRTAL</Typography>
-              {getFieldValueString('time')}
+              <MetaDataField document={document} heading='ÅRTAL' fieldName={'time'} />
             </Grid>
             <Grid item xs={6} sm={4}>
               <Typography variant='h4'>GEOGRAFI</Typography>
@@ -89,128 +106,107 @@ export const DocumentPage = () => {
                 {document.fields.filename?.value}
             </Grid>
             <Grid item xs={6} sm={4} sx={{ overflow: 'hidden' }}>
-              <Typography variant='h4'>MOVTIVID</Typography>
-              {getFieldValueString('motiveId')}
+              <MetaDataField document={document} heading='MOTIVID' fieldName={'motiveId'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>ORIGINALTEXT</Typography>
-              {getFieldValueString('originalText')}
+              <MetaDataField document={document} heading='TAGGAR' fieldName={'tags'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>TAGGAR</Typography>
-              {getFieldValueString('tags')}
+            <MetaDataField document={document} heading='ORIGINALTEXT' fieldName={'originalText'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>ENGLISH TITLE</Typography>
-              {getFieldValueString('englishTitle')}
+              <MetaDataField document={document} heading='ENGLISH TITLE' fieldName={'englishTitle'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>ENGLISH DESCRIPTION</Typography>
-              {getFieldValueString('englishDescription')}
+              <MetaDataField document={document} heading='ENGLISH DESCRIPTION' fieldName={'englishDescription'} />
             </Grid>
           </Grid>
           <Typography variant='h3' sx={{ paddingTop: 4, paddingBottom: 2 }}>Övrig information</Typography>
           <Grid container rowSpacing={{ xs:1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>DEPONENT</Typography>
-              {getFieldValueString('depositor')}
+              <MetaDataField document={document} heading='DEPONENT' fieldName={'depositor'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>SERIESIGNUM</Typography>
-              {getFieldValueString('seriesSignature')}
+              <MetaDataField document={document} heading='SERIESIGNUM' fieldName={'seriesSignature'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>SERIE</Typography>
-              {getFieldValueString('seriesName')}
+              <MetaDataField document={document} heading='SERIE' fieldName={'seriesName'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>VOLYM</Typography>
-              {getFieldValueString('volume')}
+              <MetaDataField document={document} heading='FÖRVARING/ORDNING' fieldName={'storage'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>FÖRVARING/ORDNING</Typography>
-              {getFieldValueString('storage')}
+              <MetaDataField document={document} heading='MEDIEBÄRARE' fieldName={'mediaCarrier'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>MEDIEBÄRARE</Typography>
-              {getFieldValueString('mediaCarrier')}
+              <MetaDataField document={document} heading='VOLYM' fieldName={'volume'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>ALBUM</Typography>
-              {getFieldValueString('album')}
+              <MetaDataField document={document} heading='ALBUM' fieldName={'album'} />
             </Grid>
-            <Grid item xs={12}>
-              <Divider/>
+            { hasFields('creator', 'company') &&
+              <Grid item xs={12}>
+                <Divider/>
+              </Grid>
+            }
+            <Grid item xs={6} sm={4}>
+              <MetaDataField document={document} heading='KREATÖR' fieldName={'creator'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>KREATÖR</Typography>
-              {getFieldValueString('creator')}
+              <MetaDataField document={document} heading='KREATÖR FIRMA' fieldName={'company'} />
+            </Grid>
+            { hasFields('block', 'property', 'parish', 'areaMinor', 'areaMajor', 
+                'municipality', 'region', 'street2', 'streetNumber2', 'property2', 'block2') &&
+              <Grid item xs={12}>
+                <Divider/>
+              </Grid>
+            }
+            <Grid item xs={6} sm={4}>
+              <MetaDataField document={document} heading='KVARTER' fieldName={'block'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>KREATÖR FIRMA</Typography>
-              {getFieldValueString('company')}
-            </Grid>
-            <Grid item xs={12}>
-              <Divider/>
+              <MetaDataField document={document} heading='FASTIGHET' fieldName={'property'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>KVARTER</Typography>
-              {getFieldValueString('block')}
+              <MetaDataField document={document} heading='FÖRSAMLING' fieldName={'parish'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>FASTIGHET</Typography>
-              {getFieldValueString('property')}
+              <MetaDataField document={document} heading='OMRÅDE MINDRE' fieldName={'areaMinor'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>FÖRSAMLING</Typography>
-              {getFieldValueString('parish')}
+              <MetaDataField document={document} heading='OMRÅDE STÖRRE' fieldName={'areaMajor'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>OMRÅDE MINDRE</Typography>
-              {getFieldValueString('areaMinor')}
+              <MetaDataField document={document} heading='KOMMUN' fieldName={'municipality'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>OMRÅDE STÖRRE</Typography>
-              {getFieldValueString('areaMajor')}
+              <MetaDataField document={document} heading='LÄN' fieldName={'region'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>KOMMUN</Typography>
-              {getFieldValueString('municipality')}
+              <MetaDataField document={document} heading='GATA 2' fieldName={'street2'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>LÄN</Typography>
-              {getFieldValueString('region')}
+              <MetaDataField document={document} heading='GATUNUMMER 2' fieldName={'streetNumber2'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>GATA 2</Typography>
-              {getFieldValueString('street2')}
+              <MetaDataField document={document} heading='FASTIGHET 2' fieldName={'property2'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>GATUNUMMER 2</Typography>
-              {getFieldValueString('streetNumber2')}
+              <MetaDataField document={document} heading='KVARTER 2' fieldName={'block2'} />
+            </Grid>
+            { hasFields('published', 'rights', 'language') &&
+              <Grid item xs={12}>
+                <Divider/>
+              </Grid>
+            }
+            <Grid item xs={6} sm={4}>
+              <MetaDataField document={document} heading='SPRÅK' fieldName={'language'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>FASTIGHET 2</Typography>
-              {getFieldValueString('property2')}
+              <MetaDataField document={document} heading='PUBLICERAD' fieldName={'published'} />
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>KVARTER 2</Typography>
-              {getFieldValueString('block2')}
-            </Grid>
-            <Grid item xs={12}>
-              <Divider/>
-            </Grid>
-            <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>PUBLICERAD</Typography>
-              {getFieldValueString('published')}
-            </Grid>
-            <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>RÄTTIGHETER</Typography>
-              {getFieldValueString('rights')}
-            </Grid>
-            <Grid item xs={6} sm={4}>
-              <Typography variant='h4'>SPRÅK</Typography>
-              {getFieldValueString('language')}
+              <MetaDataField document={document} heading='RÄTTIGHETER' fieldName={'rights'} />
             </Grid>
           </Grid>
         </Stack>

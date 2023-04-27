@@ -14,7 +14,7 @@ export const PageAbout = () => {
           </Typography>
           <br/>
           <Typography variant='body2'>
-            Den här tjänsten är fortfarande under utveckling. En full lansering planeras till slutet av 2023. Vi tar tacksamt emot synpunkter och förslag på förbättringar till <a href='mailto:info@naringslivshistoria.se?subject=Apropå er digitala läsesal'>info@naringslivshistoria.se</a>.
+            Den här tjänsten är fortfarande under utveckling. En full lansering planeras till slutet av 2023. Vi tar tacksamt emot synpunkter och förslag på förbättringar till <b><a href='mailto:info@naringslivshistoria.se?subject=Apropå er digitala läsesal'>info@naringslivshistoria.se</a></b>.
           </Typography>
         </Grid>
         <Grid item xs={1} />
