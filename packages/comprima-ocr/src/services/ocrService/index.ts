@@ -9,7 +9,7 @@ const client = new Client({
 })
 
 const getAttachment = async (documentId : string) => {
-  const url = `${process.env.COMPRIMA_ADAPTER_URL || 'https://comprima.dev.cfn.iteam.se'}/document/${documentId}/attachment`
+  const url = `${process.env.COMPRIMA_ADAPTER__URL || 'https://comprima.dev.cfn.iteam.se'}/document/${documentId}/attachment`
   const response = await axios({
     method: 'get',
     url: url,
