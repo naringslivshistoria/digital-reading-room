@@ -75,7 +75,7 @@ export const DocumentPage = () => {
             <DialogActions>
               <Button onClick={() => { setShowDownload(false)}} sx={{ marginRight: 2 }}>Stäng</Button>
               <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
-                <Button autoFocus onClick={() => { setShowDownload(false) }}>
+                <Button onClick={() => { setShowDownload(false) }}>
                   Ladda ner
                 </Button>
               </a>
