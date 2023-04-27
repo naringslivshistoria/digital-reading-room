@@ -1,7 +1,7 @@
 import { Box, Divider, Grid, IconButton, Pagination } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { Stack } from '@mui/system'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import AppsIcon from '@mui/icons-material/Apps'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
 import { useState } from 'react'
@@ -32,7 +32,16 @@ export function SearchResult({
   isLoading,
   onPageChange
 }: Props) {
-  const [showGrid, setShowGrid] = useState<boolean>(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [showGrid, setShowGrid] = useState<boolean>(searchParams.get('show') === 'grid' ? true : false)
+
+  const displayGridMode = (grid: boolean) => {
+    setShowGrid(grid)
+    setSearchParams((currentParams: URLSearchParams) => {
+      currentParams.set('show', grid ? 'grid' : 'list')
+      return currentParams
+     })
+  }
 
   return (
     <>
@@ -44,10 +53,10 @@ export function SearchResult({
     <Stack direction='row' justifyContent='space-between' alignItems='center' sx={{ marginTop: '5px', marginBottom: '5px' }}>
       <Typography variant='h3'>{query}</Typography>
       <Box>
-        <IconButton onClick={() => { setShowGrid(true) }} sx={{ color: showGrid ? 'secondary.main' : '#adafaf' }}>
+        <IconButton onClick={() => { displayGridMode(true) }} sx={{ color: showGrid ? 'secondary.main' : '#adafaf' }}>
           <AppsIcon/>
         </IconButton>
-        <IconButton  onClick={() => { setShowGrid(false) }} sx={{ color: !showGrid ? 'secondary.main' : '#adafaf' }}>
+        <IconButton  onClick={() => { displayGridMode(false) }} sx={{ color: !showGrid ? 'secondary.main' : '#adafaf' }}>
           <FormatListBulletedIcon/>
         </IconButton>
       </Box>
@@ -56,7 +65,7 @@ export function SearchResult({
     <Box display='flex' justifyContent='center' sx={{ marginBottom: 2 }}>
       {
         (documents && documents.length > 0) &&
-        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2, '& li button': { fontSize: '16px', fontFamily: 'centraleSans' }}} siblingCount={4} />
+        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2, '& li button': { fontSize: '16px', fontFamily: 'centraleSans' }, '.MuiPaginationItem-page': {marginTop: '4px'}}} siblingCount={4} />
       }
     </Box>
     {
@@ -66,7 +75,7 @@ export function SearchResult({
     {! showGrid && documents && documents.map((document) => (
       <Grid container columnSpacing={{ xs: 1, sm: 2, md: 3}} sx={{ marginBottom: '20px', bgcolor: 'white' }} key={document.id}>
         <Grid item xs={4} sm={2}>
-          <Link to={'/dokument/' + document.id + '?query=' + query + '&page=' + page} style={{ minWidth: '100%' }}>
+          <Link to={'/dokument/' + document.id + '?query=' + query} style={{ minWidth: '100%' }}>
             <img
               src={ document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage } 
               style={{  width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} 
@@ -81,7 +90,7 @@ export function SearchResult({
         </Grid>
         <Grid item xs={8} sm={10}>
         <Stack direction='column' width='100%' rowGap={2}>
-            <Link to={'/dokument/' + document.id + '?query=' + query + '&page=' + page }>
+            <Link to={'/dokument/' + document.id + '?query=' + query }>
               <Typography variant='h3' sx={{ padding: '0px 0 0px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{document.fields.title?.value !== '' ? document.fields.title?.value : '-'}</Typography>
               ({document.fields.archiveInitiator?.value})
             </Link>
@@ -133,7 +142,7 @@ export function SearchResult({
     <Box display='flex' justifyContent='center' sx={{ marginBottom: 2 }}>
       {
         (documents && documents.length > 0) &&
-        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2, '& li button': { fontSize: '16px', fontFamily: 'centraleSans' }}} siblingCount={4} />
+        <Pagination page={page} count={Math.ceil((totalHits ?? 0) / pageSize) } defaultPage={page} onChange={(event, page) => { onPageChange(page) }} sx={{ paddingTop: 2, marginBottom: 2, '& li button': { fontSize: '16px', fontFamily: 'centraleSans' }, '.MuiPaginationItem-page': {marginTop: '4px'}}} siblingCount={4} />
       }
     </Box>
     </>
