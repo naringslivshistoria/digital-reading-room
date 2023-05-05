@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - main
-    - chore/prod-url
     tags:
     - production*
     - staging*
@@ -86,13 +85,12 @@ jobs:
     - run: |
         echo ${{ env.SEARCH_URL }}
 
-    # TODO: SEARCH_URL=${{ env.SEARCH_URL }}
     - name: 🔧 Build and push Docker Image
       uses: docker/build-push-action@v4
       with:
         build-args: |
           COOKIE_DOMAIN=arkivet.naringslivshistoria.se
-          SEARCH_URL=https://api.arkivet.naringslivshistoria.se
+          SEARCH_URL=${{ env.SEARCH_URL }}
         context: ./packages/${{ matrix.context }}
         push: true
         tags: |
