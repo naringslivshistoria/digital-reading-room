@@ -116,8 +116,9 @@ services:
   elasticsearch:
     container_name: elasticsearch
     environment:
-    - xpack.security.enabled=false
+    - xpack.security.enabled=true
     - "discovery.type=single-node"
+    - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
     image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1
     networks:
     - digital-reading-room
@@ -132,6 +133,8 @@ services:
     - elasticsearch
     environment:
     - ELASTICSEARCH_HOSTS=http://elastic-container:9200
+    - ELASTICSEARCH_USERNAME=elastic
+    - ELASTICSEARCH_PASSWORD=$ELASTIC_PASSWORD
     image: docker.elastic.co/kibana/kibana:8.4.1
     networks:
     - digital-reading-room
