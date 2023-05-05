@@ -8,9 +8,6 @@ on:
     - production*
     - staging*
 
-env:
-  SEARCH_URL: https://api.arkivet.naringslivshistoria.se
-
 jobs:
 
   version:
@@ -76,21 +73,12 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
       
-    - name: 📝 Set environment variables
-      if: startsWith(github.ref, 'refs/tags/production')
-      uses: allenevans/set-env@v2.0.0
-      with:
-        SEARCH_URL: 'http://search.staging.cfn.iteam.se'
-      
-    - run: |
-        echo ${{ env.SEARCH_URL }}
-
     - name: 🔧 Build and push Docker Image
       uses: docker/build-push-action@v4
       with:
         build-args: |
           COOKIE_DOMAIN=arkivet.naringslivshistoria.se
-          SEARCH_URL=${{ env.SEARCH_URL }}
+          SEARCH_URL=/api
         context: ./packages/${{ matrix.context }}
         push: true
         tags: |
