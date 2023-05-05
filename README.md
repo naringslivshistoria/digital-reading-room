@@ -47,3 +47,7 @@ All microservices are hosted with Kubernetes, see the [Operations repo](https://
 We use GitHub Actions for ci/cd. Docker images are stored in the [GitHub Container Registry](https://github.com/orgs/naringslivshistoria/packages). If builds/deploys are failing, check [githubstatus.com](https://www.githubstatus.com).
 
 Any server node that hosts the Comprima Adapter microservice needs to be connected to a [VPN](https://github.com/naringslivshistoria/operations/blob/main/VPN.md) to be able to reach Comprima.
+
+## Test
+
+edit test
