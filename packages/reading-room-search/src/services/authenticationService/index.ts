@@ -1,8 +1,8 @@
-import KoaRouter from '@koa/router'
+import KoaRouter from '@koa/router';
 
-import hash from './hash'
-import { createToken } from './jwt'
-import createHttpError from 'http-errors'
+import hash from './hash';
+import { createToken } from './jwt';
+import createHttpError from 'http-errors';
 
 export const routes = (router: KoaRouter) => {
   /**
@@ -29,17 +29,17 @@ export const routes = (router: KoaRouter) => {
    *                type: string
    */
   router.get('/auth/generatehash', async (ctx) => {
-    const { query } = ctx
+    const { query } = ctx;
 
     if (!query.password) {
-      ctx.status = 400
-      ctx.body = { errorMessage: 'Missing parameter: password' }
-      return
-    } 
+      ctx.status = 400;
+      ctx.body = { errorMessage: 'Missing parameter: password' };
+      return;
+    }
 
-    const saltAndHash = await hash.createSaltAndHash(query.password as string)
-    ctx.body = saltAndHash
-  })
+    const saltAndHash = await hash.createSaltAndHash(query.password as string);
+    ctx.body = saltAndHash;
+  });
 
   /**
    * @swagger
@@ -68,33 +68,33 @@ export const routes = (router: KoaRouter) => {
    *                type: string
    */
   router.post('/auth/generate-token', async (ctx) => {
-    const username = ctx.request.body?.username as string
-    const password = ctx.request.body?.password as string
+    const username = ctx.request.body?.username as string;
+    const password = ctx.request.body?.password as string;
 
     if (!username || !password) {
-      ctx.status = 400
-      ctx.body = { errorMessage: 'Missing parameter(s): username, password' }
-      return
+      ctx.status = 400;
+      ctx.body = { errorMessage: 'Missing parameter(s): username, password' };
+      return;
     }
 
     try {
-      const token = await createToken(username, password)
+      const token = await createToken(username, password);
       ctx.cookies.set('readingroom', token.token, {
         httpOnly: false,
         overwrite: true,
-        sameSite: 'lax', 
+        sameSite: 'lax',
         secure: false,
         domain: process.env.COOKIE_DOMAIN ?? 'dev.cfn.iteam.se',
-      })
-      ctx.body = token
+      });
+      ctx.body = token;
     } catch (error) {
       if (createHttpError.isHttpError(error)) {
-        ctx.status = (error as createHttpError.HttpError).statusCode
-        ctx.body = { message: (error as createHttpError.HttpError).message }
+        ctx.status = (error as createHttpError.HttpError).statusCode;
+        ctx.body = { message: (error as createHttpError.HttpError).message };
       } else {
-        ctx.status = 500
-        ctx.body = { message: (error as Error).message }
+        ctx.status = 500;
+        ctx.body = { message: (error as Error).message };
       }
     }
-  })
-}
+  });
+};
