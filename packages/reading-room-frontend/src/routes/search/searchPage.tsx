@@ -4,7 +4,6 @@ import { Grid } from '@mui/material'
 import { useAuth } from '../../hooks/useAuth'
 import { SearchResult, useCheckLogin, useSearch } from '.'
 import { SiteHeader } from '../../components/siteHeader'
-import { useEffect } from 'react'
 
 export const PageSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams()
