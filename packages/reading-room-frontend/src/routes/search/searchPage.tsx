@@ -2,8 +2,9 @@ import { useSearchParams } from 'react-router-dom'
 import { Grid } from '@mui/material'
 
 import { useAuth } from '../../hooks/useAuth'
-import { SearchResult, useSearch } from '.'
+import { SearchResult, useCheckLogin, useSearch } from '.'
 import { SiteHeader } from '../../components/siteHeader'
+import { useEffect } from 'react'
 
 export const PageSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -14,6 +15,7 @@ export const PageSearch = () => {
   const page = Number(searchParams.get('page') ?? 1)
 
   const { data, isLoading } = useSearch({ query, startIndex: (page - 1) * pageSize, token })
+  useCheckLogin({ token })
 
   const pageChange = (newPage: number) => {
     setSearchParams((currentParams: URLSearchParams) => {

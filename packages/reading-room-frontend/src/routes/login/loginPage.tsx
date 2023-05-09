@@ -20,9 +20,9 @@ export const PageLogin = () => {
     }
   }
 
-  /*useEffect(() => {
+  useEffect(() => {
     doLogin()
-  })*/
+  })
 
   return (
     <>
