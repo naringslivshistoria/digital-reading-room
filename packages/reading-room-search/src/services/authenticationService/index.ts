@@ -28,7 +28,7 @@ export const routes = (router: KoaRouter) => {
    *              salt:
    *                type: string
    */
-  router.get('/auth/generatehash', async (ctx) => {
+  router.get('(.*)/auth/generatehash', async (ctx) => {
     const { query } = ctx;
 
     if (!query.password) {
@@ -67,7 +67,7 @@ export const routes = (router: KoaRouter) => {
    *              token:
    *                type: string
    */
-  router.post('/auth/generate-token', async (ctx) => {
+  router.post('(.*)/auth/generate-token', async (ctx) => {
     const username = ctx.request.body?.username as string;
     const password = ctx.request.body?.password as string;
 

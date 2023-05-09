@@ -50,7 +50,7 @@ jobs:
     steps:
     - name: 🛎️ Checkout
       uses: actions/checkout@v3
-    
+
     - run: |
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
@@ -78,7 +78,7 @@ jobs:
       with:
         build-args: |
           COOKIE_DOMAIN=arkivet.naringslivshistoria.se
-          SEARCH_URL=https://api.arkivet.naringslivshistoria.se
+          SEARCH_URL=/api
         context: ./packages/${{ matrix.context }}
         push: true
         tags: |

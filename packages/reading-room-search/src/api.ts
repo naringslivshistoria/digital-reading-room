@@ -9,7 +9,7 @@ searchRoutes(router);
 thumbnailRoutes(router);
 documentRoutes(router);
 
-router.get('/isloggedin', async (ctx) => {
+router.get('(.*)/isloggedin', async (ctx) => {
   ctx.body = 'true';
 });
 
