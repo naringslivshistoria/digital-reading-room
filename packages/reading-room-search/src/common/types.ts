@@ -1,5 +1,5 @@
 interface Field {
-  id: number,
+  id: number
   originalName: string
   value: string
 }
@@ -9,15 +9,15 @@ interface Fields {
 }
 
 interface Page {
-  pageType: string,
-  url: string,
-  thumbnailUrl: string,
+  pageType: string
+  url: string
+  thumbnailUrl: string
 }
 
 interface Document {
-  id: number,
-  documentState: string,
-  fields: Fields,
+  id: number
+  documentState: string
+  fields: Fields
   pages: [Page]
 }
 
@@ -29,11 +29,8 @@ interface User {
   passwordHash: string
   salt: string
   failedLoginAttempts: number
+  depositors: string | null
+  archiveInitiators: string | null
 }
 
-export {
-  Document,
-  Field,
-  Fields,
-  User,
-}
+export { Document, Field, Fields, User }
