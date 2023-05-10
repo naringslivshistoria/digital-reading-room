@@ -11,6 +11,7 @@ import { Document } from '../../common/types'
 import { createGeographyString } from '../search'
 import noImage from '../../../assets/no-image.png'
 import { MetaDataField } from '../../components/metaDataField'
+import termsPdf from '../../../assets/cfn-nedladdning-villkor.pdf'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
@@ -60,7 +61,7 @@ export const DocumentPage = () => {
         <Stack direction='row' justifyContent='space-between' alignItems='flex-end' sx={{ padding: '20px 0 20px 0' }}>
           <Box>
             <Typography variant='h3' >{document.fields.title?.value}</Typography>
-            ({document.fields.archiveInitiator?.value})
+            (från arkivet {document.fields.archiveInitiator?.value})
           </Box>
           <Button variant='text' disableElevation sx={{ color: 'secondary.main', '&:hover': { backgroundColor: 'secondary.main', color: 'white'} }} onClick={() => { setShowDownload(true) }}>
             Ladda ner <DownloadIcon />
@@ -70,7 +71,7 @@ export const DocumentPage = () => {
               <Typography variant='h2'>Ladda ner media</Typography>
             </DialogTitle>
             <DialogContent>
-              Disclaimer: att du kan ladda ner filen här betyder inte att du har rätt att använda den fritt. <b><a href='http://cfnonline.se/en/terms-of-use/' target='_blank' rel='noreferrer'>Läs mer här</a></b>. Genom att fortsätta med nedladdningen accepterar du villkoren.
+              Att du kan ladda ner filen betyder inte att du har rätt att använda den fritt. <b><a href={termsPdf} target='_blank' rel='noreferrer'>Läs mer här om vilka villkor som gäller</a></b>. Genom att ladda ned accepterar du de villkoren.
             </DialogContent>
             <DialogActions>
               <Button onClick={() => { setShowDownload(false)}} sx={{ marginRight: 2 }}>Stäng</Button>
@@ -83,9 +84,9 @@ export const DocumentPage = () => {
           </Dialog>
         </Stack>
         <Box sx={{ marginTop: 1, marginBottom: 5 }}>
-          <a href={ `${searchUrl}/document/${document.id}/attachment/${document.fields.filename?.value ?? 'bilaga'}`} target="_blank" rel="noreferrer">
+          <Button onClick={() => { setShowDownload(true) }}>
             <img src={document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage} alt='Liten bild för dokumentet' />
-          </a>
+          </Button>
         </Box>
         <Stack direction='column' width='100%' rowGap={2}>
           <Grid container rowSpacing={{ xs:1, sm: 2}} columnSpacing={{ xs:1, sm: 2}}>

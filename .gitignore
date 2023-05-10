@@ -8,6 +8,7 @@ dist/
 
 # Dependency directory
 node_modules/
+docker-compose-local.yaml
 
 # Editors
 .vscode/*
