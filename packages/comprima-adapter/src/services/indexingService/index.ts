@@ -78,28 +78,34 @@ const indexDocument = async (document: Document) => {
     const id = document.id.toString();
     const index = 'comprima';
 
-    try {
-      await client.update({
+    await client
+      .get({
         id,
         index,
-        doc: {
-          fields: document.fields,
-        },
-      });
-    } catch (error) {
-      console.log(
-        `Could not update documet; trying to save as new instead: ${id}`
-      );
-      await client
-        .index({
+      })
+      .then(() => {
+        console.log(`Document ${id} already exists, updating fields...`);
+        return client.update({
           id,
           index,
-          document,
-        })
-        .catch((error) => {
-          throw error;
+          doc: {
+            fields: document.fields,
+          },
         });
-    }
+      })
+      .catch(() => {
+        console.log(`Save new document ${id}.`);
+        return client
+          .index({
+            id,
+            index,
+            document,
+          })
+          .catch((innerEror) => {
+            // Something else is wrong!
+            throw innerEror;
+          });
+      });
   } catch (err) {
     console.error(err);
   }
