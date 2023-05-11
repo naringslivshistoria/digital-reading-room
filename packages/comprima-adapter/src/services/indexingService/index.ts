@@ -75,11 +75,31 @@ const indexDocument = async (document: Document) => {
       document.pages[0].thumbnailUrl = undefined;
     }
 
-    await client.index({
-      index: 'comprima',
-      id: document.id.toString(),
-      document,
-    });
+    const id = document.id.toString();
+    const index = 'comprima';
+
+    try {
+      await client.update({
+        id,
+        index,
+        doc: {
+          fields: document.fields,
+        },
+      });
+    } catch (error) {
+      console.log(
+        `Could not update documet; trying to save as new instead: ${id}`
+      );
+      await client
+        .index({
+          id,
+          index,
+          document,
+        })
+        .catch((error) => {
+          throw error;
+        });
+    }
   } catch (err) {
     console.error(err);
   }
