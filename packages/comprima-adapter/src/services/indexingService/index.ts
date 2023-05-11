@@ -75,11 +75,37 @@ const indexDocument = async (document: Document) => {
       document.pages[0].thumbnailUrl = undefined;
     }
 
-    await client.index({
-      index: 'comprima',
-      id: document.id.toString(),
-      document,
-    });
+    const id = document.id.toString();
+    const index = 'comprima';
+
+    await client
+      .get({
+        id,
+        index,
+      })
+      .then(() => {
+        console.log(`Document ${id} already exists, updating fields...`);
+        return client.update({
+          id,
+          index,
+          doc: {
+            fields: document.fields,
+          },
+        });
+      })
+      .catch(() => {
+        console.log(`Save new document ${id}.`);
+        return client
+          .index({
+            id,
+            index,
+            document,
+          })
+          .catch((innerEror) => {
+            // Something else is wrong!
+            throw innerEror;
+          });
+      });
   } catch (err) {
     console.error(err);
   }
