@@ -77,7 +77,7 @@ export function SearchResult({
         <Grid item xs={4} sm={2}>
           <Link to={'/dokument/' + document.id + '?query=' + query} style={{ minWidth: '100%' }}>
             <img
-              src={ document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage } 
+              src={ document.pages[0].thumbnailUrl ? searchUrl + "/document/" + document.id + '/thumbnail' : noImage } 
               style={{  width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} 
               alt="Tumnagelbild"
               onError={({ currentTarget }) => {

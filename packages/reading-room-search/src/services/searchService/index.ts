@@ -20,8 +20,8 @@ const createAccessFilter = (
   if (depositors) {
     depositors.forEach((depositor) => {
       accessFilter.push({
-        match: {
-          'fields.depositor.value': depositor,
+        term: {
+          'fields.depositor.value.keyword': depositor,
         },
       })
     })
@@ -30,8 +30,8 @@ const createAccessFilter = (
   if (archiveInitiators) {
     archiveInitiators.forEach((archiveInitiator) => {
       accessFilter.push({
-        match: {
-          'fields.archiveInitiator.value': archiveInitiator,
+        term: {
+          'fields.archiveInitiator.value.keyword': archiveInitiator,
         },
       })
     })
@@ -48,10 +48,8 @@ const search = async (
   size = 20
 ) => {
   const queryString = Array.isArray(query) ? query[0] : query
-  console.log('state', depositors, archiveInitiators)
 
   const accessFilter = createAccessFilter(depositors, archiveInitiators)
-  console.log('accessfilter', accessFilter)
 
   const searchResults = await client.search({
     from: start,
@@ -66,7 +64,7 @@ const search = async (
           },
         },
         should: accessFilter,
-        minimum_should_match: accessFilter ? 1 : 0,
+        minimum_should_match: 1,
       },
     },
   })
@@ -93,8 +91,6 @@ export const routes = (router: KoaRouter) => {
       ctx.body = { errorMessage: 'Missing parameter: query' }
       return
     }
-
-    console.log(ctx.state.user)
 
     try {
       const results = await search(
