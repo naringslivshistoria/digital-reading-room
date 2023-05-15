@@ -18,6 +18,5 @@ This template includes a minimal setup for writing a backend in [Koa](https://ko
 
 ## Misc
 
-- [koa-pino-http](https://www.npmjs.com/package/koa-pino-logger) provides logging
 - [Jest](https://jestjs.io/) is used for testing along with [supertest](https://www.npmjs.com/package/supertest)
 - There is a simple error handler provided in [src/middleware/error-handler.ts]()
