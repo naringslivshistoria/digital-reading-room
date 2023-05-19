@@ -141,7 +141,7 @@ export const routes = (router: KoaRouter) => {
       const document = await getDocument(
         documentId,
         ctx.state?.user?.archiveInitiators,
-        ctx.state?.user?.archiveInitiators
+        ctx.state?.user?.depositors
       )
 
       if (document) {
