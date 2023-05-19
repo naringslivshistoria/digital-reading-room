@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { TextField, Button, Alert, Grid, Typography } from '@mui/material'
 import { Stack } from '@mui/system'
 
@@ -8,8 +8,8 @@ import { SiteHeader } from '../../components/siteHeader'
 export const PageLogin = () => {
   const { onLogin } = useAuth()
 
-  const [username, setUsername] = useState<string>('dev-team')
-  const [password, setPassword] = useState<string>('lm-rummet')
+  const [username, setUsername] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
   const [error, setError] = useState<boolean>(false)
 
   const doLogin = async () => {
@@ -19,10 +19,6 @@ export const PageLogin = () => {
       setError(!result)
     }
   }
-
-  useEffect(() => {
-    doLogin()
-  })
 
   return (
     <>

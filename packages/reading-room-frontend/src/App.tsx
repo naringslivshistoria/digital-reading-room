@@ -6,6 +6,7 @@ import { AxiosError } from 'axios'
 import { PageSearch } from './routes/search/searchPage'
 import { PageAbout } from './routes/about/aboutPage'
 import { PageLogin } from './routes/login/loginPage'
+import { PageAutoLogin } from './routes/login/autoLoginPage'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import { DocumentPage } from './routes/document/documentPage'
 import CentraleSansRegular from '../assets/CentraleSans-Regular.woff2'
@@ -15,7 +16,7 @@ const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: error => {
       if ((error as AxiosError).response?.status === 401) {
-        location.replace('/login')
+        location.replace('/autologin')
       } else {
         console.log('An error occurred fetching data', error)
       }
@@ -145,6 +146,7 @@ function App() {
                 </ProtectedRoute>
               }/>
               <Route path="/login" element={<PageLogin />} />
+              <Route path="/autologin" element={<PageAutoLogin />} />
             </Routes>
           </Box>
         </AuthProvider>

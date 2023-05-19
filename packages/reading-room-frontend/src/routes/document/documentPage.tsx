@@ -85,7 +85,10 @@ export const DocumentPage = () => {
         </Stack>
         <Box sx={{ marginTop: 1, marginBottom: 5 }}>
           <Button onClick={() => { setShowDownload(true) }}>
-            <img src={document.pages[0].thumbnailUrl ? searchUrl + "/thumbnail/" + document.id : noImage} alt='Liten bild för dokumentet' />
+            <img src={document.pages[0].thumbnailUrl ? searchUrl + '/document/' + document.id + '/thumbnail' : noImage} alt='Liten bild för dokumentet' onError={({ currentTarget }) => {
+                currentTarget.onerror = null // prevents looping
+                currentTarget.src = noImage
+              }}/>
           </Button>
         </Box>
         <Stack direction='column' width='100%' rowGap={2}>
