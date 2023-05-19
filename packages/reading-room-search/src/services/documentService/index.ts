@@ -81,8 +81,8 @@ export const routes = (router: KoaRouter) => {
     try {
       const results = await getDocument(
         id,
-        ctx.state.user.archiveInitiators,
-        ctx.state.user.depositors
+        ctx.state?.user?.archiveInitiators,
+        ctx.state?.user?.depositors
       )
       ctx.body = { results: results }
     } catch (err) {
@@ -140,8 +140,8 @@ export const routes = (router: KoaRouter) => {
       // that attachment thereby is allowed to be retrieved
       const document = await getDocument(
         documentId,
-        ctx.state.user.archiveInitiators,
-        ctx.state.user.archiveInitiators
+        ctx.state?.user?.archiveInitiators,
+        ctx.state?.user?.archiveInitiators
       )
 
       if (document) {

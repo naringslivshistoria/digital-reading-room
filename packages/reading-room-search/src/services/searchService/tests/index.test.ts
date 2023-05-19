@@ -19,8 +19,8 @@ jest.mock('../../../common/config', () => {
       elasticSearch: {
         url: 'http://fakehost:123',
         indexName: 'svejs',
-      }
-    }
+      },
+    },
   }
 })
 
@@ -34,9 +34,15 @@ describe('searchService', () => {
       expect(elasticSpy).toBeCalledWith({
         index: 'svejs',
         query: {
-          query_string: {
-            query: 'searchQuery'
-          }
+          bool: {
+            must: {
+              query_string: {
+                query: 'searchQuery',
+              },
+            },
+            should: undefined,
+            minimum_should_match: 1,
+          },
         },
         from: 0,
         size: 20,
@@ -52,7 +58,7 @@ describe('searchService', () => {
       expect(res.status).toEqual(200)
       expect(res.body).toEqual({
         query: 'searchQuery',
-        results: [ searchResultMock.hits.hits[0]._source ],
+        results: [searchResultMock.hits.hits[0]._source],
         hits: 20,
       })
     })
