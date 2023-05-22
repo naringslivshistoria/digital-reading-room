@@ -92,6 +92,8 @@ export const routes = (router: KoaRouter) => {
       return
     }
 
+    console.log(ctx.state.user)
+
     try {
       const results = await search(
         query,
