@@ -1,38 +1,37 @@
-import {
-  Fields,
-  Document,
-} from '../../common/types'
+import { Fields, Document } from '../../common/types'
 
 interface ComprimaPage {
   Page: {
-    PageType: string,
-    Data: string,
-    ThumbnailData: string,
+    PageType: string
+    Data: string
+    ThumbnailData: string
   }
 }
 
 interface ComprimaIndex {
-  Value: string,
-  Number: number,
-  FieldType: string,
-  FieldName: string,
+  Value: string
+  Number: number
+  FieldType: string
+  FieldName: string
 }
 
 interface ComprimaDocument {
-  Id: number,
-  DocumentState: string,
-  IsDeleted: boolean,
+  Id: number
+  DocumentState: string
+  IsDeleted: boolean
   Indices: {
     Index: ComprimaIndex[]
   }
-  Pages: ComprimaPage,
+  Pages: ComprimaPage
 }
 
-const transformDocuments = (xmlDocuments: ComprimaDocument[]) : Document[] => {
-  const documents = xmlDocuments.map((xmlDocument : ComprimaDocument) : Document => {
-    const document = transformDocument(xmlDocument)
-    return document
-  })
+const transformDocuments = (xmlDocuments: ComprimaDocument[]): Document[] => {
+  const documents = xmlDocuments.map(
+    (xmlDocument: ComprimaDocument): Document => {
+      const document = transformDocument(xmlDocument)
+      return document
+    }
+  )
 
   return documents
 }
@@ -41,62 +40,62 @@ interface IndexName {
   [key: string]: string
 }
 
-const indexTranslatedNames : IndexName = {
-  'motivid': 'motiveId',
-  'filnamn': 'filename',
-  'rubrik': 'title',
+const indexTranslatedNames: IndexName = {
+  motivid: 'motiveId',
+  filnamn: 'filename',
+  rubrik: 'title',
   'vidare-beskrivning': 'description',
-  'originaltext': 'originalText',
-  'kommentar': 'comment',
-  'tidpunkt': 'time',
-  'kreatörnamn': 'creatorName',
-  'kreatör': 'creator',
-  'yrke': 'occupation',
+  originaltext: 'originalText',
+  kommentar: 'comment',
+  tidpunkt: 'time',
+  kreatörnamn: 'creatorName',
+  kreatör: 'creator',
+  yrke: 'occupation',
   'kreatör-adress': 'creatorAddress',
   'kreatör-ort': 'creatorCity',
   'kreatör-land': 'creatorCountry',
-  'firma': 'company',
+  firma: 'company',
   'geografisk-plats': 'location',
-  'gatunummer': 'streetNumber',
-  'fastighet': 'property',
-  'kvarter': 'block',
-  'församling': 'parish',
+  gatunummer: 'streetNumber',
+  fastighet: 'property',
+  kvarter: 'block',
+  församling: 'parish',
   'område-mindre': 'areaMinor',
   'område-större': 'areaMajor',
-  'ort': 'city',
-  'kommun': 'municipality',
-  'län': 'region',
-  'land': 'country',
+  ort: 'city',
+  kommun: 'municipality',
+  län: 'region',
+  land: 'country',
   'gata-2': 'street2',
   'gatunummer-2': 'streetNumber2',
   'fastighet-2': 'property2',
   'kvarter-2': 'block2',
-  'deponent': 'depositor',
-  'arkivbildare': 'archiveInitiator',
-  'seriesignum': 'seriesSignature',
-  'serie': 'seriesName',
-  'volym': 'volume',
-  'taggar': 'tags',
-  'title': 'englishTitle',
-  'description': 'englishDescription',
-  'publicerad': 'published',
-  'rättigheter': 'rights',
-  'album': 'album',
+  deponent: 'depositor',
+  arkivbildare: 'archiveInitiator',
+  seriesignum: 'seriesSignature',
+  serie: 'seriesName',
+  volym: 'volume',
+  taggar: 'tags',
+  title: 'englishTitle',
+  description: 'englishDescription',
+  publicerad: 'published',
+  rättigheter: 'rights',
+  album: 'album',
   'förvaring/ordning': 'storage',
-  'mediabärare': 'mediaCarrier',
-  'ursprungsid': 'originId',
-  'format': 'format',
-  'upplösning': 'resolution',
-  'språk': 'language',
-  'objektid': 'objectId',
-  'färgkodning': 'colorCode',
-  'negativ': 'negative',
-  'typ': 'type',
-  'mime': 'mimeType',
-  'längd': 'length',
-  'gata': 'street',
-  'version': 'version',
-  'egenskaper': 'characteristics',
+  mediabärare: 'mediaCarrier',
+  ursprungsid: 'originId',
+  format: 'format',
+  upplösning: 'resolution',
+  språk: 'language',
+  objektid: 'objectId',
+  färgkodning: 'colorCode',
+  negativ: 'negative',
+  typ: 'type',
+  mime: 'mimeType',
+  längd: 'length',
+  gata: 'street',
+  version: 'version',
+  egenskaper: 'characteristics',
   '1': 'motiveId',
   '2': 'filename',
   '3': 'title',
@@ -154,27 +153,32 @@ const indexTranslatedNames : IndexName = {
   '55': 'unknown55',
 }
 
-const getIndexName = (indexName: string) : string => {
+const removedFields = ['comment', 'storage']
+
+const getIndexName = (indexName: string): string => {
   let name = indexTranslatedNames[indexName]
   if (!name) {
-    console.error("No translation for", indexName)
+    console.error('No translation for', indexName)
     name = indexName
   }
 
   return name
 }
 
-const transformDocument = (xmlDocument : ComprimaDocument) : Document => {
-  const fields : Fields = {}
+const transformDocument = (xmlDocument: ComprimaDocument): Document => {
+  const fields: Fields = {}
 
-  xmlDocument.Indices.Index.forEach((index : ComprimaIndex) => {
-    const translationKey = index.FieldName?.toLowerCase().replace(' ', '-') ?? index.Number
+  xmlDocument.Indices.Index.forEach((index: ComprimaIndex) => {
+    const translationKey =
+      index.FieldName?.toLowerCase().replace(' ', '-') ?? index.Number
     const indexName = getIndexName(translationKey)
 
-    fields[indexName] = {
-      id: index.Number,
-      originalName: index.FieldName,
-      value: index.Value,
+    if (!removedFields.includes(indexName)) {
+      fields[indexName] = {
+        id: index.Number,
+        originalName: index.FieldName,
+        value: index.Value,
+      }
     }
   })
 
@@ -182,15 +186,17 @@ const transformDocument = (xmlDocument : ComprimaDocument) : Document => {
     id: xmlDocument.Id,
     documentState: xmlDocument.DocumentState,
     fields,
-    pages: [ {
-      pageType: xmlDocument.Pages.Page.PageType,
-      url: xmlDocument.Pages.Page.Data,
-      thumbnailUrl: xmlDocument.Pages.Page.ThumbnailData,
-    }]
+    pages: [
+      {
+        pageType: xmlDocument.Pages.Page.PageType,
+        url: xmlDocument.Pages.Page.Data,
+        thumbnailUrl: xmlDocument.Pages.Page.ThumbnailData,
+      },
+    ],
   }
 }
 
 export default {
   transformDocuments,
-  transformDocument
+  transformDocument,
 }
