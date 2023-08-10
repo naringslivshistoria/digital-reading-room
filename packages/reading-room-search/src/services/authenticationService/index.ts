@@ -79,13 +79,15 @@ export const routes = (router: KoaRouter) => {
 
     try {
       const token = await createToken(username, password)
-      ctx.cookies.set('readingroom', token.token, {
-        httpOnly: false,
+      const cookieOptions = {
+        httpOnly: true,
         overwrite: true,
-        sameSite: 'lax',
+        sameSite: false,
         secure: false,
         domain: process.env.COOKIE_DOMAIN ?? 'dev.cfn.iteam.se',
-      })
+      }
+
+      ctx.cookies.set('readingroom', token.token, cookieOptions)
       ctx.body = token
     } catch (error) {
       if (createHttpError.isHttpError(error)) {

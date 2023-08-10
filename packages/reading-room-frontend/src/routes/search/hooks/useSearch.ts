@@ -1,18 +1,18 @@
-import axios, { AxiosError } from 'axios';
-import { useQuery } from 'react-query';
+import axios, { AxiosError } from 'axios'
+import { useQuery } from 'react-query'
 
-import { Document } from '../../../common/types';
+import { Document } from '../../../common/types'
 
-const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001';
+const searchUrl = import.meta.env.VITE_SEARCH_URL || '/api'
 
 export interface SearchResponse {
-  query: string;
-  results: Document[];
-  hits: number;
+  query: string
+  results: Document[]
+  hits: number
 }
 
 const fixSimpleQuery = (query: string) => {
-  const queryWords = query.split(' ');
+  const queryWords = query.split(' ')
   const fixedWords = queryWords.map((word) => {
     if (
       word.startsWith('(') ||
@@ -20,31 +20,31 @@ const fixSimpleQuery = (query: string) => {
       word.endsWith(')') ||
       word.endsWith('"')
     ) {
-      return word;
+      return word
     } else if (['and', 'not', 'or'].includes(word.toLowerCase())) {
-      return word.toUpperCase();
+      return word.toUpperCase()
     } else {
-      return `*${word}*`;
+      return `*${word}*`
     }
-  });
+  })
 
-  return fixedWords.join(' ');
-};
+  return fixedWords.join(' ')
+}
 
 export const useSearch = ({
   query,
   startIndex,
   token,
 }: {
-  query: string;
-  startIndex: number;
-  token: string | null;
+  query: string
+  startIndex: number
+  token: string | null
 }) =>
   useQuery<SearchResponse, AxiosError>({
     queryKey: ['search', query, startIndex],
     queryFn: async () => {
       if (query) {
-        const fixedQuery = fixSimpleQuery(query);
+        const fixedQuery = fixSimpleQuery(query)
         const { data } = await axios.get<SearchResponse>(
           `${searchUrl}/search?query=${fixedQuery}&start=${startIndex}`,
           {
@@ -53,25 +53,25 @@ export const useSearch = ({
               Authorization: 'Bearer ' + token,
             },
           }
-        );
+        )
 
-        return data;
+        return data
       } else {
         return {
           query: query,
           hits: 0,
           results: [],
-        };
+        }
       }
     },
     retry: (failureCount: number, error: AxiosError) => {
       if (error.response?.status === 401) {
-        return false;
+        return false
       } else {
-        return failureCount < 3;
+        return failureCount < 3
       }
     },
-  });
+  })
 
 export const useCheckLogin = ({ token }: { token: string | null }) => {
   useQuery({
@@ -81,7 +81,7 @@ export const useCheckLogin = ({ token }: { token: string | null }) => {
           Accept: 'application/json',
           Authorization: 'Bearer ' + token,
         },
-      });
+      })
     },
-  });
-};
+  })
+}
