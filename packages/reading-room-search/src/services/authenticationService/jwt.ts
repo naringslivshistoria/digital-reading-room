@@ -95,7 +95,7 @@ export const createToken = async (username: string, password: string) => {
       },
       config.auth.secret,
       {
-        expiresIn: config.auth.expiresIn,
+        expiresIn: '1m', //config.auth.expiresIn,
       }
     )
 

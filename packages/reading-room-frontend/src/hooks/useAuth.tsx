@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { createContext, useState, useContext, Context } from 'react'
 import axios from 'axios'
 import Cookies from 'universal-cookie'
 
-const loginUrl = import.meta.env.VITE_SEARCH_URL || 'https://search.dev.cfn.iteam.se'
-const cookieDomain = import.meta.env.VITE_COOKIE_DOMAIN || 'dev.cfn.iteam.se'
+const loginUrl =
+  import.meta.env.VITE_SEARCH_URL || 'https://search.dev.cfn.iteam.se'
 
 export interface LoginResponse {
   token: string
@@ -15,8 +15,8 @@ const getToken = async (username: string, password: string) => {
     `${loginUrl}/auth/generate-token`,
     {
       username,
-      password
-    },
+      password,
+    }
   )
 
   return data
@@ -28,12 +28,12 @@ interface ContextSettings {
   token: string | null
 }
 
-let AuthContext : Context<ContextSettings>
+let AuthContext: Context<ContextSettings>
 
-export const AuthProvider = ({ children } : { children: any }) => {
-  const [token, setToken] = useState<string|null>(null)
-  const cookies = new Cookies()
+export const AuthProvider = ({ children }: { children: any }) => {
+  const [token, setToken] = useState<string | null>(null)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   const storedToken = localStorage.getItem('token')
 
@@ -48,9 +48,15 @@ export const AuthProvider = ({ children } : { children: any }) => {
       if (token) {
         setToken(token)
         localStorage.setItem('token', token)
-        // TODO: Do not set cookie from frontend.
-        cookies.set('readingroom', token, { path: '/', secure: true, sameSite: 'lax', httpOnly: false, domain: cookieDomain, })
-        navigate('/')
+
+        const query = searchParams.get('query')
+
+        history.replaceState
+        if (query) {
+          navigate('/search?query=' + query)
+        } else {
+          navigate('/')
+        }
         return true
       }
     } catch (error) {
@@ -74,13 +80,9 @@ export const AuthProvider = ({ children } : { children: any }) => {
 
   AuthContext = createContext<ContextSettings>(value)
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export const useAuth = () => {
   return useContext(AuthContext)
-};
+}

@@ -1,5 +1,5 @@
 import { QueryCache, QueryClient, QueryClientProvider } from 'react-query'
-import { Routes, Route, Navigate } from "react-router-dom"
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { createTheme, Box, CssBaseline, ThemeProvider } from '@mui/material'
 import { AxiosError } from 'axios'
 
@@ -14,14 +14,18 @@ import PublicoTextItalic from '../assets/PublicoText-Italic.woff2'
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
-    onError: error => {
+    onError: (error, query) => {
       if ((error as AxiosError).response?.status === 401) {
-        location.replace('/autologin')
+        if (query && query.queryKey && query.queryKey[0] === 'search') {
+          location.replace('/autologin?query=' + query.queryKey[1])
+        } else {
+          location.replace('/autologin')
+        }
       } else {
         console.log('An error occurred fetching data', error)
       }
-    }
-  })
+    },
+  }),
 })
 
 const publicoTextItalic = {
@@ -46,11 +50,11 @@ const centraleSans = {
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
-    neutral?: PaletteOptions['primary'];
+    neutral?: PaletteOptions['primary']
   }
 
   interface Palette {
-    neutral: Palette['primary'];
+    neutral: Palette['primary']
   }
 }
 
@@ -58,29 +62,29 @@ const mdTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#de3831'
+      main: '#de3831',
     },
     secondary: {
-      main: '#53565a'
+      main: '#53565a',
     },
     background: {
-      default: 'white'
+      default: 'white',
     },
     neutral: {
-      main: 'white'
-    }
+      main: 'white',
+    },
   },
   typography: {
     h1: {
       fontSize: 40,
       fontFamily: 'publicoTextItalic',
       color: 'white',
-      fontStyle: 'italic'
+      fontStyle: 'italic',
     },
     h2: {
       fontSize: 24,
       fontFamily: 'publicoTextItalic',
-      fontStyle: 'italic'
+      fontStyle: 'italic',
     },
     h3: {
       fontFamily: 'centraleSans',
@@ -100,14 +104,14 @@ const mdTheme = createTheme({
     body2: {
       fontSize: 20,
       fontFamily: 'publicoTextItalic',
-    }
+    },
   },
   components: {
     MuiCssBaseline: {
       styleOverrides: {
         html: [
-          {'@font-face': publicoTextItalic},
-          {'@font-face': centraleSans},
+          { '@font-face': publicoTextItalic },
+          { '@font-face': centraleSans },
         ],
       },
     },
@@ -130,21 +134,30 @@ function App() {
           >
             <CssBaseline />
             <Routes>
-              <Route path="/search" element={
-                <ProtectedRoute>
-                  <PageSearch />
-                </ProtectedRoute>
-              }/>
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <PageAbout />
-                </ProtectedRoute>
-              }/>
-              <Route path="/dokument/:id" element={
-                <ProtectedRoute>
-                  <DocumentPage />
-                </ProtectedRoute>
-              }/>
+              <Route
+                path="/search"
+                element={
+                  <ProtectedRoute>
+                    <PageSearch />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <PageAbout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dokument/:id"
+                element={
+                  <ProtectedRoute>
+                    <DocumentPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/login" element={<PageLogin />} />
               <Route path="/autologin" element={<PageAutoLogin />} />
             </Routes>
@@ -155,14 +168,14 @@ function App() {
   )
 }
 
-const ProtectedRoute = ({ children } : { children : any }) => {
+const ProtectedRoute = ({ children }: { children: any }) => {
   const { token } = useAuth()
 
   if (!token) {
     return <Navigate to="/autologin" replace />
   }
 
-  return children;
+  return children
 }
 
 export default App
