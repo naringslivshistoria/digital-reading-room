@@ -24,7 +24,7 @@ const fixSimpleQuery = (query: string) => {
     } else if (['and', 'not', 'or'].includes(word.toLowerCase())) {
       return word.toUpperCase()
     } else {
-      return `*${word}*`
+      return `${word}*`
     }
   })
 
