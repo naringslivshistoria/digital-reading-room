@@ -34,7 +34,7 @@ export const ocrNext = async () => {
   const next = await client.search({
     index: 'comprima',
     from: 0,
-    size: 5,
+    size: 1,
     query: {
       bool: {
         must_not: {
