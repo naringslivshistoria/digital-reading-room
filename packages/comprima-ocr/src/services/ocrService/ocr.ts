@@ -1,11 +1,29 @@
 import Tesseract from 'tesseract.js'
 import pdf2image from 'pdf-img-convert'
-const { createWorker } = Tesseract
+const { createScheduler, createWorker } = Tesseract
 import log from '../../common/log'
+import { create } from 'ts-node'
 
 const languages = [/*"eng",*/ 'swe']
 
+const NUM_WORKERS = 5
+
+let scheduler: Tesseract.Scheduler | null = null
 let worker: Tesseract.Worker | null = null
+
+const initialize = async () => {
+  try {
+    scheduler = createScheduler()
+
+    for (let i = 0; i < NUM_WORKERS; i++) {
+      const worker = await initializeWorker()
+      scheduler.addWorker(worker)
+    }
+  } catch (error: any) {
+    log.error('Error creating scheduler', error)
+    throw error
+  }
+}
 
 const initializeWorker = async () => {
   try {
@@ -17,11 +35,14 @@ const initializeWorker = async () => {
     await worker.initialize(languages.join('+')).catch((error: any) => {
       log.error('Error initializing worker', error)
     })
-    worker.setParameters({
+    await worker.setParameters({
       tessedit_pageseg_mode: Tesseract.PSM.AUTO,
     })
+
+    return worker
   } catch (error: any) {
     log.error('Error initializing worker', error)
+    throw error
   }
 }
 
@@ -30,16 +51,16 @@ const terminateWorker = async () => {
 }
 
 const ocrImage = async (fileData: ArrayBuffer) => {
-  if (worker) {
+  if (scheduler) {
     const {
       data: { text },
-    } = await worker.recognize(fileData)
+    } = await scheduler.addJob('recognize', fileData) //await worker.recognize(fileData)
     console.debug(text)
 
     // Remove hyphenation in words
     return text.replaceAll('-\n', '')
   } else {
-    throw new Error('Worker not initalized')
+    throw new Error('Workers not initalized')
   }
 }
 
@@ -52,9 +73,9 @@ const convertToImages = async (fileData: ArrayBuffer) => {
 }
 
 export default async (fileData: ArrayBuffer, type: string) => {
-  log.info('Initializing OCR worker...')
-  if (!worker) {
-    await initializeWorker()
+  if (!scheduler) {
+    log.info('Creating OCR scheduler...')
+    await initialize()
   }
 
   log.info(`Parsing attachment of type ${type}`)
@@ -96,8 +117,6 @@ const tryParsePdf = async (fileData: ArrayBuffer) => {
       log.error(`Unexpected error while converting from pdf: ${image}`)
     }
   }
-
-  //await terminateWorker()
 
   return text
 }

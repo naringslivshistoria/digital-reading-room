@@ -5,16 +5,18 @@ import axios from 'axios'
 import ocr from './ocr'
 
 const client = new Client({
-  node: config.elasticSearch.url
+  node: config.elasticSearch.url,
 })
 
-const getAttachment = async (documentId : string) => {
-  const url = `${process.env.COMPRIMA_ADAPTER__URL || 'https://comprima.dev.cfn.iteam.se'}/document/${documentId}/attachment`
+const getAttachment = async (documentId: string) => {
+  const url = `${
+    process.env.COMPRIMA_ADAPTER__URL || 'https://comprima.dev.cfn.iteam.se'
+  }/document/${documentId}/attachment`
   const response = await axios({
     method: 'get',
     url: url,
     responseType: 'arraybuffer',
-  })  
+  })
 
   return response
 }
@@ -25,7 +27,7 @@ const addOcrTextToDocument = async (documentId: string, text: string) => {
     index: 'comprima',
     doc: {
       ocrText: text,
-    }
+    },
   })
 }
 
@@ -37,18 +39,23 @@ export const routes = (router: KoaRouter) => {
       ctx.body = { errorMessage: 'Missing parameter: document Id' }
       return
     }
-  
-    try
-    {
+
+    try {
+      console.log('Processing', documentId)
       const attachment = await getAttachment(documentId)
-      const ocrText = await ocr(attachment.data, attachment.headers['content-type'])
+      console.log('Retrieved attachment')
+      const ocrText = await ocr(
+        attachment.data,
+        attachment.headers['content-type']
+      )
+      console.log('OCR complete')
 
       await addOcrTextToDocument(documentId, ocrText)
-          
+
       ctx.body = { results: ocrText }
     } catch (err) {
       ctx.status = 500
-      ctx.body = { results: 'error: ' + err}
+      ctx.body = { results: 'error: ' + err }
     }
   })
 }
