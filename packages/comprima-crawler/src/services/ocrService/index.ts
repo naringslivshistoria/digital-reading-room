@@ -30,6 +30,16 @@ const supportedExtensions = [
   '*.tiff',
 ]
 
+const markAsFailed = async (documentId: string) => {
+  await client.update({
+    id: documentId,
+    index: 'comprima',
+    doc: {
+      ocrText: '--- exterr ---',
+    },
+  })
+}
+
 export const ocrNext = async () => {
   const next = await client.search({
     index: 'comprima',
@@ -88,12 +98,15 @@ export const ocrNext = async () => {
 
   const ocrTasks = next.hits.hits.map((document) => {
     console.log('Queuing', document._id)
-    return axios.get(ocrUrl + '/ocr/' + document._id)
+    return axios.get(ocrUrl + '/ocr/' + document._id).catch(async (error) => {
+      console.log('Marking document as failed', document._id)
+      await markAsFailed(document._id)
+    })
   })
 
   const results = await Promise.all(ocrTasks)
 
-  console.log('Batch done', results)
+  console.log('Batch done')
 
   return 1
 }
