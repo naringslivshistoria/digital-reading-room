@@ -43,15 +43,18 @@ export const routes = (router: KoaRouter) => {
     try {
       console.log('Processing', documentId)
       const attachment = await getAttachment(documentId)
-      console.log('Retrieved attachment')
-      const ocrText = await ocr(
-        attachment.data,
-        attachment.headers['content-type']
-      )
-      console.log('OCR complete')
+      console.log('Retrieved attachment', attachment.data.length)
+
+      let ocrText: string
+      if (attachment.data.length > 100000000) {
+        ocrText = await ocr(attachment.data, attachment.headers['content-type'])
+        console.log('OCR complete')
+      } else {
+        console.log('Attachment too large', attachment.data.length)
+        ocrText = '--- extsz ---'
+      }
 
       await addOcrTextToDocument(documentId, ocrText)
-
       ctx.body = { results: ocrText }
     } catch (err) {
       ctx.status = 500
