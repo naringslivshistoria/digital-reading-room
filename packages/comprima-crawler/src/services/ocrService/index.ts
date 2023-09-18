@@ -1,13 +1,13 @@
-import { Client } from '@elastic/elasticsearch';
-import Axios from 'axios';
-import config from '../../common/config';
-import log from '../../common/log';
+import { Client } from '@elastic/elasticsearch'
+import axios from 'axios'
+import config from '../../common/config'
+import log from '../../common/log'
 
 const client = new Client({
   node: config.elasticSearch.url,
-});
+})
 
-const ocrUrl = config.ocrUrl;
+const ocrUrl = config.ocrUrl
 
 const supportedFormats = [
   'image/jpg',
@@ -18,7 +18,7 @@ const supportedFormats = [
   'image/tif',
   'image/tiff',
   'image/webp',
-];
+]
 
 const supportedExtensions = [
   '*.jpg',
@@ -28,13 +28,13 @@ const supportedExtensions = [
   '*.pdf',
   '*.tif',
   '*.tiff',
-];
+]
 
 export const ocrNext = async () => {
   const next = await client.search({
     index: 'comprima',
     from: 0,
-    size: 1,
+    size: 10,
     query: {
       bool: {
         must_not: {
@@ -77,21 +77,23 @@ export const ocrNext = async () => {
         },
       },
     },
-  });
+  })
 
   if (next.hits.hits.length === 0) {
-    log.info('No more documents to process');
-    return null;
+    log.info('No more documents to process')
+    return null
   } else {
-    log.info(`Found ${next.hits.hits.length}`);
+    log.info(`Found ${next.hits.hits.length}`)
   }
 
-  for (const document of next.hits.hits) {
-    const nextDocumentId = document._id;
-    log.info('Processing document', nextDocumentId);
+  const ocrTasks = next.hits.hits.map((document) => {
+    console.log('Queuing', document._id)
+    return axios.get(ocrUrl + '/ocr/' + document._id)
+  })
 
-    await Axios.get(ocrUrl + '/ocr/' + nextDocumentId);
-  }
+  const results = await Promise.all(ocrTasks)
 
-  return 1;
-};
+  console.log('Batch done', results)
+
+  return 1
+}
