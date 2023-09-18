@@ -46,7 +46,7 @@ export const routes = (router: KoaRouter) => {
       console.log('Retrieved attachment', attachment.data.length)
 
       let ocrText: string
-      if (attachment.data.length > 100000000) {
+      if (attachment.data.length < 100000000) {
         ocrText = await ocr(attachment.data, attachment.headers['content-type'])
         console.log('OCR complete')
       } else {
