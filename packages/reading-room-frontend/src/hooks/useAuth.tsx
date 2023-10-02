@@ -1,7 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { createContext, useState, useContext, Context } from 'react'
 import axios from 'axios'
-import Cookies from 'universal-cookie'
 
 const loginUrl =
   import.meta.env.VITE_SEARCH_URL || 'https://search.dev.cfn.iteam.se'

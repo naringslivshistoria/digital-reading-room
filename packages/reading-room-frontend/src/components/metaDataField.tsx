@@ -1,10 +1,22 @@
-import { Typography } from "@mui/material"
+import { Typography } from '@mui/material'
 
-import { Document } from "../common/types"
+import { Document } from '../common/types'
 
-export const MetaDataField = ({document, fieldName, heading}: { document: Document, fieldName: string, heading: string}) => {
+export const MetaDataField = ({
+  document,
+  fieldName,
+  heading,
+}: {
+  document: Document
+  fieldName?: string
+  heading: string
+}) => {
   const getFieldValueString = (fieldName: string) => {
-    if (!document.fields[fieldName] || !document.fields[fieldName].value || document.fields[fieldName].value === '') {
+    if (
+      !document.fields[fieldName] ||
+      !document.fields[fieldName].value ||
+      document.fields[fieldName].value === ''
+    ) {
       return '-'
     } else {
       return document.fields[fieldName].value
@@ -13,12 +25,12 @@ export const MetaDataField = ({document, fieldName, heading}: { document: Docume
 
   return (
     <>
-    { document.fields[fieldName]?.value && (
-      <>
-        <Typography variant='h4'>{heading}</Typography>
-        {getFieldValueString(fieldName)}
-      </>
-    )}
+      {document.fields[fieldName ?? '']?.value && (
+        <>
+          <Typography variant="h4">{heading}</Typography>
+          {getFieldValueString(fieldName ?? '')}
+        </>
+      )}
     </>
   )
 }
