@@ -7,7 +7,7 @@ import transformer from './transformer'
 import { Document } from '../../common/types'
 
 let sessionId: string | undefined
-let loginInProgress: boolean = false
+let loginInProgress = false
 const user = process.env.COMPRIMA_USER
 const password = process.env.COMPRIMA_PASSWORD
 const serviceUrl = process.env.COMPRIMA_SERVICE_URL
