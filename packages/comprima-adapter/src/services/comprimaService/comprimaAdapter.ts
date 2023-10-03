@@ -1,48 +1,76 @@
-import soapRequest from 'easy-soap-request';
-import { XMLParser } from 'fast-xml-parser';
-import axios from 'axios';
-import axiosRetry from 'axios-retry';
+import soapRequest from 'easy-soap-request'
+import { XMLParser } from 'fast-xml-parser'
+import axios from 'axios'
+import axiosRetry from 'axios-retry'
 
-import transformer from './transformer';
-import { Document } from '../../common/types';
+import transformer from './transformer'
+import { Document } from '../../common/types'
 
-let sessionId: string | undefined;
-const user = process.env.COMPRIMA_USER;
-const password = process.env.COMPRIMA_PASSWORD;
-const serviceUrl = process.env.COMPRIMA_SERVICE_URL;
-const timeout = 5 * 60 * 1000;
+let sessionId: string | undefined
+let loginInProgress: boolean = false
+const user = process.env.COMPRIMA_USER
+const password = process.env.COMPRIMA_PASSWORD
+const serviceUrl = process.env.COMPRIMA_SERVICE_URL
+const timeout = 5 * 60 * 1000
 
-axiosRetry(axios, { retries: 3 });
+axiosRetry(axios, { retries: 3 })
+
+const delay = async (time: number) => {
+  return new Promise((resolve) => setTimeout(resolve, time))
+}
 
 const createRequestHeaders = (action: string) => {
   const requestHeaders = {
     'user-agent': 'comprima-adapter',
     'Content-Type': 'application/soap+xml;charset=UTF-8',
     soapAction: action,
-  };
+  }
 
-  return requestHeaders;
-};
+  return requestHeaders
+}
 
 interface SoapOptions {
-  method?: string | undefined;
-  url: string;
-  headers?: object | string | undefined;
-  xml: string;
-  timeout?: number | undefined;
-  maxBodyLength?: number | undefined;
-  maxContentLength?: number | undefined;
+  method?: string | undefined
+  url: string
+  headers?: object | string | undefined
+  xml: string
+  timeout?: number | undefined
+  maxBodyLength?: number | undefined
+  maxContentLength?: number | undefined
 }
 
 const ensureLogin = async (options: SoapOptions, relogin = false) => {
   if (!sessionId || relogin) {
-    sessionId = await login(user, password);
-    options.xml = options.xml.replace(
-      /<ns:sessionId>.*?<\/ns:sessionId>/,
-      '<ns:sessionId>' + sessionId + '</ns:sessionId>'
-    );
+    if (loginInProgress) {
+      console.log('Login is in progress, waiting')
+
+      while (loginInProgress) {
+        process.stdout.write('.')
+
+        await delay(5 * 1000)
+      }
+
+      console.log('Wait complete, session id is now', sessionId)
+      options.xml = options.xml.replace(
+        /<ns:sessionId>.*?<\/ns:sessionId>/,
+        '<ns:sessionId>' + sessionId + '</ns:sessionId>'
+      )
+
+      return
+    } else {
+      loginInProgress = true
+      sessionId = await login(user, password)
+
+      console.log('Login complete, new session id', sessionId)
+
+      options.xml = options.xml.replace(
+        /<ns:sessionId>.*?<\/ns:sessionId>/,
+        '<ns:sessionId>' + sessionId + '</ns:sessionId>'
+      )
+      loginInProgress = false
+    }
   }
-};
+}
 
 /**
  * Generic wrapper for soapRequest that will retry and do a login if session has expired
@@ -51,39 +79,39 @@ const ensureLogin = async (options: SoapOptions, relogin = false) => {
  * @returns soapRequest result
  */
 const makeSoapRequest = async (options: SoapOptions) => {
-  let result;
+  let result
 
-  await ensureLogin(options);
+  await ensureLogin(options)
 
   try {
-    result = await soapRequest(options);
+    result = await soapRequest(options)
 
-    return result;
+    return result
   } catch (error) {
     if (
       typeof error === 'string' &&
-      error.indexOf('Sessionen är inte aktiv') !== -1
+      error.indexOf('Session has expired') !== -1
     ) {
       // Check for auth error, which is returned as a 500
-      console.info('No valid login session');
-      await ensureLogin(options, true);
-      result = await soapRequest(options);
+      console.info('No valid login session')
+      await ensureLogin(options, true)
+      result = await soapRequest(options)
 
-      return result;
+      return result
     }
 
-    throw error;
+    throw error
   }
-};
+}
 
 const login = async (
   user: string | undefined,
   password: string | undefined
 ) => {
-  console.info('Logging in to Comprima');
+  console.info('Logging in to Comprima')
 
-  const action = 'http://www.dms-digital.se/c3/2011/02/IC3SearchService/Login';
-  const requestHeaders = createRequestHeaders(action);
+  const action = 'http://www.dms-digital.se/c3/2011/02/IC3SearchService/Login'
+  const requestHeaders = createRequestHeaders(action)
 
   const payload =
     '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://www.dms-digital.se/c3/2011/02">' +
@@ -103,11 +131,11 @@ const login = async (
     '</ns:password>' +
     '  </ns:Login>' +
     '</soap:Body>' +
-    '</soap:Envelope>';
+    '</soap:Envelope>'
 
   if (!serviceUrl) {
-    console.error('No COMPRIMA_SERVICE_URL has been set');
-    throw new Error('No COMPRIMA_SERVICE_URL has been set');
+    console.error('No COMPRIMA_SERVICE_URL has been set')
+    throw new Error('No COMPRIMA_SERVICE_URL has been set')
   }
 
   try {
@@ -119,20 +147,20 @@ const login = async (
       headers: requestHeaders,
       xml: payload,
       timeout,
-    });
+    })
 
-    const parser = new XMLParser();
-    const loginResponse = parser.parse(body);
+    const parser = new XMLParser()
+    const loginResponse = parser.parse(body)
 
     const sessionId =
-      loginResponse['s:Envelope']['s:Body'].LoginResponse.LoginResult;
-    console.info('Comprima login complete', sessionId);
-    return sessionId;
+      loginResponse['s:Envelope']['s:Body'].LoginResponse.LoginResult
+    console.info('Comprima login complete', sessionId)
+    return sessionId
   } catch (error) {
-    console.error('Comprima login request failed', error);
-    throw new Error('Comprima login request failed');
+    console.error('Comprima login request failed', error)
+    throw new Error('Comprima login request failed')
   }
-};
+}
 
 const getDocuments = async (
   level: string,
@@ -140,10 +168,10 @@ const getDocuments = async (
   batchSize = 10
 ): Promise<Document[]> => {
   const action =
-    'http://www.dms-digital.se/c3/2011/02/IC3SearchService/GetDocuments';
-  const skipTo = skip ?? 0;
+    'http://www.dms-digital.se/c3/2011/02/IC3SearchService/GetDocuments'
+  const skipTo = skip ?? 0
 
-  const requestHeaders = createRequestHeaders(action);
+  const requestHeaders = createRequestHeaders(action)
   let payload =
     '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://www.dms-digital.se/c3/2011/02">' +
     '  <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">' +
@@ -161,13 +189,13 @@ const getDocuments = async (
     `  &lt;Skip&gt;${skipTo}&lt;/Skip&gt;` +
     `  &lt;Take&gt;${batchSize}&lt;/Take&gt;` +
     '  &lt;FindIn&gt;' +
-    '    &lt;Levels&gt;';
+    '    &lt;Levels&gt;'
 
   // Add level.
   payload +=
     '      &lt;Level&gt;' +
     `        &lt;Id&gt;${level}&lt;/Id&gt;` +
-    '      &lt;/Level&gt;';
+    '      &lt;/Level&gt;'
 
   payload +=
     '    &lt;/Levels&gt;' +
@@ -195,12 +223,12 @@ const getDocuments = async (
     '</ns:sessionId>' +
     '      </ns:GetDocuments>' +
     '   </soap:Body>' +
-    '</soap:Envelope>';
+    '</soap:Envelope>'
 
   try {
     if (!serviceUrl) {
-      console.error('No COMPRIMA_SERVICE_URL has been set');
-      throw new Error('No COMPRIMA_SERVICE_URL has been set');
+      console.error('No COMPRIMA_SERVICE_URL has been set')
+      throw new Error('No COMPRIMA_SERVICE_URL has been set')
     }
 
     const {
@@ -211,48 +239,47 @@ const getDocuments = async (
       headers: requestHeaders,
       xml: payload,
       timeout,
-    });
+    })
 
-    const parser = new XMLParser();
-    const searchResponse = parser.parse(body);
+    const parser = new XMLParser()
+    const searchResponse = parser.parse(body)
     let documentsResult =
       searchResponse['s:Envelope']['s:Body'].GetDocumentsResponse
-        .GetDocumentsResult;
+        .GetDocumentsResult
     documentsResult = documentsResult
       .replace(/&#xD;/gim, '')
       .replace(/&gt;/gim, '>')
-      .replace(/&lt;/gim, '<');
+      .replace(/&lt;/gim, '<')
 
     const documents =
-      parser.parse(documentsResult).C3DocumentResponse.Documents.Document;
+      parser.parse(documentsResult).C3DocumentResponse.Documents.Document
 
     if (!documents) {
-      return [];
+      return []
     }
 
     try {
       const documentArray = Array.isArray(documents)
         ? documents
-        : Array(documents);
-      const transformedDocuments =
-        transformer.transformDocuments(documentArray);
+        : Array(documents)
+      const transformedDocuments = transformer.transformDocuments(documentArray)
 
-      return transformedDocuments;
+      return transformedDocuments
     } catch (error) {
-      console.error('Error transforming documents', documents);
-      throw error;
+      console.error('Error transforming documents', documents)
+      throw error
     }
   } catch (error) {
-    console.error('Comprima search request failed', error);
-    throw new Error('Comprima search request failed');
+    console.error('Comprima search request failed', error)
+    throw new Error('Comprima search request failed')
   }
-};
+}
 
 const getDocument = async (documentId: number): Promise<Document> => {
   const action =
-    'http://www.dms-digital.se/c3/2011/02/IC3SearchService/GetDocuments';
+    'http://www.dms-digital.se/c3/2011/02/IC3SearchService/GetDocuments'
 
-  const requestHeaders = createRequestHeaders(action);
+  const requestHeaders = createRequestHeaders(action)
   const payload =
     '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://www.dms-digital.se/c3/2011/02">' +
     '  <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">' +
@@ -285,12 +312,12 @@ const getDocument = async (documentId: number): Promise<Document> => {
     '</ns:sessionId>' +
     '      </ns:GetDocuments>' +
     '   </soap:Body>' +
-    '</soap:Envelope>';
+    '</soap:Envelope>'
 
   try {
     if (!serviceUrl) {
-      console.error('No COMPRIMA_SERVICE_URL has been set');
-      throw new Error('No COMPRIMA_SERVICE_URL has been set');
+      console.error('No COMPRIMA_SERVICE_URL has been set')
+      throw new Error('No COMPRIMA_SERVICE_URL has been set')
     }
 
     const {
@@ -301,43 +328,43 @@ const getDocument = async (documentId: number): Promise<Document> => {
       headers: requestHeaders,
       xml: payload,
       timeout,
-    });
+    })
 
-    const parser = new XMLParser();
-    const searchResponse = parser.parse(body);
+    const parser = new XMLParser()
+    const searchResponse = parser.parse(body)
     let documentsResult =
       searchResponse['s:Envelope']['s:Body'].GetDocumentsResponse
-        .GetDocumentsResult;
+        .GetDocumentsResult
     documentsResult = documentsResult
       .replace(/&#xD;/gim, '')
       .replace(/&gt;/gim, '>')
-      .replace(/&lt;/gim, '<');
+      .replace(/&lt;/gim, '<')
 
     try {
       const document =
-        parser.parse(documentsResult).C3DocumentResponse.Documents.Document;
-      const transformedDocument = transformer.transformDocument(document);
+        parser.parse(documentsResult).C3DocumentResponse.Documents.Document
+      const transformedDocument = transformer.transformDocument(document)
 
-      return transformedDocument;
+      return transformedDocument
     } catch (error) {
-      console.error('Error transforming document', error, documentsResult);
-      throw error;
+      console.error('Error transforming document', error, documentsResult)
+      throw error
     }
   } catch (error) {
-    console.error('Comprima search request failed', error);
-    throw new Error('Comprima search request failed');
+    console.error('Comprima search request failed', error)
+    throw new Error('Comprima search request failed')
   }
-};
+}
 
 const getAttachment = async (document: Document) => {
   const attachment = await axios.get(document.pages[0].url, {
     responseType: 'arraybuffer',
-  });
-  return attachment;
-};
+  })
+  return attachment
+}
 
 export default {
   getDocuments,
   getDocument,
   getAttachment,
-};
+}
