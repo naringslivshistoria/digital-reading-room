@@ -9,10 +9,10 @@
   "scripts": {
     "test": "jest --silent=false",
     "test:watch": "jest --watch",
-    "start": "npm run migrate:up && ts-node ./src/index.ts",
+    "start": "npm run migrate:latest && ts-node ./src/index.ts",
     "dev": "nodemon -e ts,js --exec npm run start",
     "lint": "eslint -c .eslintrc src/",
-    "migrate:up": "knex migrate:up"
+    "migrate:up": "knex migrate:latest"
   },
   "author": "",
   "license": "MIT",
