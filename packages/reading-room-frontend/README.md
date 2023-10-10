@@ -16,6 +16,12 @@ Then, install the rest of the dependencies:
 npm install
 ```
 
+```
+# Template .env.local
+VITE_SEARCH_URL=
+VITE_COOKIE_DOMAIN=
+```
+
 ## Recommended VSCode extensions
 
 - ESLint

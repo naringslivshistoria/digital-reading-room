@@ -11,19 +11,28 @@ brew install jq kubectl kubectx skaffold
 
 # Optionally, install these to make life easier:
 brew install direnv nvm
-# ...remember to setup shell hooks for them :)
+# ...remember to setup shell hooks for them :) +1
 ```
 
 ## Quick start
 
-Assuming you are using direnv, create a `.envrc` file in this dir. Then run `docker compose up` to run all of the microservices as well as elasticsearch and kibana.
+Assuming you are using direnv, create a `.envrc` file in this dir.
+Run `docker compose up` to run all of the microservices as well as elasticsearch and kibana.
+Run `docker compose up kibana postgres elasticsearch &` to run postgres, elasticsearch and kibana.
 
 ```
 # Template .envrc
-export COMPRIMA_PASSWORD=
 export COMPRIMA_SERVICE_URL=
 export COMPRIMA_USER=
+export COMPRIMA_PASSWORD=
+export COMPRIMA_USER_TEST=
+export COMPRIMA_PASSWORD_TEST=
+export POSTGRES_USER=
 export POSTGRES_PASSWORD=
+export COMPRIMA_ADAPTER__URL=
+export TESSDATA_PREFIX=
+export ELASTIC_PASSWORD=
+export KIBANA_PASSWORD=
 ```
 
 ### Configuration
