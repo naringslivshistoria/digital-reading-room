@@ -12,7 +12,7 @@
     "migrate:down": "knex migrate:down",
     "migrate:up": "knex migrate:latest",
     "seed": "knex seed:run",
-    "start": "npm run migrate:latest && ts-node ./src/index.ts",
+    "start": "npm run migrate:up && ts-node ./src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch"
   },
