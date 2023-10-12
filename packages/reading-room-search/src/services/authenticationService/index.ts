@@ -67,7 +67,7 @@ export const routes = (router: KoaRouter) => {
    *              token:
    *                type: string
    */
-  router.post('(.*)/auth/generate-token', async (ctx) => {
+  router.post('(.*)/auth/login', async (ctx) => {
     const username = ctx.request.body?.username as string
     const password = ctx.request.body?.password as string
 

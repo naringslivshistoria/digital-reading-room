@@ -17,7 +17,6 @@ import { useEffect, useState } from 'react'
 
 import { SiteHeader } from '../../components/siteHeader'
 import { useGetDocument } from './hooks/useGetDocument'
-import { useAuth } from '../../hooks/useAuth'
 import { Document } from '../../common/types'
 import noImage from '../../../assets/no-image.png'
 import { MetaDataField } from '../../components/metaDataField'
@@ -27,16 +26,18 @@ import {
   MetaDataFieldType,
   metaDataFieldConfigurations,
 } from './metaDataFieldConfigs'
+import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
 export const DocumentPage = () => {
-  const { token } = useAuth()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
-  const { data } = useGetDocument({ id: id ?? '', token })
+  const { data } = useGetDocument({ id: id ?? '' })
   const navigate = useNavigate()
   const [showDownload, setShowDownload] = useState<boolean>(false)
+
+  useIsLoggedIn()
 
   useEffect(() => {
     window.scrollTo(0, 0)

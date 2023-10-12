@@ -1,13 +1,11 @@
 import { QueryCache, QueryClient, QueryClientProvider } from 'react-query'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { createTheme, Box, CssBaseline, ThemeProvider } from '@mui/material'
 import { AxiosError } from 'axios'
 
 import { PageSearch } from './routes/search/searchPage'
 import { PageAbout } from './routes/about/aboutPage'
 import { PageLogin } from './routes/login/loginPage'
-import { PageAutoLogin } from './routes/login/autoLoginPage'
-import { AuthProvider, useAuth } from './hooks/useAuth'
 import { DocumentPage } from './routes/document/documentPage'
 import CentraleSansRegular from '../assets/CentraleSans-Regular.woff2'
 import PublicoTextItalic from '../assets/PublicoText-Italic.woff2'
@@ -17,9 +15,9 @@ const queryClient = new QueryClient({
     onError: (error, query) => {
       if ((error as AxiosError).response?.status === 401) {
         if (query && query.queryKey && query.queryKey[0] === 'search') {
-          location.replace('/autologin?query=' + query.queryKey[1])
+          location.replace('/login?query=' + query.queryKey[1])
         } else {
-          location.replace('/autologin')
+          location.replace('/login')
         }
       } else {
         console.log('An error occurred fetching data', error)
@@ -122,60 +120,26 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={mdTheme}>
-        <AuthProvider>
-          <Box
-            component="main"
-            sx={{
-              backgroundColor: (theme) =>
-                theme.palette.mode === 'light'
-                  ? theme.palette.grey[100]
-                  : theme.palette.grey[900],
-            }}
-          >
-            <CssBaseline />
-            <Routes>
-              <Route
-                path="/search"
-                element={
-                  <ProtectedRoute>
-                    <PageSearch />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <PageAbout />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dokument/:id"
-                element={
-                  <ProtectedRoute>
-                    <DocumentPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/login" element={<PageLogin />} />
-              <Route path="/autologin" element={<PageAutoLogin />} />
-            </Routes>
-          </Box>
-        </AuthProvider>
+        <Box
+          component="main"
+          sx={{
+            backgroundColor: (theme) =>
+              theme.palette.mode === 'light'
+                ? theme.palette.grey[100]
+                : theme.palette.grey[900],
+          }}
+        >
+          <CssBaseline />
+          <Routes>
+            <Route path="/search" element={<PageSearch />} />
+            <Route path="/" element={<PageAbout />} />
+            <Route path="/dokument/:id" element={<DocumentPage />} />
+            <Route path="/login" element={<PageLogin />} />
+          </Routes>
+        </Box>
       </ThemeProvider>
     </QueryClientProvider>
   )
-}
-
-const ProtectedRoute = ({ children }: { children: any }) => {
-  const { token } = useAuth()
-
-  if (!token) {
-    return <Navigate to="/autologin" replace />
-  }
-
-  return children
 }
 
 export default App

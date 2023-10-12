@@ -34,11 +34,9 @@ const fixSimpleQuery = (query: string) => {
 export const useSearch = ({
   query,
   startIndex,
-  token,
 }: {
   query: string
   startIndex: number
-  token: string | null
 }) =>
   useQuery<SearchResponse, AxiosError>({
     queryKey: ['search', query, startIndex],
@@ -50,8 +48,8 @@ export const useSearch = ({
           {
             headers: {
               Accept: 'application/json',
-              Authorization: 'Bearer ' + token,
             },
+            withCredentials: true,
           }
         )
 
@@ -68,7 +66,7 @@ export const useSearch = ({
       if (error.response?.status === 401) {
         return false
       } else {
-        return failureCount < 3
+        return failureCount <= 1
       }
     },
   })

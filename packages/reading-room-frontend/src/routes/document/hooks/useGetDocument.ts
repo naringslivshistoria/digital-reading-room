@@ -9,13 +9,7 @@ export interface GetDocumentResponse {
   results: Document | null
 }
 
-export const useGetDocument = ({
-  id,
-  token,
-}: {
-  id: string
-  token: string | null
-}) =>
+export const useGetDocument = ({ id }: { id: string }) =>
   useQuery<GetDocumentResponse, AxiosError>({
     queryKey: ['getDocument'],
     queryFn: async () => {
@@ -25,8 +19,8 @@ export const useGetDocument = ({
           {
             headers: {
               Accept: 'application/json',
-              Authorization: 'Bearer ' + token,
             },
+            withCredentials: true,
           }
         )
 
