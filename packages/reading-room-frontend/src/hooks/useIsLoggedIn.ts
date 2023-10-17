@@ -5,8 +5,8 @@ const searchUrl = import.meta.env.VITE_SEARCH_URL || '/api'
 
 export interface IsLoggedInResponse {
   username: string
-  depositors?: string | null
-  archiveInitiators?: string | null
+  depositors?: string[] | null
+  archiveInitiators?: string[] | null
 }
 
 export const useIsLoggedIn = () =>

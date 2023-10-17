@@ -4,6 +4,14 @@ import hash from './hash'
 import { createToken } from './jwt'
 import createHttpError from 'http-errors'
 
+const cookieOptions = {
+  httpOnly: true,
+  overwrite: true,
+  sameSite: false,
+  secure: false,
+  domain: process.env.COOKIE_DOMAIN ?? 'dev.cfn.iteam.se',
+}
+
 export const routes = (router: KoaRouter) => {
   /**
    * @swagger
@@ -79,13 +87,6 @@ export const routes = (router: KoaRouter) => {
 
     try {
       const token = await createToken(username, password)
-      const cookieOptions = {
-        httpOnly: true,
-        overwrite: true,
-        sameSite: false,
-        secure: false,
-        domain: process.env.COOKIE_DOMAIN ?? 'dev.cfn.iteam.se',
-      }
 
       ctx.cookies.set('readingroom', token.token, cookieOptions)
       ctx.body = token
@@ -98,5 +99,11 @@ export const routes = (router: KoaRouter) => {
         ctx.body = { message: (error as Error).message }
       }
     }
+  })
+
+  router.get('(.*)/auth/logout', async (ctx) => {
+    ctx.cookies.set('readingroom', null, cookieOptions)
+
+    ctx.redirect('/login')
   })
 }

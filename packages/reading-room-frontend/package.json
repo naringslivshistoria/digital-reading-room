@@ -16,6 +16,7 @@
     "@mui/icons-material": "^5.11.11",
     "@mui/material": "^5.11.12",
     "axios": "^0.27.2",
+    "material-ui-popup-state": "^5.0.9",
     "react": "^17.0.2",
     "react-cookie": "^4.1.1",
     "react-doc-viewer": "^0.1.5",
