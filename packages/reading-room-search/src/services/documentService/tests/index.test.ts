@@ -60,7 +60,7 @@ describe('documentService', () => {
         .mockResolvedValue(documentResultMock)
       const id = '1337'
 
-      const res = await request(app.callback())
+      await request(app.callback())
         .get('/document/' + id)
         .set('Authorization', 'Bearer ' + token)
 

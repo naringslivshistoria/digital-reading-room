@@ -4,7 +4,6 @@ import { Document } from '../../common/types'
 import config from '../../common/config'
 import axios from 'axios'
 import fs from 'fs'
-import { arch } from 'os'
 
 class DocumentNotFoundError extends Error {
   constructor(msg: string) {
