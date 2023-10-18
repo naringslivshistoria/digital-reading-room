@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { useQuery } from 'react-query'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || '/api'
@@ -19,4 +19,5 @@ export const useIsLoggedIn = () =>
 
       return data
     },
+    retry: false,
   })
