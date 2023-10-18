@@ -20,4 +20,10 @@ export const useIsLoggedIn = () =>
       return data
     },
     retry: false,
+    // Staletime determines if an actual network query should be performed.
+    // Staletime 10 minutes for this hook means the site will "autologout" no
+    // more than 10 minutes after the server-side session has expired.
+    // Any attempt at search will fail immediately if the server-side session has
+    // expired since that hook has staletime 0 and always makes a network call.
+    staleTime: 10 * 60 * 1000,
   })

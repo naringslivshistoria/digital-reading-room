@@ -41,8 +41,40 @@ export const SiteHeader = () => {
               </Link>
               {location.pathname !== '/login' && <SiteMenu />}
             </Stack>
-            {location.pathname !== '/login' && (
+            {location.pathname !== '/login' ? (
               <Search searchEnabled={location.pathname !== '/login'} />
+            ) : (
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                sx={{ paddingTop: '72px' }}
+              >
+                <Link to="/">
+                  <Stack direction="row">
+                    <Typography
+                      variant="h1"
+                      sx={{
+                        marginBottom: '10px',
+                        fontSize: { xs: '27px', sm: '40px' },
+                      }}
+                    >
+                      Digital läsesal
+                    </Typography>
+                    &nbsp;
+                    <Typography
+                      variant="h2"
+                      sx={{
+                        marginTop: { xs: '8px', sm: '12px' },
+                        marginLeft: 1,
+                        color: 'white',
+                        fontSize: { xs: '17px', sm: '24px' },
+                      }}
+                    >
+                      (beta)
+                    </Typography>
+                  </Stack>
+                </Link>
+              </Stack>
             )}
           </Grid>
         </Grid>
