@@ -21,9 +21,9 @@ jest.mock('../../../common/config', () => {
         user: 'foo',
         password: 'bar',
         database: 'xyzdb',
-        port: 6666
+        port: 6666,
       },
-    }
+    },
   }
 })
 
@@ -40,7 +40,9 @@ describe('authenticationService', () => {
         salt: 'salt1234',
         password: 'hash5678',
       }
-      const hashSpy = jest.spyOn(hash, 'createSaltAndHash').mockResolvedValue(mockResolve)
+      const hashSpy = jest
+        .spyOn(hash, 'createSaltAndHash')
+        .mockResolvedValue(mockResolve)
       await request(app.callback()).get('/auth/generatehash?password=abc1337')
       expect(hashSpy).toBeCalledWith('abc1337')
     })
@@ -51,7 +53,9 @@ describe('authenticationService', () => {
         password: 'hash5678',
       }
       jest.spyOn(hash, 'createSaltAndHash').mockResolvedValue(mockResolve)
-      const res = await request(app.callback()).get('/auth/generatehash?password=abc1337')
+      const res = await request(app.callback()).get(
+        '/auth/generatehash?password=abc1337'
+      )
       expect(res.status).toBe(200)
       expect(res.body).toEqual({
         salt: mockResolve.salt,
@@ -60,21 +64,23 @@ describe('authenticationService', () => {
     })
   })
 
-  describe('POST /auth/generate-token', () => {
+  describe('POST /auth/login', () => {
     it('requires username and password', async () => {
-      const res = await request(app.callback()).post('/auth/generate-token')
+      const res = await request(app.callback()).post('/auth/login')
       expect(res.status).toBe(400)
-      expect(res.body.errorMessage).toBe('Missing parameter(s): username, password')
+      expect(res.body.errorMessage).toBe(
+        'Missing parameter(s): username, password'
+      )
     })
 
     it('calls create token with username and password', async () => {
       const token = 'abc123'
       const jwtSpy = jest.spyOn(jwt, 'createToken').mockResolvedValue({ token })
 
-      await (await request(app.callback()).post('/auth/generate-token').send({
+      await await request(app.callback()).post('/auth/login').send({
         username: 'foo',
         password: 'bar',
-      }))
+      })
       expect(jwtSpy).toBeCalledWith('foo', 'bar')
     })
 
@@ -82,10 +88,10 @@ describe('authenticationService', () => {
       const token = 'abc123'
       jest.spyOn(jwt, 'createToken').mockResolvedValue({ token })
 
-      const res = await (await request(app.callback()).post('/auth/generate-token').send({
+      const res = await await request(app.callback()).post('/auth/login').send({
         username: 'foo',
         password: 'bar',
-      }))
+      })
       expect(res.status).toBe(200)
       expect(res.body).toEqual({ token })
     })
