@@ -12,7 +12,8 @@
     "start": "npm run migrate:up && ts-node ./src/index.ts",
     "dev": "nodemon -e ts,js --exec npm run start",
     "lint": "eslint -c .eslintrc src/",
-    "migrate:up": "knex migrate:latest"
+    "migrate:up": "knex migrate:latest",
+    "migrate:make": "knex migrate:make"
   },
   "author": "",
   "license": "MIT",

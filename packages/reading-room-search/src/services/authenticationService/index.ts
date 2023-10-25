@@ -1,7 +1,7 @@
 import KoaRouter from '@koa/router'
 
 import hash from './hash'
-import { createToken } from './jwt'
+import { createToken, createResetToken, setPassword } from './jwt'
 import createHttpError from 'http-errors'
 
 const cookieOptions = {
@@ -10,6 +10,10 @@ const cookieOptions = {
   sameSite: false,
   secure: false,
   domain: process.env.COOKIE_DOMAIN ?? 'dev.cfn.iteam.se',
+}
+
+const queryToString = (queryValue: string | string[]) => {
+  return Array.isArray(queryValue) ? queryValue[0] : queryValue
 }
 
 export const routes = (router: KoaRouter) => {
@@ -105,5 +109,69 @@ export const routes = (router: KoaRouter) => {
     ctx.cookies.set('readingroom', null, cookieOptions)
 
     ctx.redirect('/login')
+  })
+
+  router.post('(.*)/auth/send-reset-password-link', async (ctx) => {
+    if (!ctx.query.email) {
+      ctx.status = 400
+      ctx.body = { errorMessage: 'Missing parameter: email' }
+      return
+    }
+
+    const token = await createResetToken(queryToString(ctx.query.email))
+
+    ctx.body = {
+      token: token,
+    }
+  })
+
+  router.post('(.*)/auth/reset-password', async (ctx) => {
+    if (!ctx.request.body) {
+      return
+    }
+
+    if (!ctx.request.body.token) {
+      ctx.status = 400
+      ctx.request.body = {
+        errorMessage: 'Missing parameter: password reset token',
+      }
+      return
+    }
+
+    if (!ctx.request.body.email) {
+      ctx.status = 400
+      ctx.request.body = { errorMessage: 'Missing parameter: user email' }
+      return
+    }
+
+    if (!ctx.request.body.password) {
+      ctx.status = 400
+      ctx.request.body = { errorMessage: 'Missing parameter: new password' }
+      return
+    }
+
+    const saltAndHash = await hash.createSaltAndHash(
+      ctx.request.body.password as string
+    )
+
+    try {
+      await setPassword(
+        ctx.request.body.email as string,
+        ctx.request.body.token as string,
+        saltAndHash.salt,
+        saltAndHash.password
+      )
+
+      ctx.body = {
+        message: 'Password has been set',
+      }
+    } catch (error) {
+      console.error(error)
+      ctx.status = 400
+      ctx.body = {
+        message:
+          'Error resetting password. User does not exist, password reset has not been initiated or has expired, or password reset token is wrong.',
+      }
+    }
   })
 }

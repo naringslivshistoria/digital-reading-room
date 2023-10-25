@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import knex from 'knex'
 import createHttpError from 'http-errors'
+import crypto from 'crypto'
 
 import hash from './hash'
 import { User } from '../../common/types'
@@ -30,7 +31,9 @@ const getUser = async (username: string) => {
       'disabled',
       'failed_login_attempts as failedLoginAttempts',
       'depositors',
-      'archiveInitiators'
+      'archiveInitiators',
+      'reset_token',
+      'reset_token_expires'
     )
     .from<User>('users')
     .where('username', username)
@@ -104,4 +107,61 @@ export const createToken = async (username: string, password: string) => {
     console.error(error)
     throw error
   }
+}
+
+export const createResetToken = async (email: string) => {
+  const user = await getUser(email)
+
+  if (!user) {
+    throw new Error('User not found')
+  }
+
+  const token = crypto.randomBytes(32).toString('hex')
+
+  await db('users')
+    .where({
+      id: user.id,
+    })
+    .update({
+      reset_token: token,
+      reset_token_expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    })
+
+  return token
+}
+
+export const setPassword = async (
+  email: string,
+  resetToken: string,
+  salt: string,
+  hash: string
+) => {
+  const user = await getUser(email)
+
+  if (!user) {
+    throw new Error('User not found')
+  }
+
+  if (!user['reset_token']) {
+    throw new Error('No password reset token')
+  }
+
+  if (user['reset_token_epires'] && Date.now() > user['reset_token_expires']) {
+    throw new Error('Password reset token has expired')
+  }
+
+  if (user['reset_token'] !== resetToken) {
+    throw new Error('Invalid reset token')
+  }
+
+  await db('users')
+    .where({
+      id: user.id,
+    })
+    .update({
+      salt,
+      password_hash: hash,
+      reset_token: null,
+      reset_token_expires: null,
+    })
 }
