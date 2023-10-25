@@ -12,10 +12,6 @@ const cookieOptions = {
   domain: process.env.COOKIE_DOMAIN ?? 'dev.cfn.iteam.se',
 }
 
-const queryToString = (queryValue: string | string[]) => {
-  return Array.isArray(queryValue) ? queryValue[0] : queryValue
-}
-
 export const routes = (router: KoaRouter) => {
   /**
    * @swagger
@@ -112,13 +108,13 @@ export const routes = (router: KoaRouter) => {
   })
 
   router.post('(.*)/auth/send-reset-password-link', async (ctx) => {
-    if (!ctx.query.email) {
+    if (!ctx.request.body?.email) {
       ctx.status = 400
       ctx.body = { errorMessage: 'Missing parameter: email' }
       return
     }
 
-    const token = await createResetToken(queryToString(ctx.query.email))
+    const token = await createResetToken(ctx.request.body.email as string)
 
     ctx.body = {
       token: token,

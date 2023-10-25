@@ -13,6 +13,7 @@ export const PageLogin = () => {
   const [password, setPassword] = useState<string>('')
   const [showReset, setShowReset] = useState(false)
   const [showSent, setShowSent] = useState(false)
+  const [showResetError, setShowResetError] = useState(false)
   const [error, setError] = useState<boolean>(false)
 
   const navigate = useNavigate()
@@ -40,8 +41,24 @@ export const PageLogin = () => {
 
   const sendResetLink = async () => {
     try {
-      const result = await axios(`${backendUrl}/auth/reset`)
-    } catch (error) {}
+      const result = await axios(
+        `${backendUrl}/auth/send-reset-password-link`,
+        {
+          method: 'POST',
+          data: {
+            email: username,
+          },
+        }
+      )
+
+      if (result.status == 200) {
+        setShowSent(true)
+      } else {
+        setShowResetError(true)
+      }
+    } catch (error) {
+      setShowResetError(true)
+    }
   }
 
   return (
@@ -140,8 +157,14 @@ export const PageLogin = () => {
               >
                 Återgå till inloggning
               </Button>
-              {error && (
+              {showResetError && (
                 <Alert severity="error">
+                  Ditt lösenord kunde inte återställas. Kontakta supporten för
+                  hjälp.
+                </Alert>
+              )}
+              {showSent && (
+                <Alert severity="success">
                   Återställningslänk skickad, kontrollera din epost!
                 </Alert>
               )}
