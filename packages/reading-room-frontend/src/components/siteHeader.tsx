@@ -39,10 +39,10 @@ export const SiteHeader = () => {
                   </Typography>
                 </Stack>
               </Link>
-              {location.pathname !== '/login' && <SiteMenu />}
+              {!location.pathname.startsWith('/login') && <SiteMenu />}
             </Stack>
-            {location.pathname !== '/login' ? (
-              <Search searchEnabled={location.pathname !== '/login'} />
+            {!location.pathname.startsWith('/login') ? (
+              <Search searchEnabled={!location.pathname.startsWith('/login')} />
             ) : (
               <Stack
                 direction="row"

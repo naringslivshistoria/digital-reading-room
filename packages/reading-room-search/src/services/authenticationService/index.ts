@@ -3,6 +3,7 @@ import KoaRouter from '@koa/router'
 import hash from './hash'
 import { createToken, createResetToken, setPassword } from './jwt'
 import createHttpError from 'http-errors'
+import { sendEmail } from './adapters/smtpAdapter'
 
 const cookieOptions = {
   httpOnly: true,
@@ -115,6 +116,19 @@ export const routes = (router: KoaRouter) => {
     }
 
     const token = await createResetToken(ctx.request.body.email as string)
+
+    let subject = 'Nollställ ditt lösenord'
+    let body =
+      `En begäran om att nollställa lösenordet för kontot ${ctx.request.body.email} i den Digitala läsesalen har mottagits.\n\n` +
+      `Nollställ ditt lösenord här: ${ctx.headers['referer']}/nollstall?email=${ctx.request.body.email}&token=${token}\n\n` +
+      `Om du inte har begärt att ditt lösenord ska återställas kan du bortse från detta mail. Lämna aldrig ut länken till någon annan.`
+
+    if (ctx.query.new) {
+      subject = 'Välkommen till den Digitala läsesalen'
+      body = `Kontot ${ctx.request.body.email} har skapats för dig i den Digitala läsesalen. Använd denna länk för att välja ett lösenord: ${ctx.headers['referer']}/nollstall?email=${ctx.request.body.email}&token=${token}`
+    }
+
+    await sendEmail(ctx.request.body.email as string, subject, body)
 
     ctx.body = {
       token: token,

@@ -23,6 +23,13 @@ export interface Config {
   comprimaAdapter: {
     url: string
   }
+  smtp: {
+    host: string
+    port: number
+    tls: boolean
+    user: string
+    password: string
+  }
 }
 
 const config = configPackage({
@@ -47,8 +54,12 @@ const config = configPackage({
       indexName: 'comprima',
     },
     comprimaAdapter: {
-      url: 'http://localhost:4000'
-    }
+      url: 'http://localhost:4000',
+    },
+    smtp: {
+      port: 587,
+      tls: true,
+    },
   },
 })
 
@@ -58,4 +69,5 @@ export default {
   postgres: config.get('postgres'),
   elasticSearch: config.get('elasticSearch'),
   comprimaAdapter: config.get('comprimaAdapter'),
+  smtp: config.get('smtp'),
 } as Config

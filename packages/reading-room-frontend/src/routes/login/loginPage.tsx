@@ -52,12 +52,15 @@ export const PageLogin = () => {
       )
 
       if (result.status == 200) {
+        setShowResetError(false)
         setShowSent(true)
       } else {
         setShowResetError(true)
+        setShowSent(false)
       }
     } catch (error) {
       setShowResetError(true)
+      setShowSent(false)
     }
   }
 
