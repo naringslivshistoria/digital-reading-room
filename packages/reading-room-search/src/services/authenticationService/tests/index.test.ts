@@ -23,6 +23,7 @@ jest.mock('../../../common/config', () => {
         database: 'xyzdb',
         port: 6666,
       },
+      smtp: {},
     },
   }
 })
