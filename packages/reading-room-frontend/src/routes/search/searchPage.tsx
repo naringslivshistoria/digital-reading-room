@@ -8,7 +8,6 @@ import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 export const PageSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const query = searchParams.get('query') ?? ''
-  //const { token } = useAuth()
   const pageSize = 20
 
   useIsLoggedIn()

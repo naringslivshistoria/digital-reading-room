@@ -9,6 +9,7 @@ import { PageLogin } from './routes/login/loginPage'
 import { DocumentPage } from './routes/document/documentPage'
 import CentraleSansRegular from '../assets/CentraleSans-Regular.woff2'
 import PublicoTextItalic from '../assets/PublicoText-Italic.woff2'
+import { PageReset } from './routes/login/resetPage'
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -134,6 +135,7 @@ function App() {
             <Route path="/search" element={<PageSearch />} />
             <Route path="/" element={<PageAbout />} />
             <Route path="/dokument/:id" element={<DocumentPage />} />
+            <Route path="/login/nollstall" element={<PageReset />} />
             <Route path="/login" element={<PageLogin />} />
           </Routes>
         </Box>

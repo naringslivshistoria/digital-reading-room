@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import { useQuery } from 'react-query'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || '/api'
