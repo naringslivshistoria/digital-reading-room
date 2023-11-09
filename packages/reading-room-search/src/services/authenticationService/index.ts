@@ -121,12 +121,18 @@ export const routes = (router: KoaRouter) => {
     let subject = 'Nollställ ditt lösenord'
     let body =
       `En begäran om att nollställa lösenordet för kontot ${ctx.request.body.email} i den Digitala läsesalen har mottagits.\n\n` +
-      `Nollställ ditt lösenord här: ${referer}/nollstall?email=${ctx.request.body.email}&token=${token}\n\n` +
+      `Nollställ ditt lösenord här: ${referer}/nollstall?email=${encodeURIComponent(
+        ctx.request.body.email as string
+      )}&token=${token}\n\n` +
       `Om du inte har begärt att ditt lösenord ska återställas kan du bortse från detta mail. Lämna aldrig ut länken till någon annan.`
 
     if (ctx.query.new) {
       subject = 'Välkommen till den Digitala läsesalen'
-      body = `Kontot ${ctx.request.body.email} har skapats för dig i den Digitala läsesalen.\n\nAnvänd denna länk för att välja ett lösenord: ${referer}/nollstall?email=${ctx.request.body.email}&token=${token}`
+      body = `Kontot ${
+        ctx.request.body.email
+      } har skapats för dig i den Digitala läsesalen.\n\nAnvänd denna länk för att välja ett lösenord: ${referer}/nollstall?email=${encodeURIComponent(
+        ctx.request.body.email as string
+      )}&token=${token}`
     }
 
     await sendEmail(ctx.request.body.email as string, subject, body)
