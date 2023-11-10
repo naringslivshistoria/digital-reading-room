@@ -8,6 +8,7 @@ import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 export const PageSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const query = searchParams.get('query') ?? ''
+  const filter = searchParams.get('filter')
   const pageSize = 20
 
   useIsLoggedIn()
@@ -17,6 +18,7 @@ export const PageSearch = () => {
   const { data, isLoading } = useSearch({
     query,
     startIndex: (page - 1) * pageSize,
+    filter,
   })
 
   const pageChange = (newPage: number) => {

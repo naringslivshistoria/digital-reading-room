@@ -20,10 +20,15 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
   const [query, setQuery] = useState<string | null>(searchParams.get('query'))
   const [showHelp, setShowHelp] = useState<boolean>(false)
   const navigate = useNavigate()
+  const [filter, setFilter] = useState<string | null>()
 
   const search = () => {
     if (query) {
-      navigate('/search?query=' + query)
+      navigate(
+        '/search?query=' +
+          query +
+          (filter ? '&filter=' + encodeURIComponent(filter) : '')
+      )
     }
   }
 
@@ -36,6 +41,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
     if (event.key === 'Enter') {
       event.preventDefault()
       event.stopPropagation()
+      console.log('filter', filter)
       search()
     }
   }
@@ -92,60 +98,66 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
         )}
       </Stack>
       {searchEnabled && (
-        <TextField
-          variant="filled"
-          sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
-          placeholder="Sök efter dokument"
-          defaultValue={query}
-          onKeyUp={onSubmit}
-          inputProps={{
-            style: {
-              height: '12px',
-              padding: '19px 10px 15px 10px',
-              color: 'black',
-              backgroundColor: 'white',
-            },
-          }}
-          InputProps={{
-            style: {
-              backgroundColor: 'white',
-            },
-            endAdornment: (
-              <InputAdornment position="end">
-                <Stack direction="row">
-                  {query && (
+        <>
+          <TextField
+            variant="filled"
+            sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
+            placeholder="Sök efter dokument"
+            defaultValue={query}
+            onKeyUp={onSubmit}
+            inputProps={{
+              style: {
+                height: '12px',
+                padding: '19px 10px 15px 10px',
+                color: 'black',
+                backgroundColor: 'white',
+              },
+            }}
+            InputProps={{
+              style: {
+                backgroundColor: 'white',
+              },
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Stack direction="row">
+                    {query && (
+                      <IconButton
+                        onClick={() => clearQuery()}
+                        sx={{
+                          bgcolor: 'white',
+                          height: '44px',
+                          width: '44px',
+                          borderRadius: 0,
+                          '&:hover': { bgcolor: 'white ' },
+                        }}
+                      >
+                        <HighlightOffIcon />
+                      </IconButton>
+                    )}
                     <IconButton
-                      onClick={() => clearQuery()}
+                      edge="end"
+                      disableRipple
+                      onClick={() => search()}
                       sx={{
-                        bgcolor: 'white',
-                        height: '44px',
-                        width: '44px',
+                        color: 'white',
+                        bgcolor: '#53565a',
                         borderRadius: 0,
-                        '&:hover': { bgcolor: 'white ' },
+                        height: '46px',
+                        width: '46px',
                       }}
                     >
-                      <HighlightOffIcon />
+                      <SearchIcon />
                     </IconButton>
-                  )}
-                  <IconButton
-                    edge="end"
-                    disableRipple
-                    onClick={() => search()}
-                    sx={{
-                      color: 'white',
-                      bgcolor: '#53565a',
-                      borderRadius: 0,
-                      height: '46px',
-                      width: '46px',
-                    }}
-                  >
-                    <SearchIcon />
-                  </IconButton>
-                </Stack>
-              </InputAdornment>
-            ),
-          }}
-        />
+                  </Stack>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            variant="filled"
+            onChange={(e) => setFilter(e.target.value)}
+          />
+        </>
       )}
 
       <Dialog

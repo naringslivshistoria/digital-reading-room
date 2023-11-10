@@ -34,24 +34,28 @@ const fixSimpleQuery = (query: string) => {
 export const useSearch = ({
   query,
   startIndex,
+  filter,
 }: {
   query: string
   startIndex: number
+  filter: string | null
 }) =>
   useQuery<SearchResponse, AxiosError>({
     queryKey: ['search', query, startIndex],
     queryFn: async () => {
       if (query) {
         const fixedQuery = fixSimpleQuery(query)
-        const { data } = await axios.get<SearchResponse>(
-          `${searchUrl}/search?query=${fixedQuery}&start=${startIndex}`,
-          {
-            headers: {
-              Accept: 'application/json',
-            },
-            withCredentials: true,
-          }
-        )
+        let url = `${searchUrl}/search?query=${fixedQuery}&start=${startIndex}`
+
+        if (filter) {
+          url += `&filter=${encodeURIComponent(filter)}`
+        }
+        const { data } = await axios.get<SearchResponse>(url, {
+          headers: {
+            Accept: 'application/json',
+          },
+          withCredentials: true,
+        })
 
         return data
       } else {
