@@ -3,6 +3,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Grid,
   IconButton,
   InputAdornment,
   Stack,
@@ -42,110 +43,92 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
 
   return (
     <>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        sx={{ paddingTop: '72px' }}
-      >
-        <Link to="/">
-          <Stack direction="row">
-            <Typography
-              variant="h1"
-              sx={{
-                marginBottom: '10px',
-                fontSize: { xs: '27px', sm: '40px' },
-              }}
-            >
-              Digital läsesal
-            </Typography>
-            &nbsp;
-            <Typography
-              variant="h2"
-              sx={{
-                marginTop: { xs: '8px', sm: '12px' },
-                marginLeft: 1,
-                color: 'white',
-                fontSize: { xs: '17px', sm: '24px' },
-              }}
-            >
-              (beta)
-            </Typography>
-          </Stack>
-        </Link>
-        {searchEnabled && (
-          <Box
+      {searchEnabled && (
+        <>
+          <Grid
+            item
+            xs={8}
+            // sm={8}
+            md={6}
             sx={{
-              marginTop: { xs: '0px', sm: '7px' },
-              transform: { xs: 'scale(0.75)', sm: 'scale(1)' },
+              paddingRight: { xs: '20px', md: '20px' },
             }}
           >
-            <IconButton
-              onClick={() => {
-                setShowHelp(true)
+            <TextField
+              variant="filled"
+              sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
+              placeholder="Sök efter dokument"
+              defaultValue={query}
+              onKeyUp={onSubmit}
+              inputProps={{
+                style: {
+                  height: '12px',
+                  padding: '19px 10px 15px 10px',
+                  color: 'black',
+                  backgroundColor: 'white',
+                },
+              }}
+              InputProps={{
+                style: {
+                  backgroundColor: 'white',
+                },
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Stack direction="row">
+                      {query && (
+                        <IconButton
+                          onClick={() => clearQuery()}
+                          sx={{
+                            bgcolor: 'white',
+                            height: '44px',
+                            width: '44px',
+                            borderRadius: 0,
+                            '&:hover': { bgcolor: 'white ' },
+                          }}
+                        >
+                          <HighlightOffIcon />
+                        </IconButton>
+                      )}
+                      <IconButton
+                        edge="end"
+                        disableRipple
+                        onClick={() => search()}
+                        sx={{
+                          color: 'white',
+                          bgcolor: '#53565a',
+                          borderRadius: 0,
+                          height: '46px',
+                          width: '46px',
+                        }}
+                      >
+                        <SearchIcon />
+                      </IconButton>
+                    </Stack>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          <Grid item md={4}>
+            <Box
+              sx={{
+                // marginTop: { xs: '0px', sm: '7px' },
+                marginLeft: { xs: '-20px', sm: '0px' },
+                transform: { xs: 'scale(0.75)', sm: 'scale(1)' },
               }}
             >
-              <Typography variant="body1" sx={{ color: 'white' }}>
-                <HelpOutlineIcon /> Söktips
-              </Typography>
-            </IconButton>
-          </Box>
-        )}
-      </Stack>
-      {searchEnabled && (
-        <TextField
-          variant="filled"
-          sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
-          placeholder="Sök efter dokument"
-          defaultValue={query}
-          onKeyUp={onSubmit}
-          inputProps={{
-            style: {
-              height: '12px',
-              padding: '19px 10px 15px 10px',
-              color: 'black',
-              backgroundColor: 'white',
-            },
-          }}
-          InputProps={{
-            style: {
-              backgroundColor: 'white',
-            },
-            endAdornment: (
-              <InputAdornment position="end">
-                <Stack direction="row">
-                  {query && (
-                    <IconButton
-                      onClick={() => clearQuery()}
-                      sx={{
-                        bgcolor: 'white',
-                        height: '44px',
-                        width: '44px',
-                        borderRadius: 0,
-                        '&:hover': { bgcolor: 'white ' },
-                      }}
-                    >
-                      <HighlightOffIcon />
-                    </IconButton>
-                  )}
-                  <IconButton
-                    edge="end"
-                    disableRipple
-                    onClick={() => search()}
-                    sx={{
-                      color: 'white',
-                      bgcolor: '#53565a',
-                      borderRadius: 0,
-                      height: '46px',
-                      width: '46px',
-                    }}
-                  >
-                    <SearchIcon />
-                  </IconButton>
-                </Stack>
-              </InputAdornment>
-            ),
-          }}
-        />
+              <IconButton
+                onClick={() => {
+                  setShowHelp(true)
+                }}
+              >
+                <Typography variant="body1" sx={{ color: 'black' }}>
+                  <HelpOutlineIcon sx={{ color: '#00AFD8' }} /> Söktips
+                </Typography>
+              </IconButton>
+            </Box>
+          </Grid>
+        </>
       )}
 
       <Dialog

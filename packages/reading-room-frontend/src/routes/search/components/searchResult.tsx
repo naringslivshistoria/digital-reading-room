@@ -52,7 +52,7 @@ export function SearchResult({
         direction="row"
         spacing={2}
         alignItems="flex-end"
-        sx={{ marginTop: '45px', marginBottom: '10px' }}
+        sx={{ marginTop: { sm: '45px', xs: '30px' }, marginBottom: '10px' }}
       >
         <Typography variant="h2" sx={{ marginBottom: '10px' }}>
           Sökträffar

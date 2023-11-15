@@ -10,6 +10,7 @@ import { DocumentPage } from './routes/document/documentPage'
 import CentraleSansRegular from '../assets/CentraleSans-Regular.woff2'
 import PublicoTextItalic from '../assets/PublicoText-Italic.woff2'
 import { PageReset } from './routes/login/resetPage'
+import { transform } from 'typescript'
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -114,6 +115,54 @@ const mdTheme = createTheme({
         ],
       },
     },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          color: 'rgb(83, 86, 90)',
+          paddingLeft: '10px',
+          textDecoration: 'none',
+          textTransform: 'uppercase',
+          fontSize: 14,
+          fontWeight: 700,
+          '&:hover': {
+            color: '#de3831',
+            // textDecoration: 'underline #de3831',
+          },
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          color: 'rgb(83, 86, 90)',
+          textDecoration: 'none',
+          fontSize: 14,
+          '&:hover': {
+            color: '#de3831',
+            // textDecoration: 'underline #de3831',
+          },
+        },
+      },
+    },
+    MuiFormLabel: {
+      styleOverrides: {
+        root: {
+          padding: 5,
+          // fontSize: 14,
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          borderWidth: 1,
+          // padding: 5,
+          // fontSize: 14,
+          // height: '12px',
+          // padding: '19px 10px 15px 10px',
+        },
+      },
+    },
   },
 })
 
@@ -134,6 +183,7 @@ function App() {
           <Routes>
             <Route path="/search" element={<PageSearch />} />
             <Route path="/" element={<PageAbout />} />
+            <Route path="/om-oss" element={<PageAbout />} />
             <Route path="/dokument/:id" element={<DocumentPage />} />
             <Route path="/login/nollstall" element={<PageReset />} />
             <Route path="/login" element={<PageLogin />} />

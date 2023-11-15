@@ -1,53 +1,76 @@
-import { Grid, Stack, Typography } from '@mui/material'
+import { Box, Grid, Stack, Typography } from '@mui/material'
 import { Link, useLocation } from 'react-router-dom'
 
 import header from '../../assets/header.jpg'
 import { Search } from '../routes/search'
 import cfnLogo from '../../assets/cfn-logo.png'
+import fullLogo from '../../assets/logo-full.svg'
 import { SiteMenu } from './siteMenu'
+import { useIsLoggedIn } from '../hooks/useIsLoggedIn'
 
 export const SiteHeader = () => {
   const location = useLocation()
+  const isPublicPage =
+    location.pathname.startsWith('/login') || location.pathname == '/om-oss'
+
+  const { data: user } = useIsLoggedIn(!isPublicPage)
+  const isLoggedIn = !!user?.username
 
   return (
-    <Grid
-      container
-      direction="row"
-      sx={{ height: { xs: '240px', sm: '285px' }, bgcolor: 'primary.main' }}
-    >
-      <Grid item md={1} xs={1} />
-      <Grid item md={6} xs={11}>
-        <Grid container>
-          <Grid item xs={11} lg={10} sx={{ paddingTop: '20px' }}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="flex-end"
+    <>
+      <Grid
+        container
+        direction="row"
+        sx={{
+          height: { xs: '64px', sm: '96px' },
+          paddingLeft: { xs: '20px', md: '0px' },
+          paddingRight: '20px',
+        }}
+        columns={{ xs: 10, sm: 12 }}
+        alignItems="center"
+      >
+        <Grid item sm={1} xs={0} />
+        <Grid item xs={9} sm={4}>
+          <a href="/">
+            <img src={fullLogo} alt="CFN logotyp" width={240} height={40} />
+          </a>
+        </Grid>
+        <Grid item xs={1} sm={6}>
+          <Grid
+            display={'flex'}
+            justifyContent={'flex-end'}
+            sx={{
+              display: { xs: 'none', sm: 'flex' },
+            }}
+          >
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: 12,
+              }}
             >
-              <Link to="https://naringslivshistoria.se">
-                <Stack direction="row" alignItems="flex-end">
-                  <img src={cfnLogo} width="50px" alt="CFN logotyp"></img>
-                  <Typography
-                    sx={{
-                      color: 'white',
-                      fontSize: { xs: '12px', sm: '14px' },
-                      marginBottom: '-4px',
-                      marginLeft: '2px',
-                    }}
-                  >
-                    En tjänst från Centrum för Näringslivshistoria
-                  </Typography>
-                </Stack>
-              </Link>
-              {!location.pathname.startsWith('/login') && <SiteMenu />}
-            </Stack>
-            {!location.pathname.startsWith('/login') ? (
-              <Search searchEnabled={!location.pathname.startsWith('/login')} />
-            ) : (
+              <b>Inloggad som:</b> {user?.username}
+            </Typography>
+          </Grid>
+          <Grid item display={'flex'} justifyContent={'flex-end'}>
+            <SiteMenu />
+          </Grid>
+        </Grid>
+        <Grid item sm={1} xs={0} />
+      </Grid>
+      <Grid
+        container
+        direction="row"
+        sx={{ height: { xs: '140px', sm: '285px' }, bgcolor: 'primary.main' }}
+      >
+        <Grid item sm={1} xs={1} />
+        <Grid item sm={6} xs={11}>
+          <Grid container>
+            <Grid item xs={11} lg={10} sx={{ paddingTop: '20px' }}>
               <Stack
                 direction="row"
                 justifyContent="space-between"
-                sx={{ paddingTop: '72px' }}
+                sx={{ paddingTop: { xs: '35px', sm: '92px' } }}
               >
                 <Link to="/">
                   <Stack direction="row">
@@ -60,37 +83,73 @@ export const SiteHeader = () => {
                     >
                       Digital läsesal
                     </Typography>
-                    &nbsp;
-                    <Typography
-                      variant="h2"
-                      sx={{
-                        marginTop: { xs: '8px', sm: '12px' },
-                        marginLeft: 1,
-                        color: 'white',
-                        fontSize: { xs: '17px', sm: '24px' },
-                      }}
-                    >
-                      (beta)
-                    </Typography>
                   </Stack>
                 </Link>
               </Stack>
-            )}
+            </Grid>
           </Grid>
+          <Grid item xs={1} lg={2}></Grid>
         </Grid>
-        <Grid item xs={1} lg={2}></Grid>
+        <Grid
+          item
+          sm={5}
+          xs={0}
+          style={{
+            backgroundColor: 'red',
+            backgroundImage: `url(${header})`,
+            backgroundSize: 'cover',
+          }}
+          sx={{ height: '100%' }}
+        ></Grid>
       </Grid>
-      <Grid
-        item
-        md={5}
-        xs={0}
-        style={{
-          backgroundColor: 'red',
-          backgroundImage: `url(${header})`,
-          backgroundSize: 'cover',
-        }}
-        sx={{ height: '100%' }}
-      ></Grid>
-    </Grid>
+      {isLoggedIn && (
+        <>
+          <Grid
+            container
+            direction="row"
+            bgcolor={'white'}
+            columns={{ xs: 6, sm: 12 }}
+            sx={{
+              paddingLeft: { xs: '20px', sm: '0px' },
+              paddingRight: { xs: '20px', sm: '0px' },
+              paddingTop: '20px',
+            }}
+          >
+            <Grid item sm={1} xs={0} />
+            <Search searchEnabled={!!user?.username} />
+            <Grid item sm={1} xs={0} />
+          </Grid>
+
+          <Grid
+            container
+            direction="row"
+            bgcolor={'white'}
+            columns={{ xs: 6, sm: 12 }}
+            sx={{
+              paddingLeft: { xs: '20px', sm: '0px' },
+              paddingRight: { xs: '20px', sm: '0px' },
+            }}
+          >
+            <Grid item sm={1} xs={0} />
+            <Grid item sm={10} xs={6}>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontSize: { xs: 14, sm: 16 },
+                  marginTop: { xs: '0px', sm: '10px' },
+                  // marginTop: '20px',
+                }}
+              >
+                <b>Tillgänliga arkiv: </b>
+                {user?.depositors
+                  ?.concat(user?.archiveInitiators || [])
+                  .join(', ')}
+              </Typography>
+            </Grid>
+            <Grid item sm={1} xs={0} />
+          </Grid>
+        </>
+      )}
+    </>
   )
 }

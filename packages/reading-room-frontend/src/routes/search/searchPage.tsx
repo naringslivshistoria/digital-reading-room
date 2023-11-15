@@ -10,7 +10,7 @@ export const PageSearch = () => {
   const query = searchParams.get('query') ?? ''
   const pageSize = 20
 
-  useIsLoggedIn()
+  useIsLoggedIn(true)
 
   const page = Number(searchParams.get('page') ?? 1)
 
@@ -29,9 +29,9 @@ export const PageSearch = () => {
   return (
     <>
       <SiteHeader />
-      <Grid container sx={{ bgcolor: 'white' }}>
-        <Grid item xs={1} />
-        <Grid item xs={10}>
+      <Grid container sx={{ bgcolor: 'white' }} columns={{ xs: 9, sm: 12 }}>
+        <Grid item xs={0.5} sm={1} />
+        <Grid item xs={8} sm={10}>
           <SearchResult
             isLoading={isLoading}
             query={query}
@@ -42,7 +42,7 @@ export const PageSearch = () => {
             onPageChange={pageChange}
           />
         </Grid>
-        <Grid item xs={1} />
+        <Grid item xs={0.5} sm={1} />
       </Grid>
     </>
   )
