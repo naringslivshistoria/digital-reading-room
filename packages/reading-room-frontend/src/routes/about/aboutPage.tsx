@@ -1,24 +1,63 @@
-import { Grid, Typography } from '@mui/material'
+import { Grid, List, ListItem, Typography } from '@mui/material'
 
 import { SiteHeader } from '../../components/siteHeader'
 
 export const PageAbout = () => {
   return (
     <>
-    <SiteHeader/>
-    <Grid container bgcolor='white'>
-        <Grid item xs={1} />
-        <Grid item md={6} xs={10} sx={{ paddingTop: 10  }} >
-          <Typography variant='body2'>
-            Här kan du söka i alla de arkiv som är allmänt tillgängliga på Centrum för Näringslivshistoria. Framöver kommer vi lägga till fler arkiv, som vi också sköter om, men som ägs av företagen själva. Tillgång till dessa arkiv kommer behöva godkännande från företagen i fråga.
+      <SiteHeader />
+      <Grid container sx={{ bgcolor: 'white' }} columns={{ xs: 9, sm: 12 }}>
+        <Grid item xs={0.5} sm={1} />
+        <Grid item xs={8} sm={10}>
+          <Typography
+            variant="h2"
+            sx={{ marginTop: '40px', marginBottom: '20px' }}
+          >
+            Om Digital Läsesal
           </Typography>
-          <br/>
-          <Typography variant='body2'>
-            Den här tjänsten är fortfarande under utveckling. En full lansering planeras till slutet av 2023. Vi tar tacksamt emot synpunkter och förslag på förbättringar till <b><a href='mailto:info@naringslivshistoria.se?subject=Apropå er digitala läsesal'>info@naringslivshistoria.se</a></b>.
-          </Typography>
+          <List sx={{ listStyleType: 'disc', marginLeft: '20px' }}>
+            <ListItem sx={{ display: 'list-item' }}>
+              <b>Vilka arkiv finns hos Centrum för Näringslivshistoria?</b>
+              <br />
+              <a href="/">Här finns en lista.</a>
+            </ListItem>
+            <ListItem sx={{ display: 'list-item' }}>
+              <b>Är alla arkiv öppna att använda?</b>
+              <br />
+              Nej, de flesta kräver tillstånd från det företag eller
+              organisation som deponerat sitt historiska material hos oss.
+            </ListItem>
+            <ListItem sx={{ display: 'list-item' }}>
+              <b>Hur kan jag få tillstånd att söka i sådana arkiv?</b>
+              <br />
+              Vi kan hjälpa dig söka tillstånd. Mejla{' '}
+              <a href="mailto:bildochfakta@naringslivshistoria.se">
+                bildochfakta@naringslivshistoria.se
+              </a>{' '}
+              och ange vilket arkiv du är intresserad av och varför du vill söka
+              i det.
+            </ListItem>
+            <ListItem sx={{ display: 'list-item' }}>
+              <b>
+                Vilka arkiv är det som är öppet tillgängliga och som jag kan
+                söka i direkt med mitt login?
+              </b>
+              <br /> <a href="/">Här är en lista.</a>
+            </ListItem>
+            <ListItem sx={{ display: 'list-item' }}>
+              <b>Vilka är egentligen Centrum för Näringslivshistoria?</b>
+              <br />
+              Här kan du läsa mer om oss. Frågor om digitala läsesalen kan
+              mejlas till{' '}
+              <a href="mailto:info@naringslivshistoria.se">
+                info@naringslivshistoria.se
+              </a>
+              .
+            </ListItem>
+          </List>
         </Grid>
-        <Grid item md={5} xs={1} />
-    </Grid>
+        <Grid item xs={0.5} sm={1} />
+      </Grid>
     </>
   )
 }

@@ -9,7 +9,7 @@ export interface IsLoggedInResponse {
   archiveInitiators?: string[] | null
 }
 
-export const useIsLoggedIn = () =>
+export const useIsLoggedIn = (enabled: boolean) =>
   useQuery<IsLoggedInResponse>({
     queryKey: ['login'],
     queryFn: async () => {
@@ -26,4 +26,5 @@ export const useIsLoggedIn = () =>
     // Any attempt at search will fail immediately if the server-side session has
     // expired since that hook has staletime 0 and always makes a network call.
     staleTime: 10 * 60 * 1000,
+    enabled: enabled,
   })

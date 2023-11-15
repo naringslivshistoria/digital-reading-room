@@ -35,6 +35,8 @@ export ELASTIC_PASSWORD=
 export KIBANA_PASSWORD=
 ```
 
+Don't forget to run direnv allow after changing exports in .envrc!
+
 ### Configuration
 
 The following environment variables are needed when running locally:
