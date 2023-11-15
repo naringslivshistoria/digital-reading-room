@@ -1,10 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Grid,
   IconButton,
   InputAdornment,
+  MenuItem,
+  Select,
   Stack,
   TextField,
 } from '@mui/material'
@@ -15,25 +18,110 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Typography from '@mui/material/Typography'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
+import {
+  FieldFilter,
+  FieldFilterConfig,
+  FilterType,
+  useFieldValues,
+} from '../hooks/useSearch'
+import { Dictionary } from '../../../common/types'
+
+const parseFilter = (
+  filterQueryString: string | null | undefined
+): Dictionary<FieldFilter> => {
+  if (filterQueryString) {
+    const filterStrings = filterQueryString.split('||')
+    const filters = filterStrings.reduce(
+      (
+        filters: Dictionary<FieldFilter>,
+        filterString: string
+      ): Dictionary<FieldFilter> => {
+        const filterParts = filterString.split('::')
+        filters[filterParts[0]] = {
+          fieldName: filterParts[0],
+          values: [filterParts[1]],
+        }
+        return filters
+      },
+      {}
+    )
+
+    return filters
+  } else {
+    return {}
+  }
+}
+
 export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
   const [searchParams] = useSearchParams()
   const [query, setQuery] = useState<string | null>(searchParams.get('query'))
   const [showHelp, setShowHelp] = useState<boolean>(false)
   const navigate = useNavigate()
-  const [filter, setFilter] = useState<string | null>()
+  const [filters, setFilters] = useState<Dictionary<FieldFilter>>(
+    parseFilter(searchParams.get('filter'))
+  )
+
+  const createFilterString = () => {
+    const filterStrings = Object.keys(filters).map((fieldName) => {
+      const filter = filters[fieldName]
+      return `${filter.fieldName}::${filter.values.join('%%')}`
+    })
+
+    return filterStrings.join('||')
+  }
+
+  const { data: fieldFilterConfigs, refetch: refetchFilters } = useFieldValues({
+    filter: createFilterString(),
+  })
 
   const search = () => {
-    if (query) {
-      navigate(
-        '/search?query=' +
-          query +
-          (filter ? '&filter=' + encodeURIComponent(filter) : '')
-      )
-    }
+    navigate(
+      '/search?query=' +
+        (query ? query : '') +
+        (filters ? '&filter=' + encodeURIComponent(createFilterString()) : '')
+    )
   }
 
   const clearQuery = () => {
     navigate('.')
+  }
+
+  const updateFilter = async (
+    fieldName: string,
+    value: string | undefined | null
+  ) => {
+    if (value) {
+      if (filters[fieldName]) {
+        filters[fieldName].values = [value]
+      } else {
+        filters[fieldName] = {
+          fieldName,
+          values: [value],
+        }
+      }
+    } else {
+      delete filters[fieldName]
+    }
+
+    const newFilters: Dictionary<FieldFilter> = { ...filters }
+
+    setFilters(newFilters)
+  }
+
+  useEffect(() => {
+    const updateFilters = async () => {
+      await refetchFilters()
+    }
+
+    updateFilters()
+  }, [filters, refetchFilters])
+
+  const filterKeyUp = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      event.stopPropagation()
+      search()
+    }
   }
 
   const onSubmit = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -41,7 +129,6 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
     if (event.key === 'Enter') {
       event.preventDefault()
       event.stopPropagation()
-      console.log('filter', filter)
       search()
     }
   }
@@ -153,10 +240,61 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
               ),
             }}
           />
-          <TextField
-            variant="filled"
-            onChange={(e) => setFilter(e.target.value)}
-          />
+          <Box bgcolor={'white'}>
+            <Grid container>
+              {fieldFilterConfigs &&
+                fieldFilterConfigs.map((filterConfig: FieldFilterConfig) => {
+                  switch (filterConfig.filterType) {
+                    case FilterType.freeText:
+                      return (
+                        <Grid key={filterConfig.fieldName}>
+                          <Typography>{filterConfig.displayName}</Typography>
+                          <TextField
+                            onKeyUp={filterKeyUp}
+                            defaultValue={
+                              filters[filterConfig.fieldName]?.values[0]
+                            }
+                            onChange={(e) =>
+                              updateFilter(
+                                filterConfig.fieldName,
+                                e.target.value
+                              )
+                            }
+                          ></TextField>
+                        </Grid>
+                      )
+                    case FilterType.values:
+                      return (
+                        <Grid key={filterConfig.fieldName}>
+                          <Typography>{filterConfig.displayName}</Typography>
+                          <Select
+                            defaultValue={
+                              filters[filterConfig.fieldName]?.values[0]
+                            }
+                            placeholder={'Välj ' + filterConfig.displayName}
+                            onChange={(e) => {
+                              updateFilter(
+                                filterConfig.fieldName,
+                                e.target.value as string | undefined
+                              )
+                              search()
+                            }}
+                          >
+                            <MenuItem key={0} value={undefined}>
+                              Alla
+                            </MenuItem>
+                            {filterConfig.values?.map((value: string) => (
+                              <MenuItem key={value} value={value}>
+                                {value}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </Grid>
+                      )
+                  }
+                })}
+            </Grid>
+          </Box>
         </>
       )}
 

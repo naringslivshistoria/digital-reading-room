@@ -1,8 +1,9 @@
 import KoaRouter from '@koa/router'
 import { Client } from '@elastic/elasticsearch'
-import { Document } from '../../common/types'
+import { Document, FilterType, FieldFilterConfig } from '../../common/types'
 import config from '../../common/config'
 import {
+  AggregationsAggregationContainer,
   QueryDslQueryContainer,
   SearchTotalHits,
 } from '@elastic/elasticsearch/lib/api/types'
@@ -10,6 +11,10 @@ import {
 const client = new Client({
   node: config.elasticSearch.url,
 })
+
+const numericFields: Record<string, boolean> = {
+  volume: true,
+}
 
 const createAccessFilter = (
   depositors: string[] | undefined,
@@ -41,17 +46,19 @@ const createAccessFilter = (
 }
 
 const createSearchQuery = (
-  queryString: string,
+  queryString: string | undefined,
   accessFilter: QueryDslQueryContainer[] | undefined,
   filterString: string | undefined
 ) => {
-  const must: QueryDslQueryContainer[] = [
-    {
+  const must: QueryDslQueryContainer[] = []
+
+  if (queryString) {
+    must.push({
       query_string: {
         query: queryString,
       },
-    },
-  ]
+    })
+  }
 
   const searchQuery = {
     bool: {
@@ -62,14 +69,17 @@ const createSearchQuery = (
   }
 
   if (filterString) {
-    console.log(filterString)
-    const regex = /(\S*):(\S*)/g
+    const filters = filterString.split('||')
 
-    filterString.match(regex)?.forEach((match) => {
-      console.log('match', match)
-      const filterTerm = match.split(':')
-      const wildcard: { [k: string]: string } = {}
-      wildcard[`fields.${filterTerm[0]}.value.keyword`] = filterTerm[1]
+    filters.forEach((filter) => {
+      const filterTerm = filter.split('::')
+      const wildcard: { [k: string]: {} } = {}
+      const keywordString = numericFields[filterTerm[0]] ? '' : '.keyword'
+
+      wildcard[`fields.${filterTerm[0]}.value${keywordString}`] = {
+        value: filterTerm[1],
+        case_insensitive: true,
+      }
       searchQuery.bool.must.push({
         wildcard,
       })
@@ -79,8 +89,58 @@ const createSearchQuery = (
   return searchQuery
 }
 
+const setValues = async (
+  fieldFilterConfigs: FieldFilterConfig[],
+  filter: string[] | string | undefined,
+  depositors: string[] | undefined,
+  archiveInitiators: string[] | undefined
+) => {
+  const aggs: Record<string, AggregationsAggregationContainer> = {}
+  const filterString = Array.isArray(filter) ? filter[0] : filter
+
+  fieldFilterConfigs.forEach((fieldFilterConfig) => {
+    const keywordString = numericFields[fieldFilterConfig.fieldName]
+      ? ''
+      : '.keyword'
+
+    aggs[fieldFilterConfig.fieldName] = {
+      terms: {
+        field: `fields.${fieldFilterConfig.fieldName}.value${keywordString}`,
+        size: 500,
+      },
+    }
+  })
+
+  const accessFilter = createAccessFilter(depositors, archiveInitiators)
+  const query = createSearchQuery(undefined, accessFilter, filterString)
+
+  const searchResults = await client.search({
+    size: 0,
+    index: config.elasticSearch.indexName,
+    aggs,
+    query,
+  })
+
+  if (searchResults.aggregations) {
+    fieldFilterConfigs.forEach((fieldFilterConfig) => {
+      const aggregation =
+        searchResults.aggregations &&
+        searchResults.aggregations[fieldFilterConfig.fieldName]
+
+      if (aggregation) {
+        // @ts-ignore - there is a bug in the ElasticSearch types not exposing buckets
+        fieldFilterConfig.values = aggregation.buckets.map((bucket: any) => {
+          return bucket.key
+        })
+      }
+    })
+  }
+
+  return fieldFilterConfigs
+}
+
 const search = async (
-  query: string | string[],
+  query: string | string[] | undefined,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
   start = 0,
@@ -88,7 +148,7 @@ const search = async (
   filter: string | string[] | undefined
 ) => {
   const queryString = Array.isArray(query) ? query[0] : query
-  const filterString = Array.isArray(filter) ? query[0] : filter
+  const filterString = Array.isArray(filter) ? filter[0] : filter
 
   const accessFilter = createAccessFilter(depositors, archiveInitiators)
   const searchQuery = createSearchQuery(queryString, accessFilter, filterString)
@@ -125,11 +185,56 @@ const search = async (
 }
 
 export const routes = (router: KoaRouter) => {
+  router.get('(.*)/search/get-field-filters', async (ctx) => {
+    const filter = ctx.query.filter
+
+    // dummy implementation
+    const fieldFilterConfigs: FieldFilterConfig[] = [
+      {
+        fieldName: 'depositor',
+        displayName: 'Deponent',
+        filterType: FilterType.values,
+      },
+      {
+        fieldName: 'archiveInitiator',
+        displayName: 'Arkivbildare',
+        filterType: FilterType.values,
+      },
+      {
+        fieldName: 'seriesName',
+        displayName: 'Serie',
+        filterType: FilterType.values,
+      },
+      {
+        fieldName: 'volume',
+        displayName: 'Volym',
+        filterType: FilterType.values,
+      },
+      {
+        fieldName: 'format',
+        displayName: 'Mediatyp',
+        filterType: FilterType.values,
+      },
+    ]
+
+    await setValues(
+      fieldFilterConfigs,
+      filter,
+      ctx.state?.user?.depositors,
+      ctx.state?.user?.archiveInitiators
+    )
+
+    ctx.body = fieldFilterConfigs
+  })
+
   router.get('(.*)/search', async (ctx) => {
     const { query, start, size, filter } = ctx.request.query
-    if (!query) {
+    if (!query && !filter) {
       ctx.status = 400
-      ctx.body = { errorMessage: 'Missing parameter: query' }
+      ctx.body = {
+        errorMessage:
+          'Required parameter missing: either query or filter must be specified',
+      }
       return
     }
 

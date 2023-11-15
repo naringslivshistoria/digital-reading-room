@@ -15,6 +15,7 @@ import { MetaDataField } from '../../../components/metaDataField'
 interface Props {
   documents: Document[] | undefined
   query: string | undefined
+  filter: string | undefined
   page: number
   pageSize: number
   totalHits: number
@@ -26,6 +27,7 @@ const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
 export function SearchResult({
   query,
+  filter,
   documents,
   page,
   pageSize,
@@ -37,6 +39,11 @@ export function SearchResult({
   const [showGrid, setShowGrid] = useState<boolean>(
     searchParams.get('show') === 'grid' ? true : false
   )
+
+  const documentUrl = (document: Document) => {
+    const filterparam = filter ? `&filter=${encodeURIComponent(filter)}` : ''
+    return '/dokument/' + document.id + '?query=' + query + filterparam
+  }
 
   const displayGridMode = (grid: boolean) => {
     setShowGrid(grid)
@@ -125,10 +132,7 @@ export function SearchResult({
             key={document.id}
           >
             <Grid item xs={4} sm={2}>
-              <Link
-                to={'/dokument/' + document.id + '?query=' + query}
-                style={{ minWidth: '100%' }}
-              >
+              <Link to={documentUrl(document)} style={{ minWidth: '100%' }}>
                 <img
                   src={
                     document.pages[0].thumbnailUrl
@@ -150,7 +154,7 @@ export function SearchResult({
             </Grid>
             <Grid item xs={8} sm={10}>
               <Stack direction="column" width="100%" rowGap={2}>
-                <Link to={'/dokument/' + document.id + '?query=' + query}>
+                <Link to={documentUrl(document)}>
                   <Typography
                     variant="h3"
                     sx={{
