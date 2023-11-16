@@ -1,9 +1,8 @@
-import { Box, Grid, Stack, Typography } from '@mui/material'
+import { Grid, Stack, Typography } from '@mui/material'
 import { Link, useLocation } from 'react-router-dom'
 
 import header from '../../assets/header.jpg'
 import { Search } from '../routes/search'
-import cfnLogo from '../../assets/cfn-logo.png'
 import fullLogo from '../../assets/logo-full.svg'
 import { SiteMenu } from './siteMenu'
 import { useIsLoggedIn } from '../hooks/useIsLoggedIn'

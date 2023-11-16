@@ -10,7 +10,6 @@ import { DocumentPage } from './routes/document/documentPage'
 import CentraleSansRegular from '../assets/CentraleSans-Regular.woff2'
 import PublicoTextItalic from '../assets/PublicoText-Italic.woff2'
 import { PageReset } from './routes/login/resetPage'
-import { transform } from 'typescript'
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -126,7 +125,6 @@ const mdTheme = createTheme({
           fontWeight: 700,
           '&:hover': {
             color: '#de3831',
-            // textDecoration: 'underline #de3831',
           },
         },
       },
@@ -139,7 +137,6 @@ const mdTheme = createTheme({
           fontSize: 14,
           '&:hover': {
             color: '#de3831',
-            // textDecoration: 'underline #de3831',
           },
         },
       },
@@ -148,7 +145,6 @@ const mdTheme = createTheme({
       styleOverrides: {
         root: {
           padding: 5,
-          // fontSize: 14,
         },
       },
     },
@@ -156,10 +152,6 @@ const mdTheme = createTheme({
       styleOverrides: {
         root: {
           borderWidth: 1,
-          // padding: 5,
-          // fontSize: 14,
-          // height: '12px',
-          // padding: '19px 10px 15px 10px',
         },
       },
     },
