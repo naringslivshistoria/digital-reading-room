@@ -1,155 +1,155 @@
 version: "3.8"
 
 services:
-
   # Packages
 
   comprima-adapter:
     build: ./packages/comprima-adapter
     container_name: comprima-adapter
     environment:
-    - COMPRIMA_PASSWORD     # Set in .envrc or similar.
-    - COMPRIMA_SERVICE_URL  # Set in .envrc or similar.
-    - COMPRIMA_USER         # Set in .envrc or similar.
-    - ELASTICSEARCH_URL=http://elasticsearch:9200
-    - POSTGRES__PASSWORD=${POSTGRES_PASSWORD}
-    - POSTGRES__USER=readingroom
+      - COMPRIMA_PASSWORD # Set in .envrc or similar.
+      - COMPRIMA_SERVICE_URL # Set in .envrc or similar.
+      - COMPRIMA_USER # Set in .envrc or similar.
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - POSTGRES__PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES__USER=readingroom
     depends_on:
-    - elasticsearch
+      - elasticsearch
     networks:
-    - digital-reading-room
+      - digital-reading-room
     ports:
-    - 14000:4000
+      - 14000:4000
     volumes:
-    - ./packages/thumbnails:/thumbnails
+      - ./packages/thumbnails:/thumbnails
 
   comprima-crawler:
     build: ./packages/comprima-crawler
     container_name: comprima-crawler
     environment:
-    - ATTEMPTS=3
-    - COMPRIMA_URL=http://comprima-adapter:4000
-    - LOG_LEVEL=debug
-    - DATABASE_URL=postgres://crawler:${POSTGRES_PASSWORD}@postgres:5432/crawler
-    - NODE_ENV=ci
-    - POSTGRES__HOST=postgres
-    - POSTGRES__PORT=5432
-    - POSTGRES__USER=crawler
+      - ATTEMPTS=3
+      - COMPRIMA_URL=http://comprima-adapter:4000
+      - LOG_LEVEL=debug
+      - DATABASE_URL=postgres://crawler:${POSTGRES_PASSWORD}@postgres:5432/crawler
+      - NODE_ENV=ci
+      - POSTGRES__HOST=postgres
+      - POSTGRES__PORT=5432
+      - POSTGRES__USER=crawler
     depends_on:
-    - comprima-adapter
-    - comprima-ocr
+      - comprima-adapter
+      - comprima-ocr
     networks:
-    - digital-reading-room
+      - digital-reading-room
 
   comprima-crawler-ocr:
     build: ./packages/comprima-crawler
     container_name: comprima-crawler-ocr
     environment:
-    - DATABASE_URL=postgres://crawler:${POSTGRES_PASSWORD}@postgres:5432/crawler
-    - ELASTIC_SEARCH__URL=http://elasticsearch:9200
-    - LOG_LEVEL=debug
-    - MODE=ocr
-    - NODE_ENV=ci
-    - OCR_URL=http://comprima-ocr:4003
+      - DATABASE_URL=postgres://crawler:${POSTGRES_PASSWORD}@postgres:5432/crawler
+      - ELASTIC_SEARCH__URL=http://elasticsearch:9200
+      - LOG_LEVEL=debug
+      - MODE=ocr
+      - NODE_ENV=ci
+      - OCR_URL=http://comprima-ocr:4003
     depends_on:
-    - elasticsearch
-    - comprima-ocr
+      - elasticsearch
+      - comprima-ocr
     networks:
-    - digital-reading-room
+      - digital-reading-room
 
   comprima-ocr:
     build: ./packages/comprima-ocr
     container_name: comprima-ocr
     environment:
-    - COMPRIMA_ADAPTER__URL=http://comprima-adapter:4000
-    - ELASTIC_SEARCH__URL=http://elasticsearch:9200
-    - LOG_LEVEL=debug
+      - COMPRIMA_ADAPTER__URL=http://comprima-adapter:4000
+      - ELASTIC_SEARCH__URL=http://elasticsearch:9200
+      - LOG_LEVEL=debug
     depends_on:
-    - elasticsearch
+      - elasticsearch
     networks:
-    - digital-reading-room
+      - digital-reading-room
     ports:
-    - 14003:4003
+      - 14003:4003
 
   reading-room-frontend:
     build:
       context: ./packages/reading-room-frontend
       args:
-      - COMPRIMA_ADAPTER_URL=http://localhost:14000
-      - SEARCH_URL=http://localhost:14001
-      - COOKIE_DOMAIN=localhost
+        - COMPRIMA_ADAPTER_URL=http://localhost:14000
+        - SEARCH_URL=http://localhost:14001
+        - COOKIE_DOMAIN=localhost
     container_name: reading-room-frontend
     depends_on:
-    - comprima-adapter
-    - reading-room-search
+      - comprima-adapter
+      - reading-room-search
     networks:
-    - digital-reading-room
+      - digital-reading-room
     ports:
-    - 14002:80
+      - 14002:80
 
   reading-room-search:
     build: ./packages/reading-room-search
     container_name: reading-room-search
     environment:
-    - COMPRIMA_ADAPTER__URL=http://comprima-adapter:4000
-    - DATABASE_URL=postgres://readingroom:${POSTGRES_PASSWORD}@postgres:5432/readingroom
-    - ELASTIC_SEARCH__URL=http://elasticsearch:9200
-    - NODE_ENV=ci
-    - COOKIE_DOMAIN=localhost
-    - POSTGRES__HOST=postgres
-    - POSTGRES__PASSWORD=postgres
-    - POSTGRES__PORT=5432
-    - POSTGRES__USER=postgres
+      - COMPRIMA_ADAPTER__URL=http://comprima-adapter:4000
+      - DATABASE_URL=postgres://readingroom:${POSTGRES_PASSWORD}@postgres:5432/readingroom
+      - ELASTIC_SEARCH__URL=http://elasticsearch:9200
+      - NODE_ENV=ci
+      - COOKIE_DOMAIN=localhost
+      - POSTGRES__HOST=postgres
+      - POSTGRES__PASSWORD=postgres
+      - POSTGRES__PORT=5432
+      - POSTGRES__USER=postgres
     depends_on:
-    - comprima-adapter
-    - elasticsearch
-    - postgres
+      - comprima-adapter
+      - elasticsearch
+      - postgres
     networks:
-    - digital-reading-room
+      - digital-reading-room
     ports:
-    - 14001:4001
+      - 14001:4001
     volumes:
-    - ./packages/thumbnails:/thumbnails
+      - ./packages/thumbnails:/thumbnails
 
   # Packages
 
   elasticsearch:
     container_name: elasticsearch
     environment:
-    - xpack.security.enabled=false
-    - "discovery.type=single-node"
-    - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+      - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
+      - "repositories.url.allowed_urls=http://192.168.88.172:8844"
     image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1
     networks:
-    - digital-reading-room
+      - digital-reading-room
     ports:
-    - 9200:9200
+      - 9200:9200
     volumes:
-    - elasticsearch:/usr/share/elasticsearch/data
+      - elasticsearch:/usr/share/elasticsearch/data
 
   kibana:
     container_name: kibana
     depends_on:
-    - elasticsearch
+      - elasticsearch
     environment:
-    - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     image: docker.elastic.co/kibana/kibana:8.4.1
     networks:
-    - digital-reading-room
+      - digital-reading-room
     ports:
-    - 5601:5601
+      - 5601:5601
 
   postgres:
     build: dependencies/postgres
     container_name: postgres
     environment:
-    - POSTGRES_PASSWORD
+      - POSTGRES_PASSWORD
     networks:
-    - digital-reading-room
+      - digital-reading-room
     ports:
-    - 5433:5432
+      - 5433:5432
     volumes:
-    - postgres:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
 
 networks:
   digital-reading-room:
