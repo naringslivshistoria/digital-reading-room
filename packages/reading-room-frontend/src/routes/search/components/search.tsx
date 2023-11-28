@@ -86,12 +86,26 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
     navigate('.')
   }
 
+  const clearChildFilter = (fieldName: string) => {
+    console.log('Clearing children of', fieldName)
+    const childFilter = fieldFilterConfigs?.find((filterConfig) => {
+      return fieldName === filterConfig.parentField
+    })
+
+    if (childFilter) {
+      clearChildFilter(childFilter.fieldName)
+      console.log('Clearing', childFilter.fieldName)
+      delete filters[childFilter.fieldName]
+    }
+  }
+
   const updateFilter = async (
     fieldName: string,
     value: string | undefined | null
   ) => {
     if (value) {
       if (filters[fieldName]) {
+        clearChildFilter(fieldName)
         filters[fieldName].values = [value]
       } else {
         filters[fieldName] = {
@@ -105,7 +119,10 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
 
     const newFilters: Dictionary<FieldFilter> = { ...filters }
 
+    console.log('Filters are now', newFilters)
+
     setFilters(newFilters)
+    refetchFilters()
   }
 
   useEffect(() => {
@@ -130,6 +147,21 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
       event.preventDefault()
       event.stopPropagation()
       search()
+    }
+  }
+
+  const isFieldDisabled = (
+    filterConfig: FieldFilterConfig,
+    filters: Dictionary<FieldFilter>
+  ) => {
+    if (!filterConfig.parentField) {
+      return false
+    } else {
+      if (filters[filterConfig.parentField]?.values?.length > 0) {
+        return false
+      } else {
+        return true
+      }
     }
   }
 
@@ -271,6 +303,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                             defaultValue={
                               filters[filterConfig.fieldName]?.values[0]
                             }
+                            value={filters[filterConfig.fieldName]?.values[0]}
                             placeholder={'Välj ' + filterConfig.displayName}
                             onChange={(e) => {
                               updateFilter(
@@ -279,13 +312,18 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                               )
                               search()
                             }}
+                            disabled={isFieldDisabled(filterConfig, filters)}
                           >
                             <MenuItem key={0} value={undefined}>
                               Alla
                             </MenuItem>
-                            {filterConfig.values?.map((value: string) => (
+                            {filterConfig.allValues?.map((value: string) => (
                               <MenuItem key={value} value={value}>
-                                {value}
+                                {filterConfig.values?.includes(value) ? (
+                                  <b>{value}</b>
+                                ) : (
+                                  value
+                                )}
                               </MenuItem>
                             ))}
                           </Select>

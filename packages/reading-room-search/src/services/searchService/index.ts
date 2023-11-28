@@ -5,6 +5,7 @@ import config from '../../common/config'
 import {
   AggregationsAggregationContainer,
   QueryDslQueryContainer,
+  QueryDslTermQuery,
   SearchTotalHits,
 } from '@elastic/elasticsearch/lib/api/types'
 
@@ -14,6 +15,17 @@ const client = new Client({
 
 const numericFields: Record<string, boolean> = {
   volume: true,
+}
+
+const getFullFieldName = (fieldName: string) => {
+  switch (fieldName) {
+    case 'pageType':
+      return `pages.${fieldName}.keyword`
+    case 'volume':
+      return `fields.${fieldName}.value`
+    default:
+      return `fields.${fieldName}.value.keyword`
+  }
 }
 
 const createAccessFilter = (
@@ -73,16 +85,26 @@ const createSearchQuery = (
 
     filters.forEach((filter) => {
       const filterTerm = filter.split('::')
-      const wildcard: { [k: string]: {} } = {}
-      const keywordString = numericFields[filterTerm[0]] ? '' : '.keyword'
+      if (numericFields[filterTerm[0]]) {
+        const term: Record<string, QueryDslTermQuery> = {}
+        term[getFullFieldName(filterTerm[0])] = {
+          value: filterTerm[1],
+        }
 
-      wildcard[`fields.${filterTerm[0]}.value${keywordString}`] = {
-        value: filterTerm[1],
-        case_insensitive: true,
+        searchQuery.bool.must.push({
+          term,
+        })
+      } else {
+        const wildcard: { [k: string]: {} } = {}
+
+        wildcard[`${getFullFieldName(filterTerm[0])}`] = {
+          value: filterTerm[1],
+          case_insensitive: true,
+        }
+        searchQuery.bool.must.push({
+          wildcard,
+        })
       }
-      searchQuery.bool.must.push({
-        wildcard,
-      })
     })
   }
 
@@ -93,19 +115,16 @@ const setValues = async (
   fieldFilterConfigs: FieldFilterConfig[],
   filter: string[] | string | undefined,
   depositors: string[] | undefined,
-  archiveInitiators: string[] | undefined
+  archiveInitiators: string[] | undefined,
+  valueField: string
 ) => {
   const aggs: Record<string, AggregationsAggregationContainer> = {}
   const filterString = Array.isArray(filter) ? filter[0] : filter
 
   fieldFilterConfigs.forEach((fieldFilterConfig) => {
-    const keywordString = numericFields[fieldFilterConfig.fieldName]
-      ? ''
-      : '.keyword'
-
     aggs[fieldFilterConfig.fieldName] = {
       terms: {
-        field: `fields.${fieldFilterConfig.fieldName}.value${keywordString}`,
+        field: `${getFullFieldName(fieldFilterConfig.fieldName)}`,
         size: 500,
       },
     }
@@ -129,9 +148,11 @@ const setValues = async (
 
       if (aggregation) {
         // @ts-ignore - there is a bug in the ElasticSearch types not exposing buckets
-        fieldFilterConfig.values = aggregation.buckets.map((bucket: any) => {
-          return bucket.key
-        })
+        fieldFilterConfig[valueField] = aggregation.buckets.map(
+          (bucket: any) => {
+            return bucket.key
+          }
+        )
       }
     })
   }
@@ -197,21 +218,24 @@ export const routes = (router: KoaRouter) => {
       },
       {
         fieldName: 'archiveInitiator',
+        parentField: 'depositor',
         displayName: 'Arkivbildare',
         filterType: FilterType.values,
       },
       {
         fieldName: 'seriesName',
+        parentField: 'archiveInitiator',
         displayName: 'Serie',
         filterType: FilterType.values,
       },
       {
         fieldName: 'volume',
+        parentField: 'archiveInitiator',
         displayName: 'Volym',
         filterType: FilterType.values,
       },
       {
-        fieldName: 'format',
+        fieldName: 'pageType',
         displayName: 'Mediatyp',
         filterType: FilterType.values,
       },
@@ -221,7 +245,16 @@ export const routes = (router: KoaRouter) => {
       fieldFilterConfigs,
       filter,
       ctx.state?.user?.depositors,
-      ctx.state?.user?.archiveInitiators
+      ctx.state?.user?.archiveInitiators,
+      'values'
+    )
+
+    await setValues(
+      fieldFilterConfigs,
+      undefined,
+      ctx.state?.user?.depositors,
+      ctx.state?.user?.archiveInitiators,
+      'allValues'
     )
 
     ctx.body = fieldFilterConfigs

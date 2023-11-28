@@ -18,9 +18,11 @@ export enum FilterType {
 
 export interface FieldFilterConfig {
   fieldName: string
+  parentField?: string
   displayName: string
   filterType: FilterType
   values?: string[]
+  allValues?: string[]
 }
 
 export interface FieldFilter {
