@@ -10,6 +10,7 @@ import { DocumentPage } from './routes/document/documentPage'
 import CentraleSansRegular from '../assets/CentraleSans-Regular.woff2'
 import PublicoTextItalic from '../assets/PublicoText-Italic.woff2'
 import { PageReset } from './routes/login/resetPage'
+import { MyPage } from './routes/my-page/myPage'
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -176,6 +177,7 @@ function App() {
             <Route path="/search" element={<PageSearch />} />
             <Route path="/" element={<PageAbout />} />
             <Route path="/om-oss" element={<PageAbout />} />
+            <Route path="/min-sida" element={<MyPage />} />
             <Route path="/dokument/:id" element={<DocumentPage />} />
             <Route path="/login/nollstall" element={<PageReset />} />
             <Route path="/login" element={<PageLogin />} />

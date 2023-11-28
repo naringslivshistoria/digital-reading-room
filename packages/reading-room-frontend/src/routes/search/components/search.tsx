@@ -137,9 +137,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
           setShowHelp(false)
         }}
       >
-        <DialogTitle variant="body1">
-          <Typography variant="h2">Söktips</Typography>
-        </DialogTitle>
+        <DialogTitle variant="h2">Söktips</DialogTitle>
         <DialogContent>
           <Typography variant="h3">Enkla uttryck</Typography>
           <Typography variant="body1">
