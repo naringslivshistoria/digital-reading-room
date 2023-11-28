@@ -42,14 +42,16 @@ export const SiteHeader = () => {
               display: { xs: 'none', sm: 'flex' },
             }}
           >
-            <Typography
-              variant="body1"
-              sx={{
-                fontSize: 12,
-              }}
-            >
-              <b>Inloggad som:</b> {user?.username}
-            </Typography>
+            {isLoggedIn && (
+              <Typography
+                variant="body1"
+                sx={{
+                  fontSize: 12,
+                }}
+              >
+                <b>Inloggad som:</b> {user?.username}
+              </Typography>
+            )}
           </Grid>
           <Grid item display={'flex'} justifyContent={'flex-end'}>
             <SiteMenu />
