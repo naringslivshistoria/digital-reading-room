@@ -241,6 +241,10 @@ export const routes = (router: KoaRouter) => {
       },
     ]
 
+    const standaloneConfigs = fieldFilterConfigs.filter((filterConfig) => {
+      return !filterConfig.parentField
+    })
+
     await setValues(
       fieldFilterConfigs,
       filter,
@@ -250,12 +254,34 @@ export const routes = (router: KoaRouter) => {
     )
 
     await setValues(
-      fieldFilterConfigs,
+      standaloneConfigs,
       undefined,
       ctx.state?.user?.depositors,
       ctx.state?.user?.archiveInitiators,
       'allValues'
     )
+
+    const dependentConfigs = fieldFilterConfigs.filter((filterConfig) => {
+      return filterConfig.parentField !== undefined
+    })
+
+    for (const filterConfig of dependentConfigs) {
+      let parentFilter: string | undefined = ''
+
+      if (filter as string) {
+        parentFilter = (filter as string).split('||').find((filterPart) => {
+          return filterPart.split('::')?.[0] === filterConfig.parentField
+        })
+      }
+
+      await setValues(
+        [filterConfig],
+        parentFilter,
+        ctx.state?.user?.depositors,
+        ctx.state?.user?.archiveInitiators,
+        'allValues'
+      )
+    }
 
     ctx.body = fieldFilterConfigs
   })

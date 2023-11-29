@@ -122,7 +122,6 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
     console.log('Filters are now', newFilters)
 
     setFilters(newFilters)
-    refetchFilters()
   }
 
   useEffect(() => {
