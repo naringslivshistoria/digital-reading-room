@@ -13,7 +13,7 @@ export const SiteHeader = () => {
     <Grid
       container
       direction="row"
-      sx={{ height: { xs: '240px', sm: '285px' }, bgcolor: 'primary.main' }}
+      sx={{ height: { xs: '240px', sm: '430px' }, bgcolor: 'primary.main' }}
     >
       <Grid item md={1} xs={1} />
       <Grid item md={6} xs={11}>
