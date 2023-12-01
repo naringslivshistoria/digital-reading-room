@@ -21,7 +21,7 @@ export const SiteHeader = () => {
         container
         direction="row"
         sx={{
-          height: { xs: '64px', sm: '96px' },
+          height: { xs: '64px', sm: '75px' },
           paddingLeft: { xs: '20px', md: '0px' },
           paddingRight: '20px',
         }}
@@ -62,7 +62,7 @@ export const SiteHeader = () => {
       <Grid
         container
         direction="row"
-        sx={{ height: { xs: '140px', sm: '285px' }, bgcolor: 'primary.main' }}
+        sx={{ height: { xs: '140px', sm: '245px' }, bgcolor: 'primary.main' }}
       >
         <Grid item sm={1} xs={1} />
         <Grid item sm={6} xs={11}>
@@ -136,7 +136,7 @@ export const SiteHeader = () => {
               <Typography
                 variant="body1"
                 sx={{
-                  fontSize: { xs: 14, sm: 16 },
+                  fontSize: { xs: 12, sm: 14 },
                   marginTop: { xs: '0px', sm: '10px' },
                   // marginTop: '20px',
                 }}
