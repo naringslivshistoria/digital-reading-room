@@ -55,8 +55,11 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
             }}
           >
             <TextField
-              variant="filled"
-              sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
+              variant="outlined"
+              sx={{
+                width: { xs: '100%' },
+                bgcolor: 'white',
+              }}
               placeholder="Sök efter dokument"
               defaultValue={query}
               onKeyUp={onSubmit}
