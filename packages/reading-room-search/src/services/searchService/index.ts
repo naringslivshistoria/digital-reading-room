@@ -35,22 +35,25 @@ const createAccessFilter = (
   const accessFilter: QueryDslQueryContainer[] = []
 
   if (depositors) {
-    depositors.forEach((depositor) => {
+    accessFilter.push({
+      terms: {
+        'fields.depositor.value.keyword': depositors,
+      },
+    })
+    /*    depositors.forEach((depositor) => {
       accessFilter.push({
         term: {
           'fields.depositor.value.keyword': depositor,
         },
       })
-    })
+    })*/
   }
 
   if (archiveInitiators) {
-    archiveInitiators.forEach((archiveInitiator) => {
-      accessFilter.push({
-        term: {
-          'fields.archiveInitiator.value.keyword': archiveInitiator,
-        },
-      })
+    accessFilter.push({
+      terms: {
+        'fields.depositor.value.keyword': archiveInitiators,
+      },
     })
   }
 
@@ -75,8 +78,7 @@ const createSearchQuery = (
   const searchQuery = {
     bool: {
       must,
-      should: accessFilter,
-      minimum_should_match: 1,
+      filter: accessFilter,
     },
   }
 
@@ -95,14 +97,12 @@ const createSearchQuery = (
           term,
         })
       } else {
-        const wildcard: { [k: string]: {} } = {}
+        const terms: { [k: string]: string[] } = {}
 
-        wildcard[`${getFullFieldName(filterTerm[0])}`] = {
-          value: filterTerm[1],
-          case_insensitive: true,
-        }
+        terms[`${getFullFieldName(filterTerm[0])}`] = filterTerm[1].split(',,')
+
         searchQuery.bool.must.push({
-          wildcard,
+          terms,
         })
       }
     })
