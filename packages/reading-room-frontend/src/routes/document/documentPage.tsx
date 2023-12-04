@@ -37,7 +37,7 @@ export const DocumentPage = () => {
   const navigate = useNavigate()
   const [showDownload, setShowDownload] = useState<boolean>(false)
 
-  useIsLoggedIn()
+  useIsLoggedIn(true)
 
   useEffect(() => {
     window.scrollTo(0, 0)
