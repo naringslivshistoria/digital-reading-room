@@ -16,7 +16,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Typography from '@mui/material/Typography'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import {
   FieldFilter,
@@ -166,184 +166,161 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
 
   return (
     <>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        sx={{ paddingTop: '72px' }}
-      >
-        <Link to="/">
-          <Stack direction="row">
-            <Typography
-              variant="h1"
-              sx={{
-                marginBottom: '10px',
-                fontSize: { xs: '27px', sm: '40px' },
-              }}
-            >
-              Digital läsesal
-            </Typography>
-            &nbsp;
-            <Typography
-              variant="h2"
-              sx={{
-                marginTop: { xs: '8px', sm: '12px' },
-                marginLeft: 1,
-                color: 'white',
-                fontSize: { xs: '17px', sm: '24px' },
-              }}
-            >
-              (beta)
-            </Typography>
-          </Stack>
-        </Link>
-        {searchEnabled && (
-          <Box
-            sx={{
-              marginTop: { xs: '0px', sm: '7px' },
-              transform: { xs: 'scale(0.75)', sm: 'scale(1)' },
-            }}
-          >
-            <IconButton
-              onClick={() => {
-                setShowHelp(true)
-              }}
-            >
-              <Typography variant="body1" sx={{ color: 'white' }}>
-                <HelpOutlineIcon /> Söktips
-              </Typography>
-            </IconButton>
-          </Box>
-        )}
-      </Stack>
       {searchEnabled && (
         <>
-          <TextField
-            variant="filled"
-            sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
-            placeholder="Sök efter dokument"
-            defaultValue={query}
-            onKeyUp={onSubmit}
-            inputProps={{
-              style: {
-                height: '12px',
-                padding: '19px 10px 15px 10px',
-                color: 'black',
-                backgroundColor: 'white',
-              },
+          <Grid
+            item
+            xs={8}
+            // sm={8}
+            md={6}
+            sx={{
+              paddingRight: { xs: '20px', md: '20px' },
             }}
-            InputProps={{
-              style: {
-                backgroundColor: 'white',
-              },
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Stack direction="row">
-                    {query && (
+          >
+            <TextField
+              variant="outlined"
+              sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
+              placeholder="Sök efter dokument"
+              defaultValue={query}
+              onKeyUp={onSubmit}
+              inputProps={{
+                style: {
+                  height: '12px',
+                  padding: '19px 10px 15px 10px',
+                  color: 'black',
+                  backgroundColor: 'white',
+                },
+              }}
+              InputProps={{
+                style: {
+                  backgroundColor: 'white',
+                },
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Stack direction="row">
+                      {query && (
+                        <IconButton
+                          onClick={() => clearQuery()}
+                          sx={{
+                            bgcolor: 'white',
+                            height: '44px',
+                            width: '44px',
+                            borderRadius: 0,
+                            '&:hover': { bgcolor: 'white ' },
+                          }}
+                        >
+                          <HighlightOffIcon />
+                        </IconButton>
+                      )}
                       <IconButton
-                        onClick={() => clearQuery()}
+                        edge="end"
+                        disableRipple
+                        onClick={() => search()}
                         sx={{
-                          bgcolor: 'white',
-                          height: '44px',
-                          width: '44px',
+                          color: 'white',
+                          bgcolor: '#53565a',
                           borderRadius: 0,
-                          '&:hover': { bgcolor: 'white ' },
+                          height: '46px',
+                          width: '46px',
                         }}
                       >
-                        <HighlightOffIcon />
+                        <SearchIcon />
                       </IconButton>
-                    )}
-                    <IconButton
-                      edge="end"
-                      disableRipple
-                      onClick={() => search()}
-                      sx={{
-                        color: 'white',
-                        bgcolor: '#53565a',
-                        borderRadius: 0,
-                        height: '46px',
-                        width: '46px',
-                      }}
-                    >
-                      <SearchIcon />
-                    </IconButton>
-                  </Stack>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Box bgcolor={'white'}>
-            <Grid container>
-              {fieldFilterConfigs &&
-                fieldFilterConfigs.map((filterConfig: FieldFilterConfig) => {
-                  switch (filterConfig.filterType) {
-                    case FilterType.freeText:
-                      return (
-                        <Grid key={filterConfig.fieldName}>
-                          <Typography>{filterConfig.displayName}</Typography>
-                          <TextField
-                            onKeyUp={filterKeyUp}
-                            defaultValue={
-                              filters[filterConfig.fieldName]?.values[0]
-                            }
-                            onChange={(e) =>
-                              updateFilter(
-                                filterConfig.fieldName,
-                                e.target.value
-                              )
-                            }
-                          ></TextField>
-                        </Grid>
-                      )
-                    case FilterType.values:
-                      return (
-                        <Grid key={filterConfig.fieldName}>
-                          <Typography>{filterConfig.displayName}</Typography>
-                          <Select
-                            defaultValue={
-                              filters[filterConfig.fieldName]?.values[0]
-                            }
-                            value={filters[filterConfig.fieldName]?.values[0]}
-                            placeholder={'Välj ' + filterConfig.displayName}
-                            onChange={(e) => {
-                              updateFilter(
-                                filterConfig.fieldName,
-                                e.target.value as string | undefined
-                              )
-                              search()
-                            }}
-                            disabled={isFieldDisabled(filterConfig, filters)}
-                          >
-                            <MenuItem key={0} value={undefined}>
-                              Alla
-                            </MenuItem>
-                            {filterConfig.allValues?.map((value: string) => (
-                              <MenuItem key={value} value={value}>
-                                {filterConfig.values?.includes(value) ? (
-                                  <b>{value}</b>
-                                ) : (
-                                  value
-                                )}
+                    </Stack>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Box bgcolor={'white'}>
+              <Grid container>
+                {fieldFilterConfigs &&
+                  fieldFilterConfigs.map((filterConfig: FieldFilterConfig) => {
+                    switch (filterConfig.filterType) {
+                      case FilterType.freeText:
+                        return (
+                          <Grid key={filterConfig.fieldName}>
+                            <Typography>{filterConfig.displayName}</Typography>
+                            <TextField
+                              onKeyUp={filterKeyUp}
+                              defaultValue={
+                                filters[filterConfig.fieldName]?.values[0]
+                              }
+                              onChange={(e) =>
+                                updateFilter(
+                                  filterConfig.fieldName,
+                                  e.target.value
+                                )
+                              }
+                            ></TextField>
+                          </Grid>
+                        )
+                      case FilterType.values:
+                        return (
+                          <Grid key={filterConfig.fieldName}>
+                            <Typography>{filterConfig.displayName}</Typography>
+                            <Select
+                              defaultValue={
+                                filters[filterConfig.fieldName]?.values[0]
+                              }
+                              value={filters[filterConfig.fieldName]?.values[0]}
+                              placeholder={'Välj ' + filterConfig.displayName}
+                              onChange={(e) => {
+                                updateFilter(
+                                  filterConfig.fieldName,
+                                  e.target.value as string | undefined
+                                )
+                                search()
+                              }}
+                              disabled={isFieldDisabled(filterConfig, filters)}
+                            >
+                              <MenuItem key={0} value={undefined}>
+                                Alla
                               </MenuItem>
-                            ))}
-                          </Select>
-                        </Grid>
-                      )
-                  }
-                })}
-            </Grid>
-          </Box>
+                              {filterConfig.allValues?.map((value: string) => (
+                                <MenuItem key={value} value={value}>
+                                  {filterConfig.values?.includes(value) ? (
+                                    <b>{value}</b>
+                                  ) : (
+                                    value
+                                  )}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </Grid>
+                        )
+                    }
+                  })}
+              </Grid>
+            </Box>
+          </Grid>
+          <Grid item md={4}>
+            <Box
+              sx={{
+                // marginTop: { xs: '0px', sm: '7px' },
+                marginLeft: { xs: '-20px', sm: '0px' },
+                transform: { xs: 'scale(0.75)', sm: 'scale(1)' },
+              }}
+            >
+              <IconButton
+                onClick={() => {
+                  setShowHelp(true)
+                }}
+              >
+                <Typography variant="body1" sx={{ color: 'black' }}>
+                  <HelpOutlineIcon sx={{ color: '#00AFD8' }} /> Söktips
+                </Typography>
+              </IconButton>
+            </Box>
+          </Grid>
         </>
       )}
-
       <Dialog
         open={showHelp}
         onClose={() => {
           setShowHelp(false)
         }}
       >
-        <DialogTitle variant="body1">
-          <Typography variant="h2">Söktips</Typography>
-        </DialogTitle>
+        <DialogTitle variant="h2">Söktips</DialogTitle>
         <DialogContent>
           <Typography variant="h3">Enkla uttryck</Typography>
           <Typography variant="body1">

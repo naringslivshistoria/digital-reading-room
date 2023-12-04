@@ -72,19 +72,32 @@ export const PageLogin = () => {
         <Grid item xs={10} md={5} lg={3} justifyContent="flex-start">
           <Typography
             variant="h2"
-            sx={{ marginTop: '75px', marginBottom: '20px' }}
+            sx={{ marginTop: '40px', marginBottom: '20px' }}
+          >
+            Välkommen att söka i de digitala arkiven hos Centrum för
+            Näringslivshistoria
+          </Typography>
+          <Typography variant="body1">
+            Efter att du loggat in kan du direkt söka i de arkiv som är allmänt
+            tillgängliga. Vill du söka i arkiv som kräver tillstånd, mejla
+            bildochfakta@naringslivshistoria.se för hjälp med att söka
+            tillstånd.
+          </Typography>
+          <Typography
+            variant="h2"
+            sx={{ marginTop: '40px', marginBottom: '10px' }}
           >
             Logga in
           </Typography>
           {!showReset && (
-            <Stack rowGap={4} justifyContent="flex-start">
+            <Stack rowGap={2} justifyContent="flex-start">
               <TextField
                 id="username"
                 onChange={(e) => {
                   setUsername(e.target.value)
                 }}
                 value={username}
-                label="Epostadress"
+                label="E-postadress"
                 variant="standard"
               />
               <TextField

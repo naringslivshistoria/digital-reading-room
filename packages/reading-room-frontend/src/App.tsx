@@ -10,6 +10,7 @@ import { DocumentPage } from './routes/document/documentPage'
 import CentraleSansRegular from '../assets/CentraleSans-Regular.woff2'
 import PublicoTextItalic from '../assets/PublicoText-Italic.woff2'
 import { PageReset } from './routes/login/resetPage'
+import { MyPage } from './routes/my-page/myPage'
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -114,6 +115,47 @@ const mdTheme = createTheme({
         ],
       },
     },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          color: 'rgb(83, 86, 90)',
+          paddingLeft: '10px',
+          textDecoration: 'none',
+          textTransform: 'uppercase',
+          fontSize: 14,
+          fontWeight: 700,
+          '&:hover': {
+            color: '#de3831',
+          },
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          color: 'rgb(83, 86, 90)',
+          textDecoration: 'none',
+          fontSize: 14,
+          '&:hover': {
+            color: '#de3831',
+          },
+        },
+      },
+    },
+    MuiFormLabel: {
+      styleOverrides: {
+        root: {
+          padding: 5,
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          borderWidth: 1,
+        },
+      },
+    },
   },
 })
 
@@ -134,6 +176,8 @@ function App() {
           <Routes>
             <Route path="/search" element={<PageSearch />} />
             <Route path="/" element={<PageAbout />} />
+            <Route path="/om-oss" element={<PageAbout />} />
+            <Route path="/min-sida" element={<MyPage />} />
             <Route path="/dokument/:id" element={<DocumentPage />} />
             <Route path="/login/nollstall" element={<PageReset />} />
             <Route path="/login" element={<PageLogin />} />
