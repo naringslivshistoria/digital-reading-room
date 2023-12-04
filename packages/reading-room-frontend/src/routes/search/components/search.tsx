@@ -102,16 +102,16 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
 
   const updateFilter = async (
     fieldName: string,
-    value: string | undefined | null
+    values: string[] | undefined | null
   ) => {
-    if (value) {
+    if (values) {
       if (filters[fieldName]) {
         clearChildFilter(fieldName)
-        filters[fieldName].values = [value]
+        filters[fieldName].values = values
       } else {
         filters[fieldName] = {
           fieldName,
-          values: [value],
+          values: values,
         }
       }
     } else {
@@ -249,10 +249,9 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                 filters[filterConfig.fieldName]?.values[0]
                               }
                               onChange={(e) =>
-                                updateFilter(
-                                  filterConfig.fieldName,
-                                  e.target.value
-                                )
+                                updateFilter(filterConfig.fieldName, [
+                                  e.target.value,
+                                ])
                               }
                             ></TextField>
                           </Grid>
@@ -266,7 +265,13 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                               //   filters[filterConfig.fieldName]?.values[0]
                               // }
                               // value={filters[filterConfig.fieldName]?.values[0]}
+                              renderValue={(selected) => {
+                                if (selected.length === 0) {
+                                  return <em>Placeholder</em>
+                                }
 
+                                return selected.join(', ')
+                              }}
                               defaultValue={[
                                 filters[filterConfig.fieldName]?.values[0],
                               ]}
@@ -285,18 +290,21 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                 const val =
                                   e.target.value === 'string'
                                     ? e.target.value.split(',')
-                                    : e.target.value
+                                    : (e.target.value as string[])
 
-                                updateFilter(
-                                  filterConfig.fieldName,
-                                  val as string | undefined
-                                )
+                                if (val.length > 1 && !val[0]) {
+                                  val.splice(0, 1)
+                                }
+
+                                console.log('val', val)
+
+                                updateFilter(filterConfig.fieldName, val)
                                 search()
                               }}
                               disabled={isFieldDisabled(filterConfig, filters)}
                               multiple
                             >
-                              <MenuItem key={0} value={undefined}>
+                              <MenuItem key={0} value={''}>
                                 Alla
                               </MenuItem>
                               {filterConfig.allValues?.map((value: string) => (

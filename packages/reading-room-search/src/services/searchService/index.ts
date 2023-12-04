@@ -40,13 +40,6 @@ const createAccessFilter = (
         'fields.depositor.value.keyword': depositors,
       },
     })
-    /*    depositors.forEach((depositor) => {
-      accessFilter.push({
-        term: {
-          'fields.depositor.value.keyword': depositor,
-        },
-      })
-    })*/
   }
 
   if (archiveInitiators) {
@@ -99,7 +92,7 @@ const createSearchQuery = (
       } else {
         const terms: { [k: string]: string[] } = {}
 
-        terms[`${getFullFieldName(filterTerm[0])}`] = filterTerm[1].split(',,')
+        terms[`${getFullFieldName(filterTerm[0])}`] = filterTerm[1].split('%%')
 
         searchQuery.bool.must.push({
           terms,
