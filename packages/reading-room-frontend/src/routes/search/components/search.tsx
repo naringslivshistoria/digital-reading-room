@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
+  Checkbox,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -125,6 +126,8 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
   }
 
   useEffect(() => {
+    console.log('filters', filters)
+
     const updateFilters = async () => {
       await refetchFilters()
     }
@@ -259,25 +262,52 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                           <Grid key={filterConfig.fieldName}>
                             <Typography>{filterConfig.displayName}</Typography>
                             <Select
-                              defaultValue={
-                                filters[filterConfig.fieldName]?.values[0]
-                              }
-                              value={filters[filterConfig.fieldName]?.values[0]}
+                              // defaultValue={
+                              //   filters[filterConfig.fieldName]?.values[0]
+                              // }
+                              // value={filters[filterConfig.fieldName]?.values[0]}
+
+                              defaultValue={[
+                                filters[filterConfig.fieldName]?.values[0],
+                              ]}
+                              value={filters[filterConfig.fieldName]?.values}
                               placeholder={'Välj ' + filterConfig.displayName}
                               onChange={(e) => {
+                                console.log('e.target.value', e.target.value)
+                                // const {
+                                //   target: { value },
+                                // } = event;
+                                // setPersonName(
+                                //   // On autofill we get a stringified value.
+                                //   typeof value === 'string' ? value.split(',') : value,
+                                // );
+
+                                const val =
+                                  e.target.value === 'string'
+                                    ? e.target.value.split(',')
+                                    : e.target.value
+
                                 updateFilter(
                                   filterConfig.fieldName,
-                                  e.target.value as string | undefined
+                                  val as string | undefined
                                 )
                                 search()
                               }}
                               disabled={isFieldDisabled(filterConfig, filters)}
+                              multiple
                             >
                               <MenuItem key={0} value={undefined}>
                                 Alla
                               </MenuItem>
                               {filterConfig.allValues?.map((value: string) => (
                                 <MenuItem key={value} value={value}>
+                                  <Checkbox
+                                    checked={
+                                      filters[
+                                        filterConfig.fieldName
+                                      ]?.values.indexOf(value) > -1
+                                    }
+                                  />
                                   {filterConfig.values?.includes(value) ? (
                                     <b>{value}</b>
                                   ) : (
