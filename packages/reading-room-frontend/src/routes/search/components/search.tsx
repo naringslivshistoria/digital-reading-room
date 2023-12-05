@@ -40,7 +40,7 @@ const parseFilter = (
         const filterParts = filterString.split('::')
         filters[filterParts[0]] = {
           fieldName: filterParts[0],
-          values: [filterParts[1]],
+          values: filterParts[1].split('%%'),
         }
         return filters
       },
@@ -102,16 +102,16 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
 
   const updateFilter = async (
     fieldName: string,
-    value: string | undefined | null
+    values: string[] | undefined | null
   ) => {
-    if (value) {
+    if (values && values?.length > 0) {
       if (filters[fieldName]) {
         clearChildFilter(fieldName)
-        filters[fieldName].values = [value]
+        filters[fieldName].values = values
       } else {
         filters[fieldName] = {
           fieldName,
-          values: [value],
+          values: values,
         }
       }
     } else {
@@ -249,10 +249,9 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                 filters[filterConfig.fieldName]?.values[0]
                               }
                               onChange={(e) =>
-                                updateFilter(
-                                  filterConfig.fieldName,
-                                  e.target.value
-                                )
+                                updateFilter(filterConfig.fieldName, [
+                                  e.target.value,
+                                ])
                               }
                             ></TextField>
                           </Grid>
@@ -262,43 +261,38 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                           <Grid key={filterConfig.fieldName}>
                             <Typography>{filterConfig.displayName}</Typography>
                             <Select
-                              // defaultValue={
-                              //   filters[filterConfig.fieldName]?.values[0]
-                              // }
-                              // value={filters[filterConfig.fieldName]?.values[0]}
+                              renderValue={(selected) => {
+                                if (selected.length === 0) {
+                                  return <em>Placeholder</em>
+                                }
 
-                              defaultValue={[
-                                filters[filterConfig.fieldName]?.values[0],
-                              ]}
+                                return selected.join(', ')
+                              }}
+                              defaultValue={
+                                Array.isArray(
+                                  filters[filterConfig.fieldName]?.values
+                                )
+                                  ? filters[filterConfig.fieldName]?.values
+                                  : []
+                              }
                               value={filters[filterConfig.fieldName]?.values}
                               placeholder={'Välj ' + filterConfig.displayName}
                               onChange={(e) => {
-                                console.log('e.target.value', e.target.value)
-                                // const {
-                                //   target: { value },
-                                // } = event;
-                                // setPersonName(
-                                //   // On autofill we get a stringified value.
-                                //   typeof value === 'string' ? value.split(',') : value,
-                                // );
-
                                 const val =
                                   e.target.value === 'string'
                                     ? e.target.value.split(',')
-                                    : e.target.value
+                                    : (e.target.value as string[])
 
-                                updateFilter(
-                                  filterConfig.fieldName,
-                                  val as string | undefined
-                                )
+                                if (val.length > 1 && !val[0]) {
+                                  val.splice(0, 1)
+                                }
+
+                                updateFilter(filterConfig.fieldName, val)
                                 search()
                               }}
                               disabled={isFieldDisabled(filterConfig, filters)}
                               multiple
                             >
-                              <MenuItem key={0} value={undefined}>
-                                Alla
-                              </MenuItem>
                               {filterConfig.allValues?.map((value: string) => (
                                 <MenuItem key={value} value={value}>
                                   <Checkbox

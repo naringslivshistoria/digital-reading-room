@@ -40,13 +40,6 @@ const createAccessFilter = (
         'fields.depositor.value.keyword': depositors,
       },
     })
-    /*    depositors.forEach((depositor) => {
-      accessFilter.push({
-        term: {
-          'fields.depositor.value.keyword': depositor,
-        },
-      })
-    })*/
   }
 
   if (archiveInitiators) {
@@ -96,10 +89,20 @@ const createSearchQuery = (
         searchQuery.bool.must.push({
           term,
         })
+      } else if (filterTerm[0] === 'location' || filterTerm[0] === 'time') {
+        const wildcard: { [k: string]: {} } = {}
+
+        wildcard[`${getFullFieldName(filterTerm[0])}`] = {
+          value: filterTerm[1] + '*',
+          case_insensitive: true,
+        }
+        searchQuery.bool.must.push({
+          wildcard,
+        })
       } else {
         const terms: { [k: string]: string[] } = {}
 
-        terms[`${getFullFieldName(filterTerm[0])}`] = filterTerm[1].split(',,')
+        terms[`${getFullFieldName(filterTerm[0])}`] = filterTerm[1].split('%%')
 
         searchQuery.bool.must.push({
           terms,
@@ -148,11 +151,13 @@ const setValues = async (
 
       if (aggregation) {
         // @ts-ignore - there is a bug in the ElasticSearch types not exposing buckets
-        fieldFilterConfig[valueField] = aggregation.buckets.map(
-          (bucket: any) => {
+        fieldFilterConfig[valueField] = aggregation.buckets
+          .map((bucket: any) => {
             return bucket.key
-          }
-        )
+          })
+          .sort((a: string, b: string) => {
+            return a == b ? 0 : a < b ? -1 : 1
+          })
       }
     })
   }
@@ -209,8 +214,22 @@ export const routes = (router: KoaRouter) => {
   router.get('(.*)/search/get-field-filters', async (ctx) => {
     const filter = ctx.query.filter
 
-    // dummy implementation
     const fieldFilterConfigs: FieldFilterConfig[] = [
+      {
+        fieldName: 'location',
+        displayName: 'Geografi',
+        filterType: FilterType.freeText,
+      },
+      {
+        fieldName: 'time',
+        displayName: 'Årtal',
+        filterType: FilterType.freeText,
+      },
+      {
+        fieldName: 'pageType',
+        displayName: 'Mediatyp',
+        filterType: FilterType.values,
+      },
       {
         fieldName: 'depositor',
         displayName: 'Deponent',
@@ -232,11 +251,6 @@ export const routes = (router: KoaRouter) => {
         fieldName: 'volume',
         parentField: 'archiveInitiator',
         displayName: 'Volym',
-        filterType: FilterType.values,
-      },
-      {
-        fieldName: 'pageType',
-        displayName: 'Mediatyp',
         filterType: FilterType.values,
       },
     ]
