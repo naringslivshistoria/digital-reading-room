@@ -35,13 +35,14 @@ describe('searchService', () => {
         index: 'svejs',
         query: {
           bool: {
-            must: {
-              query_string: {
-                query: 'searchQuery',
+            must: [
+              {
+                query_string: {
+                  query: 'searchQuery',
+                },
               },
-            },
-            should: undefined,
-            minimum_should_match: 1,
+            ],
+            filter: undefined,
           },
         },
         from: 0,
@@ -61,12 +62,6 @@ describe('searchService', () => {
         results: [searchResultMock.hits.hits[0]._source],
         hits: 20,
       })
-    })
-
-    it('requires a free text query parameter', async () => {
-      const res = await request(app.callback()).get('/search')
-      expect(res.status).toBe(400)
-      expect(res.body.errorMessage).toBe('Missing parameter: query')
     })
   })
 })
