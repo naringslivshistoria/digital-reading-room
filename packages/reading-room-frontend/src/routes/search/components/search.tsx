@@ -40,7 +40,7 @@ const parseFilter = (
         const filterParts = filterString.split('::')
         filters[filterParts[0]] = {
           fieldName: filterParts[0],
-          values: [filterParts[1]],
+          values: filterParts[1].split('%%'),
         }
         return filters
       },
@@ -104,7 +104,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
     fieldName: string,
     values: string[] | undefined | null
   ) => {
-    if (values) {
+    if (values && values?.length > 0) {
       if (filters[fieldName]) {
         clearChildFilter(fieldName)
         filters[fieldName].values = values
@@ -261,10 +261,6 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                           <Grid key={filterConfig.fieldName}>
                             <Typography>{filterConfig.displayName}</Typography>
                             <Select
-                              // defaultValue={
-                              //   filters[filterConfig.fieldName]?.values[0]
-                              // }
-                              // value={filters[filterConfig.fieldName]?.values[0]}
                               renderValue={(selected) => {
                                 if (selected.length === 0) {
                                   return <em>Placeholder</em>
@@ -272,21 +268,16 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
 
                                 return selected.join(', ')
                               }}
-                              defaultValue={[
-                                filters[filterConfig.fieldName]?.values[0],
-                              ]}
+                              defaultValue={
+                                Array.isArray(
+                                  filters[filterConfig.fieldName]?.values
+                                )
+                                  ? filters[filterConfig.fieldName]?.values
+                                  : []
+                              }
                               value={filters[filterConfig.fieldName]?.values}
                               placeholder={'Välj ' + filterConfig.displayName}
                               onChange={(e) => {
-                                console.log('e.target.value', e.target.value)
-                                // const {
-                                //   target: { value },
-                                // } = event;
-                                // setPersonName(
-                                //   // On autofill we get a stringified value.
-                                //   typeof value === 'string' ? value.split(',') : value,
-                                // );
-
                                 const val =
                                   e.target.value === 'string'
                                     ? e.target.value.split(',')
@@ -296,17 +287,12 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                   val.splice(0, 1)
                                 }
 
-                                console.log('val', val)
-
                                 updateFilter(filterConfig.fieldName, val)
                                 search()
                               }}
                               disabled={isFieldDisabled(filterConfig, filters)}
                               multiple
                             >
-                              <MenuItem key={0} value={''}>
-                                Alla
-                              </MenuItem>
                               {filterConfig.allValues?.map((value: string) => (
                                 <MenuItem key={value} value={value}>
                                   <Checkbox

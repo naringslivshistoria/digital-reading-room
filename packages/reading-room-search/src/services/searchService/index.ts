@@ -141,11 +141,13 @@ const setValues = async (
 
       if (aggregation) {
         // @ts-ignore - there is a bug in the ElasticSearch types not exposing buckets
-        fieldFilterConfig[valueField] = aggregation.buckets.map(
-          (bucket: any) => {
+        fieldFilterConfig[valueField] = aggregation.buckets
+          .map((bucket: any) => {
             return bucket.key
-          }
-        )
+          })
+          .sort((a: string, b: string) => {
+            return a == b ? 0 : a < b ? -1 : 1
+          })
       }
     })
   }
