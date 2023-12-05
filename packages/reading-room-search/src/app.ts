@@ -16,7 +16,12 @@ app.use((ctx, next) => {
   return next()
 })
 
-app.use(cors())
+app.use(
+  cors({
+    origin: '*',
+    credentials: true,
+  })
+)
 
 app.use(bodyParser())
 
