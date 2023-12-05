@@ -15,6 +15,9 @@ export const SiteHeader = () => {
   const { data: user } = useIsLoggedIn(!isPublicPage)
   const isLoggedIn = !!user?.username
 
+  const searchEnabled =
+    isLoggedIn && (location.pathname == '/' || location.pathname == '/search')
+
   return (
     <>
       <Grid
@@ -84,6 +87,18 @@ export const SiteHeader = () => {
                     >
                       Digital läsesal
                     </Typography>
+                    &nbsp;
+                    <Typography
+                      variant="h2"
+                      sx={{
+                        marginTop: { xs: '8px', sm: '12px' },
+                        marginLeft: 1,
+                        color: 'white',
+                        fontSize: { xs: '17px', sm: '24px' },
+                      }}
+                    >
+                      (beta)
+                    </Typography>
                   </Stack>
                 </Link>
               </Stack>
@@ -103,7 +118,7 @@ export const SiteHeader = () => {
           sx={{ height: '100%' }}
         ></Grid>
       </Grid>
-      {isLoggedIn && (
+      {searchEnabled && (
         <>
           <Grid
             container
@@ -117,7 +132,7 @@ export const SiteHeader = () => {
             }}
           >
             <Grid item sm={1} xs={0} />
-            <Search searchEnabled={!!user?.username} />
+            <Search searchEnabled={searchEnabled} />
             <Grid item sm={1} xs={0} />
           </Grid>
 
@@ -141,9 +156,10 @@ export const SiteHeader = () => {
                   // marginTop: '20px',
                 }}
               >
-                <b>Tillgänliga arkiv: </b>
+                <b>Du kan söka i följande arkiv: </b>
                 {user?.depositors
                   ?.concat(user?.archiveInitiators || [])
+                  .sort((a, b) => a.localeCompare(b))
                   .join(', ')}
               </Typography>
             </Grid>
