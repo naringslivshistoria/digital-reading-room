@@ -19,7 +19,7 @@ export const PageAbout = () => {
             <ListItem sx={{ display: 'list-item' }}>
               <b>Vilka arkiv finns hos Centrum för Näringslivshistoria?</b>
               <br />
-              <a href="/" target="_blank">
+              <a href="/" target="_blank" rel="noreferrer">
                 Här finns en lista
               </a>
             </ListItem>
@@ -55,6 +55,7 @@ export const PageAbout = () => {
               <a
                 href="https://www.naringslivshistoria.se/om-oss"
                 target="_blank"
+                rel="noreferrer"
               >
                 Här kan du läsa mer om oss
               </a>

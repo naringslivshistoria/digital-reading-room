@@ -66,10 +66,19 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
   const { data: user } = useIsLoggedIn(true)
 
   const createFilterString = () => {
-    const filterStrings = Object.keys(filters).map((fieldName) => {
-      const filter = filters[fieldName]
-      return `${filter.fieldName}::${filter.values.join('%%')}`
-    })
+    const filterStrings = Object.keys(filters)
+      .map((fieldName) => {
+        if (filters[fieldName] && filters[fieldName].values?.length > 0) {
+          const filter = filters[fieldName]
+          if (filter.values.length === 1 && !filter.values[0]) {
+            return null
+          }
+          return `${filter.fieldName}::${filter.values.join('%%')}`
+        } else {
+          return null
+        }
+      })
+      .filter((value) => value)
 
     return filterStrings.join('||')
   }
@@ -87,7 +96,9 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
   }
 
   const clearQuery = () => {
-    navigate('.')
+    setQuery(null)
+    setFilters({})
+    search()
   }
 
   const clearChildFilter = (fieldName: string) => {
@@ -97,7 +108,9 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
 
     if (childFilter) {
       clearChildFilter(childFilter.fieldName)
-      delete filters[childFilter.fieldName]
+      if (filters[childFilter.fieldName]) {
+        filters[childFilter.fieldName].values = []
+      }
     }
   }
 
@@ -105,19 +118,16 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
     fieldName: string,
     values: string[] | undefined | null
   ) => {
-    if (values && values?.length > 0) {
-      if (filters[fieldName]) {
-        clearChildFilter(fieldName)
-        filters[fieldName].values = values
-      } else {
-        filters[fieldName] = {
-          fieldName,
-          values: values,
-        }
+    const valuesArray = !values ? [] : values
+
+    if (!filters[fieldName]) {
+      filters[fieldName] = {
+        fieldName,
+        values: [],
       }
-    } else {
-      delete filters[fieldName]
     }
+    clearChildFilter(fieldName)
+    filters[fieldName].values = valuesArray
 
     const newFilters: Dictionary<FieldFilter> = { ...filters }
 

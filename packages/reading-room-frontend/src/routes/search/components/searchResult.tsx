@@ -42,7 +42,10 @@ export function SearchResult({
 
   const documentUrl = (document: Document) => {
     const filterparam = filter ? `&filter=${encodeURIComponent(filter)}` : ''
-    return '/dokument/' + document.id + '?query=' + query + filterparam
+    const showparam = showGrid ? `&show=grid` : ''
+    return (
+      '/dokument/' + document.id + '?query=' + query + filterparam + showparam
+    )
   }
 
   const displayGridMode = (grid: boolean) => {

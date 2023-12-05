@@ -255,7 +255,7 @@ export const routes = (router: KoaRouter) => {
       },
       {
         fieldName: 'volume',
-        parentField: 'archiveInitiator',
+        parentField: 'seriesName',
         displayName: 'Volym',
         filterType: FilterType.values,
         visualSize: 1,

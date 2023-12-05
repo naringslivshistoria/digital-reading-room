@@ -65,7 +65,7 @@ export const SiteHeader = () => {
       <Grid
         container
         direction="row"
-        sx={{ height: { xs: '140px', sm: '245px' }, bgcolor: 'primary.main' }}
+        sx={{ height: { xs: '140px', sm: '200px' }, bgcolor: 'primary.main' }}
       >
         <Grid item sm={1} xs={1} />
         <Grid item sm={6} xs={11}>
@@ -74,7 +74,7 @@ export const SiteHeader = () => {
               <Stack
                 direction="row"
                 justifyContent="space-between"
-                sx={{ paddingTop: { xs: '35px', sm: '92px' } }}
+                sx={{ paddingTop: { xs: '35px', sm: '60px' } }}
               >
                 <Link to="/">
                   <Stack direction="row">
@@ -97,7 +97,7 @@ export const SiteHeader = () => {
                         fontSize: { xs: '17px', sm: '24px' },
                       }}
                     >
-                      (beta)
+                      (betaversion)
                     </Typography>
                   </Stack>
                 </Link>
