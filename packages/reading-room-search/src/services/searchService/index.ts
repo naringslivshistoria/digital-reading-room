@@ -89,6 +89,16 @@ const createSearchQuery = (
         searchQuery.bool.must.push({
           term,
         })
+      } else if (filterTerm[0] === 'location' || filterTerm[0] === 'time') {
+        const wildcard: { [k: string]: {} } = {}
+
+        wildcard[`${getFullFieldName(filterTerm[0])}`] = {
+          value: filterTerm[1] + '*',
+          case_insensitive: true,
+        }
+        searchQuery.bool.must.push({
+          wildcard,
+        })
       } else {
         const terms: { [k: string]: string[] } = {}
 
@@ -204,8 +214,22 @@ export const routes = (router: KoaRouter) => {
   router.get('(.*)/search/get-field-filters', async (ctx) => {
     const filter = ctx.query.filter
 
-    // dummy implementation
     const fieldFilterConfigs: FieldFilterConfig[] = [
+      {
+        fieldName: 'location',
+        displayName: 'Geografi',
+        filterType: FilterType.freeText,
+      },
+      {
+        fieldName: 'time',
+        displayName: 'Årtal',
+        filterType: FilterType.freeText,
+      },
+      {
+        fieldName: 'pageType',
+        displayName: 'Mediatyp',
+        filterType: FilterType.values,
+      },
       {
         fieldName: 'depositor',
         displayName: 'Deponent',
@@ -227,11 +251,6 @@ export const routes = (router: KoaRouter) => {
         fieldName: 'volume',
         parentField: 'archiveInitiator',
         displayName: 'Volym',
-        filterType: FilterType.values,
-      },
-      {
-        fieldName: 'pageType',
-        displayName: 'Mediatyp',
         filterType: FilterType.values,
       },
     ]
