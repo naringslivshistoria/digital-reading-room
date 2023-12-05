@@ -135,36 +135,6 @@ export const SiteHeader = () => {
             <Search searchEnabled={searchEnabled} />
             <Grid item sm={1} xs={0} />
           </Grid>
-
-          <Grid
-            container
-            direction="row"
-            bgcolor={'white'}
-            columns={{ xs: 6, sm: 12 }}
-            sx={{
-              paddingLeft: { xs: '20px', sm: '0px' },
-              paddingRight: { xs: '20px', sm: '0px' },
-            }}
-          >
-            <Grid item sm={1} xs={0} />
-            <Grid item sm={10} xs={6}>
-              <Typography
-                variant="body1"
-                sx={{
-                  fontSize: { xs: 12, sm: 14 },
-                  marginTop: { xs: '0px', sm: '10px' },
-                  // marginTop: '20px',
-                }}
-              >
-                <b>Du kan söka i följande arkiv: </b>
-                {user?.depositors
-                  ?.concat(user?.archiveInitiators || [])
-                  .sort((a, b) => a.localeCompare(b))
-                  .join(', ')}
-              </Typography>
-            </Grid>
-            <Grid item sm={1} xs={0} />
-          </Grid>
         </>
       )}
     </>

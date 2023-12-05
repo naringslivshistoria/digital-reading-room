@@ -26,6 +26,7 @@ import {
   useFieldValues,
 } from '../hooks/useSearch'
 import { Dictionary } from '../../../common/types'
+import { useIsLoggedIn } from '../../../hooks/useIsLoggedIn'
 
 const parseFilter = (
   filterQueryString: string | null | undefined
@@ -61,6 +62,8 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
   const [filters, setFilters] = useState<Dictionary<FieldFilter>>(
     parseFilter(searchParams.get('filter'))
   )
+
+  const { data: user } = useIsLoggedIn(true)
 
   const createFilterString = () => {
     const filterStrings = Object.keys(filters).map((fieldName) => {
@@ -234,6 +237,33 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                 ),
               }}
             />
+            <Grid
+              container
+              direction="row"
+              bgcolor={'white'}
+              columns={{ xs: 6, sm: 12 }}
+              sx={{
+                paddingLeft: { xs: '20px', sm: '0px' },
+                paddingRight: { xs: '20px', sm: '0px' },
+              }}
+            >
+              <Grid item sm={10} xs={6}>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontSize: { xs: 12, sm: 14 },
+                    marginTop: { xs: '0px', sm: '10px' },
+                    marginLeft: { xs: '-20px', sm: '0px' },
+                  }}
+                >
+                  <b>Du kan söka i följande arkiv: </b>
+                  {user?.depositors
+                    ?.concat(user?.archiveInitiators || [])
+                    .sort((a, b) => a.localeCompare(b))
+                    .join(', ')}
+                </Typography>
+              </Grid>
+            </Grid>
             <Box bgcolor={'white'}>
               <Grid container>
                 {fieldFilterConfigs &&
