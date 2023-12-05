@@ -19,7 +19,9 @@ export const PageAbout = () => {
             <ListItem sx={{ display: 'list-item' }}>
               <b>Vilka arkiv finns hos Centrum för Näringslivshistoria?</b>
               <br />
-              <a href="/">Här finns en lista.</a>
+              <a href="/" target="_blank" rel="noreferrer">
+                Här finns en lista
+              </a>
             </ListItem>
             <ListItem sx={{ display: 'list-item' }}>
               <b>Är alla arkiv öppna att använda?</b>
@@ -42,19 +44,30 @@ export const PageAbout = () => {
                 Vilka arkiv är det som är öppet tillgängliga och som jag kan
                 söka i direkt med mitt login?
               </b>
-              <br /> <a href="/">Här är en lista.</a>
+              <br />{' '}
+              <a href="/" target="_blank">
+                Här finns en lista
+              </a>
             </ListItem>
             <ListItem sx={{ display: 'list-item' }}>
               <b>Vilka är egentligen Centrum för Näringslivshistoria?</b>
               <br />
-              Här kan du läsa mer om oss. Frågor om digitala läsesalen kan
-              mejlas till{' '}
-              <a href="mailto:info@naringslivshistoria.se">
-                info@naringslivshistoria.se
+              <a
+                href="https://www.naringslivshistoria.se/om-oss"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Här kan du läsa mer om oss
               </a>
-              .
             </ListItem>
           </List>
+          <Typography variant="body1">
+            Frågor om digitala läsesalen kan mejlas till{' '}
+            <a href="mailto:info@naringslivshistoria.se">
+              info@naringslivshistoria.se
+            </a>
+            .
+          </Typography>
         </Grid>
         <Grid item xs={0.5} sm={1} />
       </Grid>

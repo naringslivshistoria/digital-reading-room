@@ -1,5 +1,5 @@
 interface Field {
-  id: number,
+  id: number
   originalName: string
   value: string
 }
@@ -9,20 +9,20 @@ interface Fields {
 }
 
 interface Page {
-  pageType: string,
-  url: string,
-  thumbnailUrl: string,
+  pageType: string
+  url: string
+  thumbnailUrl: string
 }
 
 interface Document {
-  id: number,
-  documentState: string,
-  fields: Fields,
+  id: number
+  documentState: string
+  fields: Fields
   pages: [Page]
 }
 
-export type {
-  Document,
-  Field,
-  Fields,
+interface Dictionary<Type> {
+  [key: string]: Type
 }
+
+export type { Document, Dictionary, Field, Fields }

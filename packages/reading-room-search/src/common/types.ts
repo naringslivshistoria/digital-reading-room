@@ -33,4 +33,19 @@ interface User {
   archiveInitiators: string | null
 }
 
-export { Document, Field, Fields, User }
+enum FilterType {
+  freeText = 0,
+  values = 1,
+}
+
+interface FieldFilterConfig {
+  fieldName: string
+  parentField?: string
+  displayName: string
+  filterType: FilterType
+  values?: string[]
+  allValues?: string[]
+  visualSize: number
+}
+
+export { Document, Field, Fields, User, FilterType, FieldFilterConfig }

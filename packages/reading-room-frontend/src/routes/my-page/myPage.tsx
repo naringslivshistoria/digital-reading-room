@@ -29,7 +29,7 @@ export const MyPage = () => {
               marginTop: { xs: '0px', sm: '10px' },
             }}
           >
-            <b>Tillgänliga arkiv: </b>
+            <b>Du kan söka i följande arkiv: </b>
             {user?.depositors?.concat(user?.archiveInitiators || []).join(', ')}
           </Typography>
         </Grid>

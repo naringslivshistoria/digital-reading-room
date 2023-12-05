@@ -1,11 +1,7 @@
 import { ReactElement } from 'react'
 
-import { Document } from '../../common/types'
+import { Document, Dictionary } from '../../common/types'
 import { createGeographyField, createMediaTypeField } from '../search'
-
-interface Dictionary<Type> {
-  [key: string]: Type
-}
 
 export interface MetaDataFieldConfiguration {
   fieldName: string

@@ -10,7 +10,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import DownloadIcon from '@mui/icons-material/Download'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import { useEffect, useState } from 'react'
@@ -32,7 +32,6 @@ const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
 export const DocumentPage = () => {
   const { id } = useParams()
-  const [searchParams] = useSearchParams()
   const { data } = useGetDocument({ id: id ?? '' })
   const navigate = useNavigate()
   const [showDownload, setShowDownload] = useState<boolean>(false)
@@ -47,11 +46,7 @@ export const DocumentPage = () => {
 
   const goBack = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     event.preventDefault()
-    if (searchParams.get('query')) {
-      navigate(-1)
-    } else {
-      navigate('/search')
-    }
+    navigate(-1)
   }
 
   const hasFields = (...args: string[]): boolean => {

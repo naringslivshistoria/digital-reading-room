@@ -15,6 +15,9 @@ export const SiteHeader = () => {
   const { data: user } = useIsLoggedIn(!isPublicPage)
   const isLoggedIn = !!user?.username
 
+  const searchEnabled =
+    isLoggedIn && (location.pathname == '/' || location.pathname == '/search')
+
   return (
     <>
       <Grid
@@ -62,7 +65,7 @@ export const SiteHeader = () => {
       <Grid
         container
         direction="row"
-        sx={{ height: { xs: '140px', sm: '245px' }, bgcolor: 'primary.main' }}
+        sx={{ height: { xs: '140px', sm: '200px' }, bgcolor: 'primary.main' }}
       >
         <Grid item sm={1} xs={1} />
         <Grid item sm={6} xs={11}>
@@ -71,7 +74,7 @@ export const SiteHeader = () => {
               <Stack
                 direction="row"
                 justifyContent="space-between"
-                sx={{ paddingTop: { xs: '35px', sm: '92px' } }}
+                sx={{ paddingTop: { xs: '35px', sm: '60px' } }}
               >
                 <Link to="/">
                   <Stack direction="row">
@@ -83,6 +86,18 @@ export const SiteHeader = () => {
                       }}
                     >
                       Digital läsesal
+                    </Typography>
+                    &nbsp;
+                    <Typography
+                      variant="h2"
+                      sx={{
+                        marginTop: { xs: '8px', sm: '12px' },
+                        marginLeft: 1,
+                        color: 'white',
+                        fontSize: { xs: '17px', sm: '24px' },
+                      }}
+                    >
+                      (betaversion)
                     </Typography>
                   </Stack>
                 </Link>
@@ -103,7 +118,7 @@ export const SiteHeader = () => {
           sx={{ height: '100%' }}
         ></Grid>
       </Grid>
-      {isLoggedIn && (
+      {searchEnabled && (
         <>
           <Grid
             container
@@ -117,36 +132,7 @@ export const SiteHeader = () => {
             }}
           >
             <Grid item sm={1} xs={0} />
-            <Search searchEnabled={!!user?.username} />
-            <Grid item sm={1} xs={0} />
-          </Grid>
-
-          <Grid
-            container
-            direction="row"
-            bgcolor={'white'}
-            columns={{ xs: 6, sm: 12 }}
-            sx={{
-              paddingLeft: { xs: '20px', sm: '0px' },
-              paddingRight: { xs: '20px', sm: '0px' },
-            }}
-          >
-            <Grid item sm={1} xs={0} />
-            <Grid item sm={10} xs={6}>
-              <Typography
-                variant="body1"
-                sx={{
-                  fontSize: { xs: 12, sm: 14 },
-                  marginTop: { xs: '0px', sm: '10px' },
-                  // marginTop: '20px',
-                }}
-              >
-                <b>Tillgänliga arkiv: </b>
-                {user?.depositors
-                  ?.concat(user?.archiveInitiators || [])
-                  .join(', ')}
-              </Typography>
-            </Grid>
+            <Search searchEnabled={searchEnabled} />
             <Grid item sm={1} xs={0} />
           </Grid>
         </>

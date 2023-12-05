@@ -28,7 +28,7 @@ export const SiteMenu = () => {
       <Box columnGap={2} sx={{ display: { xs: 'none', sm: 'inline' } }}>
         {isLoggedIn ? (
           <>
-            <Link to="/" component={RouterLink}>
+            <Link to="/om-oss" component={RouterLink}>
               Om Digital läsesal
             </Link>
             <Link to="/min-sida" component={RouterLink}>

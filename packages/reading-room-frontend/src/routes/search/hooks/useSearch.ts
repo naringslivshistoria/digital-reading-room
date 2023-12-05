@@ -6,52 +6,80 @@ import { Document } from '../../../common/types'
 const searchUrl = import.meta.env.VITE_SEARCH_URL || '/api'
 
 export interface SearchResponse {
-  query: string
+  query: string | undefined | null
   results: Document[]
   hits: number
 }
 
-const fixSimpleQuery = (query: string) => {
-  const queryWords = query.split(' ')
-  const fixedWords = queryWords.map((word) => {
-    if (
-      word.startsWith('(') ||
-      word.startsWith('"') ||
-      word.endsWith(')') ||
-      word.endsWith('"')
-    ) {
-      return word
-    } else if (['and', 'not', 'or'].includes(word.toLowerCase())) {
-      return word.toUpperCase()
-    } else {
-      return `${word}*`
-    }
-  })
+export enum FilterType {
+  freeText = 0,
+  values = 1,
+}
 
-  return fixedWords.join(' ')
+export interface FieldFilterConfig {
+  fieldName: string
+  parentField?: string
+  displayName: string
+  filterType: FilterType
+  values?: string[]
+  allValues?: string[]
+  visualSize: number
+}
+
+export interface FieldFilter {
+  fieldName: string
+  values: string[]
+}
+
+const fixSimpleQuery = (query: string | undefined | null) => {
+  if (query) {
+    const queryWords = query.split(' ')
+    const fixedWords = queryWords.map((word) => {
+      if (
+        word.startsWith('(') ||
+        word.startsWith('"') ||
+        word.endsWith(')') ||
+        word.endsWith('"')
+      ) {
+        return word
+      } else if (['and', 'not', 'or'].includes(word.toLowerCase())) {
+        return word.toUpperCase()
+      } else {
+        return `${word}*`
+      }
+    })
+
+    return fixedWords.join(' ')
+  } else {
+    return ''
+  }
 }
 
 export const useSearch = ({
   query,
   startIndex,
+  filter,
 }: {
-  query: string
+  query: string | undefined | null
   startIndex: number
+  filter: string | undefined | null
 }) =>
   useQuery<SearchResponse, AxiosError>({
-    queryKey: ['search', query, startIndex],
+    queryKey: ['search', query, startIndex, filter],
     queryFn: async () => {
-      if (query) {
+      if (query || filter) {
         const fixedQuery = fixSimpleQuery(query)
-        const { data } = await axios.get<SearchResponse>(
-          `${searchUrl}/search?query=${fixedQuery}&start=${startIndex}`,
-          {
-            headers: {
-              Accept: 'application/json',
-            },
-            withCredentials: true,
-          }
-        )
+        let url = `${searchUrl}/search?query=${fixedQuery}&start=${startIndex}`
+
+        if (filter) {
+          url += `&filter=${encodeURIComponent(filter)}`
+        }
+        const { data } = await axios.get<SearchResponse>(url, {
+          headers: {
+            Accept: 'application/json',
+          },
+          withCredentials: true,
+        })
 
         return data
       } else {
@@ -83,3 +111,26 @@ export const useCheckLogin = ({ token }: { token: string | null }) => {
     },
   })
 }
+
+export const useFieldValues = ({
+  filter,
+}: {
+  filter: string | undefined | null
+}) =>
+  useQuery<FieldFilterConfig[], AxiosError>({
+    queryFn: async () => {
+      const filterparam = filter ? '?filter=' + encodeURIComponent(filter) : ''
+      const { data } = await axios.get(
+        `${searchUrl}/search/get-field-filters${filterparam}`,
+        {
+          headers: {
+            Accept: 'application/json',
+          },
+          withCredentials: true,
+        }
+      )
+
+      return data
+    },
+    staleTime: Infinity,
+  })
