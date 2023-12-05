@@ -91,14 +91,12 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
   }
 
   const clearChildFilter = (fieldName: string) => {
-    console.log('Clearing children of', fieldName)
     const childFilter = fieldFilterConfigs?.find((filterConfig) => {
       return fieldName === filterConfig.parentField
     })
 
     if (childFilter) {
       clearChildFilter(childFilter.fieldName)
-      console.log('Clearing', childFilter.fieldName)
       delete filters[childFilter.fieldName]
     }
   }
@@ -123,14 +121,10 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
 
     const newFilters: Dictionary<FieldFilter> = { ...filters }
 
-    console.log('Filters are now', newFilters)
-
     setFilters(newFilters)
   }
 
   useEffect(() => {
-    console.log('filters', filters)
-
     const updateFilters = async () => {
       await refetchFilters()
     }
@@ -177,7 +171,6 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
           <Grid
             item
             xs={8}
-            // sm={8}
             md={6}
             sx={{
               paddingRight: { xs: '20px', md: '20px' },
@@ -228,6 +221,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                           borderRadius: 0,
                           height: '46px',
                           width: '46px',
+                          marginRight: '-13px',
                         }}
                       >
                         <SearchIcon />
@@ -237,6 +231,35 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                 ),
               }}
             />
+          </Grid>
+          <Grid item sm={3}>
+            <Box
+              sx={{
+                // marginTop: { xs: '0px', sm: '7px' },
+                marginLeft: { xs: '-20px', sm: '0px' },
+                transform: { xs: 'scale(0.75)', sm: 'scale(1)' },
+              }}
+            >
+              <IconButton
+                onClick={() => {
+                  setShowHelp(true)
+                }}
+              >
+                <Typography variant="body1" sx={{ color: 'black' }}>
+                  <HelpOutlineIcon sx={{ color: '#00AFD8' }} /> Söktips
+                </Typography>
+              </IconButton>
+            </Box>
+          </Grid>
+          <Grid item sm={1}></Grid>
+          <Grid
+            item
+            xs={8}
+            sm={10}
+            sx={{
+              paddingRight: { xs: '20px', md: '20px' },
+            }}
+          >
             <Grid
               container
               direction="row"
@@ -265,34 +288,46 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
               </Grid>
             </Grid>
             <Box bgcolor={'white'}>
-              <Grid container>
+              <Grid container sx={{ marginTop: 2 }} columnGap={2} rowGap={1}>
                 {fieldFilterConfigs &&
                   fieldFilterConfigs.map((filterConfig: FieldFilterConfig) => {
                     switch (filterConfig.filterType) {
                       case FilterType.freeText:
                         return (
-                          <Grid key={filterConfig.fieldName}>
+                          <Grid
+                            item
+                            key={filterConfig.fieldName}
+                            xs={12}
+                            md={filterConfig.visualSize}
+                          >
                             <Typography>{filterConfig.displayName}</Typography>
                             <TextField
                               onKeyUp={filterKeyUp}
                               defaultValue={
                                 filters[filterConfig.fieldName]?.values[0]
                               }
+                              size="small"
                               onChange={(e) =>
                                 updateFilter(filterConfig.fieldName, [
                                   e.target.value,
                                 ])
                               }
+                              sx={{ width: '100%' }}
                             ></TextField>
                           </Grid>
                         )
                       case FilterType.values:
                         return (
-                          <Grid key={filterConfig.fieldName}>
+                          <Grid
+                            item
+                            key={filterConfig.fieldName}
+                            xs={12}
+                            md={filterConfig.visualSize}
+                          >
                             <Typography>{filterConfig.displayName}</Typography>
                             <Select
                               renderValue={(selected) => {
-                                if (selected.length === 0) {
+                                if (!selected || selected.length === 0) {
                                   return <em>Placeholder</em>
                                 }
 
@@ -305,8 +340,10 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                   ? filters[filterConfig.fieldName]?.values
                                   : []
                               }
-                              value={filters[filterConfig.fieldName]?.values}
-                              placeholder={'Välj ' + filterConfig.displayName}
+                              value={
+                                filters[filterConfig.fieldName]?.values ?? []
+                              }
+                              size="small"
                               onChange={(e) => {
                                 const val =
                                   e.target.value === 'string'
@@ -322,6 +359,12 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                               }}
                               disabled={isFieldDisabled(filterConfig, filters)}
                               multiple
+                              sx={{ width: '100%' }}
+                              inputProps={{
+                                style: {
+                                  padding: '6px 4px',
+                                },
+                              }}
                             >
                               {filterConfig.allValues?.map((value: string) => (
                                 <MenuItem key={value} value={value}>
@@ -345,25 +388,6 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                     }
                   })}
               </Grid>
-            </Box>
-          </Grid>
-          <Grid item md={4}>
-            <Box
-              sx={{
-                // marginTop: { xs: '0px', sm: '7px' },
-                marginLeft: { xs: '-20px', sm: '0px' },
-                transform: { xs: 'scale(0.75)', sm: 'scale(1)' },
-              }}
-            >
-              <IconButton
-                onClick={() => {
-                  setShowHelp(true)
-                }}
-              >
-                <Typography variant="body1" sx={{ color: 'black' }}>
-                  <HelpOutlineIcon sx={{ color: '#00AFD8' }} /> Söktips
-                </Typography>
-              </IconButton>
             </Box>
           </Grid>
         </>

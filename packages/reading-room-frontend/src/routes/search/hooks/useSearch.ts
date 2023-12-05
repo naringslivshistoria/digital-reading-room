@@ -23,6 +23,7 @@ export interface FieldFilterConfig {
   filterType: FilterType
   values?: string[]
   allValues?: string[]
+  visualSize: number
 }
 
 export interface FieldFilter {

@@ -219,39 +219,46 @@ export const routes = (router: KoaRouter) => {
         fieldName: 'location',
         displayName: 'Geografi',
         filterType: FilterType.freeText,
+        visualSize: 3,
       },
       {
         fieldName: 'time',
         displayName: 'Årtal',
         filterType: FilterType.freeText,
+        visualSize: 3,
       },
       {
         fieldName: 'pageType',
         displayName: 'Mediatyp',
         filterType: FilterType.values,
+        visualSize: 3,
       },
       {
         fieldName: 'depositor',
         displayName: 'Deponent',
         filterType: FilterType.values,
+        visualSize: 3,
       },
       {
         fieldName: 'archiveInitiator',
         parentField: 'depositor',
         displayName: 'Arkivbildare',
         filterType: FilterType.values,
+        visualSize: 3,
       },
       {
         fieldName: 'seriesName',
         parentField: 'archiveInitiator',
         displayName: 'Serie',
         filterType: FilterType.values,
+        visualSize: 3,
       },
       {
         fieldName: 'volume',
         parentField: 'archiveInitiator',
         displayName: 'Volym',
         filterType: FilterType.values,
+        visualSize: 1,
       },
     ]
 

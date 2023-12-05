@@ -45,6 +45,7 @@ interface FieldFilterConfig {
   filterType: FilterType
   values?: string[]
   allValues?: string[]
+  visualSize: number
 }
 
 export { Document, Field, Fields, User, FilterType, FieldFilterConfig }
