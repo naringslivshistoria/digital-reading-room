@@ -6,6 +6,7 @@ import {
   AggregationsAggregationContainer,
   QueryDslQueryContainer,
   QueryDslTermQuery,
+  QueryDslWildcardQuery,
   SearchTotalHits,
 } from '@elastic/elasticsearch/lib/api/types'
 
@@ -90,7 +91,7 @@ const createSearchQuery = (
           term,
         })
       } else if (filterTerm[0] === 'location' || filterTerm[0] === 'time') {
-        const wildcard: { [k: string]: {} } = {}
+        const wildcard: { [k: string]: QueryDslWildcardQuery } = {}
 
         wildcard[`${getFullFieldName(filterTerm[0])}`] = {
           value: filterTerm[1] + '*',
@@ -150,6 +151,7 @@ const setValues = async (
         searchResults.aggregations[fieldFilterConfig.fieldName]
 
       if (aggregation) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - there is a bug in the ElasticSearch types not exposing buckets
         fieldFilterConfig[valueField] = aggregation.buckets
           .map((bucket: any) => {
