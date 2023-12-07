@@ -1,5 +1,5 @@
 import { Client } from '@elastic/elasticsearch'
-import { promises as fs } from 'fs'
+import fs from 'fs'
 import { Document } from '../../common/types'
 import axios, { AxiosError } from 'axios'
 
@@ -36,8 +36,18 @@ const saveThumbnail = async (document: Document) => {
       if (
         thumbnailTypes.includes(response.headers['content-type'].toLowerCase())
       ) {
-        await fs.writeFile(
-          process.cwd() + '/../thumbnails/' + document.id + '.jpg',
+        const dirName =
+          process.cwd() +
+          '/../thumbnails/' +
+          document.id.toString().substring(0, 3) +
+          '/'
+
+        if (!fs.existsSync(dirName)) {
+          fs.mkdirSync(dirName, { recursive: true })
+        }
+
+        await fs.promises.writeFile(
+          dirName + document.id + '.jpg',
           response.data,
           'binary'
         )

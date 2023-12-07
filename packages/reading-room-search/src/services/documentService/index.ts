@@ -144,9 +144,14 @@ export const routes = (router: KoaRouter) => {
       )
 
       if (document) {
-        const thumbnail = fs.createReadStream(
-          process.cwd() + '/../thumbnails/' + documentId + '.jpg'
-        )
+        const dirName =
+          process.cwd() + '/../thumbnails/' + documentId.substring(0, 3) + '/'
+
+        if (!fs.existsSync(dirName)) {
+          fs.mkdirSync(dirName, { recursive: true })
+        }
+
+        const thumbnail = fs.createReadStream(dirName + documentId + '.jpg')
 
         ctx.response.set('content-type', 'image/jpg')
         ctx.body = thumbnail
