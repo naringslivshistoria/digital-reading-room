@@ -47,6 +47,12 @@ describe('searchService', () => {
         },
         from: 0,
         size: 20,
+        sort: [
+          {
+            'fields.undefined.value.keyword': undefined,
+          },
+          '_score',
+        ],
         track_total_hits: true,
       })
     })

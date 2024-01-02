@@ -1,13 +1,6 @@
 import { useSearchParams } from 'react-router-dom'
-import {
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-} from '@mui/material'
-import { useEffect, useState } from 'react'
+import { Grid } from '@mui/material'
+import { useState } from 'react'
 
 import { SearchResult, useSearch } from '.'
 import { SiteHeader } from '../../components/siteHeader'

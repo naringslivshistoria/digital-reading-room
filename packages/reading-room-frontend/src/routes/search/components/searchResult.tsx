@@ -4,11 +4,9 @@ import {
   FormControl,
   Grid,
   IconButton,
-  InputLabel,
   MenuItem,
   Pagination,
   Select,
-  SelectChangeEvent,
 } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { Stack } from '@mui/system'
@@ -72,17 +70,17 @@ export function SearchResult({
     })
   }
 
-  const handleSortChange = (event: SelectChangeEvent) => {
+  const handleSortChange = (event: any) => {
     setSort(event.target.value)
     setEnableSortOrder(event.target.value != 'relevance')
   }
-  const handleSortOrderChange = (event: SelectChangeEvent) => {
+  const handleSortOrderChange = (event: any) => {
     setSortOrder(event.target.value)
   }
 
   useEffect(() => {
     onSorting(sort, sortOrder)
-  }, [sort, sortOrder])
+  }, [sort, sortOrder, onSorting])
 
   return (
     <>
