@@ -1,10 +1,21 @@
-import { Box, Divider, Grid, IconButton, Pagination } from '@mui/material'
+import {
+  Box,
+  Divider,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Pagination,
+  Select,
+  SelectChangeEvent,
+} from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { Stack } from '@mui/system'
 import { Link, useSearchParams } from 'react-router-dom'
 import AppsIcon from '@mui/icons-material/Apps'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MoonLoader } from 'react-spinners'
 
 import { createGeographyString } from '..'
@@ -21,6 +32,7 @@ interface Props {
   totalHits: number
   isLoading: boolean
   onPageChange: (page: number) => void
+  onSorting: (sort: string, sortOrder: string) => void
 }
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
@@ -34,11 +46,15 @@ export function SearchResult({
   totalHits,
   isLoading,
   onPageChange,
+  onSorting,
 }: Props) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [showGrid, setShowGrid] = useState<boolean>(
     searchParams.get('show') === 'grid' ? true : false
   )
+  const [sort, setSort] = useState('relevance')
+  const [sortOrder, setSortOrder] = useState('asc')
+  const [enableSortOrder, setEnableSortOrder] = useState(false)
 
   const documentUrl = (document: Document) => {
     const filterparam = filter ? `&filter=${encodeURIComponent(filter)}` : ''
@@ -55,6 +71,18 @@ export function SearchResult({
       return currentParams
     })
   }
+
+  const handleSortChange = (event: SelectChangeEvent) => {
+    setSort(event.target.value)
+    setEnableSortOrder(event.target.value != 'relevance')
+  }
+  const handleSortOrderChange = (event: SelectChangeEvent) => {
+    setSortOrder(event.target.value)
+  }
+
+  useEffect(() => {
+    onSorting(sort, sortOrder)
+  }, [sort, sortOrder])
 
   return (
     <>
@@ -83,24 +111,66 @@ export function SearchResult({
         sx={{ marginTop: '5px', marginBottom: '5px' }}
       >
         <Typography variant="h3">{query}</Typography>
-        <Box>
-          <IconButton
-            onClick={() => {
-              displayGridMode(true)
-            }}
-            sx={{ color: showGrid ? 'secondary.main' : '#adafaf' }}
-          >
-            <AppsIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              displayGridMode(false)
-            }}
-            sx={{ color: !showGrid ? 'secondary.main' : '#adafaf' }}
-          >
-            <FormatListBulletedIcon />
-          </IconButton>
-        </Box>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ marginTop: '5px', marginBottom: '5px' }}
+        >
+          <Box display={'flex'}>
+            <Typography
+              variant="body1"
+              sx={{ marginTop: 'auto', marginBottom: 'auto' }}
+            >
+              Sortera på
+            </Typography>
+            <FormControl sx={{ m: 1, flexGrow: 1, minWidth: 120 }}>
+              <Select
+                labelId="sort-label"
+                value={sort}
+                label="Sortera på"
+                onChange={handleSortChange}
+                variant="standard"
+              >
+                <MenuItem value={'relevance'}>Relevans</MenuItem>
+                <MenuItem value={'filename'}>Filnamn</MenuItem>
+                <MenuItem value={'title'}>Titel</MenuItem>
+                <MenuItem value={'motiveId'}>MotivID</MenuItem>
+                <MenuItem value={'tags'}>Taggar</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+              <Select
+                labelId="sortOrder-label"
+                value={sortOrder}
+                label="Sorteringsordning"
+                onChange={handleSortOrderChange}
+                disabled={!enableSortOrder}
+              >
+                <MenuItem value={'asc'}>Stigande</MenuItem>
+                <MenuItem value={'desc'}>Fallande</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Box>
+            <IconButton
+              onClick={() => {
+                displayGridMode(true)
+              }}
+              sx={{ color: showGrid ? 'secondary.main' : '#adafaf' }}
+            >
+              <AppsIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => {
+                displayGridMode(false)
+              }}
+              sx={{ color: !showGrid ? 'secondary.main' : '#adafaf' }}
+            >
+              <FormatListBulletedIcon />
+            </IconButton>
+          </Box>
+        </Stack>
       </Stack>
       <Divider sx={{ borderColor: 'red' }} />
       <Box display="flex" justifyContent="center" sx={{ marginBottom: 2 }}>

@@ -1,5 +1,13 @@
 import { useSearchParams } from 'react-router-dom'
-import { Grid } from '@mui/material'
+import {
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from '@mui/material'
+import { useEffect, useState } from 'react'
 
 import { SearchResult, useSearch } from '.'
 import { SiteHeader } from '../../components/siteHeader'
@@ -9,6 +17,8 @@ export const PageSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const query = searchParams.get('query') ?? undefined
   const filter = searchParams.get('filter') ?? undefined
+  const [sort, setSort] = useState('relevance')
+  const [sortOrder, setSortOrder] = useState('asc')
   const pageSize = 20
 
   useIsLoggedIn(true)
@@ -19,6 +29,8 @@ export const PageSearch = () => {
     query,
     startIndex: (page - 1) * pageSize,
     filter,
+    sort,
+    sortOrder,
   })
 
   const pageChange = (newPage: number) => {
@@ -26,6 +38,11 @@ export const PageSearch = () => {
       currentParams.set('page', newPage.toString())
       return currentParams
     })
+  }
+
+  const handleSortingChange = (sort: string, sortOrder: string) => {
+    setSort(sort)
+    setSortOrder(sortOrder)
   }
 
   return (
@@ -43,6 +60,7 @@ export const PageSearch = () => {
             pageSize={pageSize}
             totalHits={data?.hits ?? 0}
             onPageChange={pageChange}
+            onSorting={handleSortingChange}
           />
         </Grid>
         <Grid item xs={0.5} sm={1} />

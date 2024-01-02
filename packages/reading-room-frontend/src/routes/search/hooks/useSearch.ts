@@ -59,13 +59,17 @@ export const useSearch = ({
   query,
   startIndex,
   filter,
+  sort,
+  sortOrder,
 }: {
   query: string | undefined | null
   startIndex: number
   filter: string | undefined | null
+  sort: string | undefined | null
+  sortOrder: string | undefined | null
 }) =>
   useQuery<SearchResponse, AxiosError>({
-    queryKey: ['search', query, startIndex, filter],
+    queryKey: ['search', query, startIndex, filter, sort, sortOrder],
     queryFn: async () => {
       if (query || filter) {
         const fixedQuery = fixSimpleQuery(query)
@@ -73,6 +77,10 @@ export const useSearch = ({
 
         if (filter) {
           url += `&filter=${encodeURIComponent(filter)}`
+        }
+        if (sort) {
+          url += `&sort=${sort}`
+          if (sortOrder) url += `&sortOrder=${sortOrder}`
         }
         const { data } = await axios.get<SearchResponse>(url, {
           headers: {
