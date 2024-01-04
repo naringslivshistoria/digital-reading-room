@@ -13,7 +13,7 @@ import { Stack } from '@mui/system'
 import { Link, useSearchParams } from 'react-router-dom'
 import AppsIcon from '@mui/icons-material/Apps'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { MoonLoader } from 'react-spinners'
 
 import { createGeographyString } from '..'
@@ -29,6 +29,8 @@ interface Props {
   pageSize: number
   totalHits: number
   isLoading: boolean
+  sort: string
+  sortOrder: string
   onPageChange: (page: number) => void
   onSorting: (sort: string, sortOrder: string) => void
 }
@@ -43,6 +45,8 @@ export function SearchResult({
   pageSize,
   totalHits,
   isLoading,
+  sort,
+  sortOrder,
   onPageChange,
   onSorting,
 }: Props) {
@@ -50,15 +54,26 @@ export function SearchResult({
   const [showGrid, setShowGrid] = useState<boolean>(
     searchParams.get('show') === 'grid' ? true : false
   )
-  const [sort, setSort] = useState('relevance')
-  const [sortOrder, setSortOrder] = useState('asc')
-  const [enableSortOrder, setEnableSortOrder] = useState(false)
+  const [enableSortOrder, setEnableSortOrder] = useState(sort != 'relevance')
 
   const documentUrl = (document: Document) => {
+    const pageparam = page ? `&page=${encodeURIComponent(page)}` : ''
     const filterparam = filter ? `&filter=${encodeURIComponent(filter)}` : ''
+    const sortparam = sort ? `&sort=${encodeURIComponent(sort)}` : ''
+    const sortOrderParam = sortOrder
+      ? `&sortOrder=${encodeURIComponent(sortOrder)}`
+      : ''
     const showparam = showGrid ? `&show=grid` : ''
     return (
-      '/dokument/' + document.id + '?query=' + query + filterparam + showparam
+      '/dokument/' +
+      document.id +
+      '?query=' +
+      query +
+      pageparam +
+      filterparam +
+      showparam +
+      sortparam +
+      sortOrderParam
     )
   }
 
@@ -71,16 +86,12 @@ export function SearchResult({
   }
 
   const handleSortChange = (event: any) => {
-    setSort(event.target.value)
+    onSorting(event.target.value, sortOrder)
     setEnableSortOrder(event.target.value != 'relevance')
   }
   const handleSortOrderChange = (event: any) => {
-    setSortOrder(event.target.value)
+    onSorting(sort, event.target.value)
   }
-
-  useEffect(() => {
-    onSorting(sort, sortOrder)
-  }, [sort, sortOrder, onSorting])
 
   return (
     <>
@@ -316,7 +327,7 @@ export function SearchResult({
         >
           {documents.map((document) => (
             <Grid item xs={6} md={3} xl={12 / 5} key={`${document.id}-gallery`}>
-              <Link to={'/dokument/' + document.id + '?query=' + query}>
+              <Link to={documentUrl(document)}>
                 <img
                   src={
                     document.pages[0].thumbnailUrl

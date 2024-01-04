@@ -10,8 +10,10 @@ export const PageSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const query = searchParams.get('query') ?? undefined
   const filter = searchParams.get('filter') ?? undefined
-  const [sort, setSort] = useState('relevance')
-  const [sortOrder, setSortOrder] = useState('asc')
+  const [sort, setSort] = useState(searchParams.get('sort') || 'relevance')
+  const [sortOrder, setSortOrder] = useState(
+    searchParams.get('sortOrder') || 'asc'
+  )
   const pageSize = 20
 
   useIsLoggedIn(true)
@@ -52,6 +54,8 @@ export const PageSearch = () => {
             page={page}
             pageSize={pageSize}
             totalHits={data?.hits ?? 0}
+            sort={sort}
+            sortOrder={sortOrder}
             onPageChange={pageChange}
             onSorting={handleSortingChange}
           />
