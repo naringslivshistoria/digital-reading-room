@@ -8,8 +8,8 @@ module.exports = {
     connection: {
       host: '127.0.0.1',
       database: 'crawler',
-      user: process.env.POSTGRES__USER,
-      password: process.env.POSTGRES__PASSWORD,
+      user: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
       port: 5433,
     },
     migrations: {
@@ -33,4 +33,4 @@ module.exports = {
       tableName: 'knex_migrations',
     },
   },
-};
+}
