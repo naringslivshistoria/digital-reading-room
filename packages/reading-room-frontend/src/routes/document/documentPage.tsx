@@ -149,32 +149,57 @@ export const DocumentPage = () => {
         <Grid item xs={10} sx={{ marginBottom: 10 }}>
           {document ? (
             <>
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-                sx={{ marginTop: '5px', marginBottom: '5px' }}
-              >
-                <Box sx={{ marginTop: 3, marginBottom: 2 }}>
+              <Grid container display="flex">
+                <Box
+                  sx={{
+                    marginTop: 3,
+                    marginBottom: 2,
+                    width: { sm: 140, xs: 20 },
+                    marginRight: 'auto',
+                  }}
+                >
                   {prevDocumentUrl && (
                     <Link to={prevDocumentUrl}>
-                      <ChevronLeftIcon sx={{ marginTop: '-2px' }} /> Föregående
+                      <ChevronLeftIcon sx={{ marginTop: '-2px' }} />{' '}
+                      <Box sx={{ display: { sm: 'inline', xs: 'none' } }}>
+                        Föregående
+                      </Box>
                     </Link>
                   )}
                 </Box>
-                <Box sx={{ marginTop: 3, marginBottom: 2 }}>
+                <Box
+                  sx={{
+                    marginTop: 3,
+                    marginBottom: 2,
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                  }}
+                >
                   <Link to={`/search?${searchParams.toString()}`}>
                     Alla sökträffar
                   </Link>
                 </Box>
-                <Box sx={{ marginTop: 3, marginBottom: 2 }}>
+                <Box
+                  sx={{
+                    marginTop: 3,
+                    marginBottom: 2,
+                    width: { sm: 73, xs: 20 },
+                    direction: 'row',
+                    alignContent: 'end',
+                    marginLeft: 'auto',
+                    marginRight: 0,
+                  }}
+                >
                   {nextDocumentUrl && (
                     <Link to={nextDocumentUrl}>
-                      Nästa <ChevronRightIcon sx={{ marginTop: '-2px' }} />
+                      <Box sx={{ display: { sm: 'inline', xs: 'none' } }}>
+                        Nästa
+                      </Box>
+                      <ChevronRightIcon sx={{ marginTop: '-2px' }} />
                     </Link>
                   )}
                 </Box>
-              </Stack>
+              </Grid>
               <Divider sx={{ borderColor: 'red' }} />
               <Stack
                 direction="row"
