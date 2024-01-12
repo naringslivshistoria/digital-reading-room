@@ -114,30 +114,39 @@ export function SearchResult({
       </Stack>
       <Divider sx={{ borderColor: 'red' }} />
       <Stack
-        direction="row"
         justifyContent="space-between"
         alignItems="center"
-        sx={{ marginTop: '5px', marginBottom: '5px' }}
+        sx={{
+          marginTop: { sm: '5px', xs: '15px' },
+          marginBottom: '5px',
+          flexDirection: { sm: 'row', xs: 'column' },
+        }}
       >
         <Typography variant="h3">{query}</Typography>
         <Stack
-          direction="row"
           justifyContent="space-between"
           alignItems="center"
-          sx={{ marginTop: '5px', marginBottom: '5px' }}
+          sx={{
+            marginTop: '5px',
+            marginBottom: '5px',
+            flexDirection: { sm: 'row', xs: 'column' },
+          }}
         >
           <Box display={'flex'}>
             <Typography
               variant="body1"
-              sx={{ marginTop: 'auto', marginBottom: 'auto' }}
+              sx={{
+                marginTop: 'auto',
+                marginBottom: 'auto',
+              }}
             >
-              Sortera på
+              Sortering
             </Typography>
             <FormControl sx={{ m: 1, flexGrow: 1, minWidth: 120 }}>
               <Select
                 labelId="sort-label"
                 value={sort}
-                label="Sortera på"
+                label="Sortera"
                 onChange={handleSortChange}
                 variant="standard"
               >
