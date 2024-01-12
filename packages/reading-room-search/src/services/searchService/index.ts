@@ -167,16 +167,33 @@ const setValues = async (
   return fieldFilterConfigs
 }
 
+const createSortingArray = (sortOrder: any) => {
+  const relevanceKeyword = '_score'
+  switch (sortOrder.field) {
+    case 'relevance':
+      return [relevanceKeyword]
+    default:
+      return [
+        { [getFullFieldName(sortOrder.field)]: sortOrder.order },
+        relevanceKeyword,
+      ]
+  }
+}
+
 const search = async (
   query: string | string[] | undefined,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
   start = 0,
   size = 20,
-  filter: string | string[] | undefined
+  filter: string | string[] | undefined,
+  sort: string | string[] | undefined,
+  sortOrder: string | string[] | undefined
 ) => {
   const queryString = Array.isArray(query) ? query[0] : query
   const filterString = Array.isArray(filter) ? filter[0] : filter
+  const sortString = Array.isArray(sort) ? sort[0] : sort
+  const sortOrderString = Array.isArray(sortOrder) ? sortOrder[0] : sortOrder
 
   const accessFilter = createAccessFilter(depositors, archiveInitiators)
   const searchQuery = createSearchQuery(queryString, accessFilter, filterString)
@@ -196,6 +213,7 @@ const search = async (
     track_total_hits: true,
     index: config.elasticSearch.indexName,
     query: searchQuery,
+    sort: createSortingArray({ field: sortString, order: sortOrderString }),
   })
 
   const documents = searchResults.hits.hits.map((searchHit): Document => {
@@ -310,7 +328,7 @@ export const routes = (router: KoaRouter) => {
   })
 
   router.get('(.*)/search', async (ctx) => {
-    const { query, start, size, filter } = ctx.request.query
+    const { query, start, size, filter, sort, sortOrder } = ctx.request.query
     if (!query && !filter) {
       ctx.status = 400
       ctx.body = {
@@ -327,7 +345,9 @@ export const routes = (router: KoaRouter) => {
         ctx.state?.user?.archiveInitiators,
         start ? Number(start) : 0,
         size ? Number(size) : 20,
-        filter
+        filter,
+        sort,
+        sortOrder
       )
       ctx.body = {
         results: results.documents,

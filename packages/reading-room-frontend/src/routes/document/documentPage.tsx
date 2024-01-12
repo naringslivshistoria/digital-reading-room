@@ -10,13 +10,13 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import DownloadIcon from '@mui/icons-material/Download'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useEffect, useState } from 'react'
 
 import { SiteHeader } from '../../components/siteHeader'
-import { useGetDocument } from './hooks/useGetDocument'
 import { Document } from '../../common/types'
 import noImage from '../../../assets/no-image.png'
 import { MetaDataField } from '../../components/metaDataField'
@@ -27,12 +27,23 @@ import {
   metaDataFieldConfigurations,
 } from './metaDataFieldConfigs'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
+import { useSearch } from '../search'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
 export const DocumentPage = () => {
   const { id } = useParams()
-  const { data } = useGetDocument({ id: id ?? '' })
+  const [document, setDocument] = useState<Document>()
+  const [prevDocumentUrl, setPrevDocumentUrl] = useState<string | undefined>()
+  const [nextDocumentUrl, setNextDocumentUrl] = useState<string | undefined>()
+  const [searchParams] = useSearchParams()
+  const query = searchParams.get('query') ?? undefined
+  const page = searchParams.get('page') ?? undefined
+  const filter = searchParams.get('filter') ?? undefined
+  const sort = searchParams.get('sort') ?? undefined
+  const sortOrder = searchParams.get('sortOrder') ?? undefined
+  const position = searchParams.get('position') ?? undefined
+
   const navigate = useNavigate()
   const [showDownload, setShowDownload] = useState<boolean>(false)
 
@@ -42,17 +53,83 @@ export const DocumentPage = () => {
     window.scrollTo(0, 0)
   }, [])
 
-  const document = data?.results as Document
+  const pageSize = 20
+  const { data } = useSearch({
+    query,
+    startIndex: (+(page == undefined ? 2 : page) - 1) * pageSize,
+    filter: filter == undefined ? '' : filter,
+    sort,
+    sortOrder,
+  })
 
-  const goBack = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-    event.preventDefault()
-    navigate(-1)
-  }
+  useEffect(() => {
+    let thisDoc = data?.results.find(
+      (doc: Document) => doc.id.toString() == id
+    ) as Document
+
+    if (!document && position) {
+      if (position) {
+        const docByPosition = data?.results[+position - 1]
+
+        if (docByPosition) thisDoc = docByPosition
+
+        if (thisDoc) {
+          searchParams.delete('position')
+          navigate(`/dokument/${docByPosition?.id}?${searchParams.toString()}`)
+        }
+      }
+    }
+
+    setDocument(thisDoc)
+  }, [id, data, position, searchParams, document, navigate])
+
+  useEffect(() => {
+    const getParamsForNavigationByPosition = (
+      page: number,
+      position: number
+    ) => {
+      let params = ''
+      searchParams.forEach((value: string, key: string) => {
+        if (key == 'page') params += `${key}=${page}&`
+        else params += `${key}=${value}&`
+      })
+      params += `position=${position}`
+      return params
+    }
+
+    const getUrlToPreviousDocument = () => {
+      if (document) {
+        const prevDocument = data?.results[data?.results.indexOf(document) - 1]
+        if (prevDocument)
+          return `/dokument/${prevDocument.id}?${searchParams.toString()}`
+        else if (page && +page > 1)
+          return `/dokument?${getParamsForNavigationByPosition(
+            +page - 1,
+            pageSize
+          )}`
+      }
+      return ''
+    }
+
+    const getUrlToNextDocument = () => {
+      if (document) {
+        const nextDocument = data?.results[data?.results.indexOf(document) + 1]
+        if (nextDocument)
+          return `/dokument/${nextDocument.id}?${searchParams.toString()}`
+        else if (data && page && +page * pageSize < data.hits)
+          return `/dokument?${getParamsForNavigationByPosition(+page + 1, 1)}`
+      }
+      return ''
+    }
+
+    setPrevDocumentUrl(getUrlToPreviousDocument())
+    setNextDocumentUrl(getUrlToNextDocument())
+  }, [document, data, page, searchParams])
 
   const hasFields = (...args: string[]): boolean => {
     return (
       args.find((fieldName: string) => {
-        return document.fields[fieldName]?.value
+        return document?.fields[fieldName]?.value
       }) != undefined
     )
   }
@@ -72,11 +149,57 @@ export const DocumentPage = () => {
         <Grid item xs={10} sx={{ marginBottom: 10 }}>
           {document ? (
             <>
-              <Box sx={{ marginTop: 3, marginBottom: 2 }}>
-                <Link to="" onClick={goBack}>
-                  <ChevronLeftIcon sx={{ marginTop: '-2px' }} /> Sökträffar
-                </Link>
-              </Box>
+              <Grid container display="flex">
+                <Box
+                  sx={{
+                    marginTop: 3,
+                    marginBottom: 2,
+                    width: { sm: 140, xs: 20 },
+                    marginRight: 'auto',
+                  }}
+                >
+                  {prevDocumentUrl && (
+                    <Link to={prevDocumentUrl}>
+                      <ChevronLeftIcon sx={{ marginTop: '-2px' }} />{' '}
+                      <Box sx={{ display: { sm: 'inline', xs: 'none' } }}>
+                        Föregående
+                      </Box>
+                    </Link>
+                  )}
+                </Box>
+                <Box
+                  sx={{
+                    marginTop: 3,
+                    marginBottom: 2,
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                  }}
+                >
+                  <Link to={`/search?${searchParams.toString()}`}>
+                    Alla sökträffar
+                  </Link>
+                </Box>
+                <Box
+                  sx={{
+                    marginTop: 3,
+                    marginBottom: 2,
+                    width: { sm: 73, xs: 20 },
+                    direction: 'row',
+                    alignContent: 'end',
+                    marginLeft: 'auto',
+                    marginRight: 0,
+                  }}
+                >
+                  {nextDocumentUrl && (
+                    <Link to={nextDocumentUrl}>
+                      <Box sx={{ display: { sm: 'inline', xs: 'none' } }}>
+                        Nästa
+                      </Box>
+                      <ChevronRightIcon sx={{ marginTop: '-2px' }} />
+                    </Link>
+                  )}
+                </Box>
+              </Grid>
               <Divider sx={{ borderColor: 'red' }} />
               <Stack
                 direction="row"

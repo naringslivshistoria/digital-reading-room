@@ -1,4 +1,13 @@
-import { Box, Divider, Grid, IconButton, Pagination } from '@mui/material'
+import {
+  Box,
+  Divider,
+  FormControl,
+  Grid,
+  IconButton,
+  MenuItem,
+  Pagination,
+  Select,
+} from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { Stack } from '@mui/system'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -20,7 +29,10 @@ interface Props {
   pageSize: number
   totalHits: number
   isLoading: boolean
+  sort: string
+  sortOrder: string
   onPageChange: (page: number) => void
+  onSorting: (sort: string, sortOrder: string) => void
 }
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
@@ -33,18 +45,35 @@ export function SearchResult({
   pageSize,
   totalHits,
   isLoading,
+  sort,
+  sortOrder,
   onPageChange,
+  onSorting,
 }: Props) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [showGrid, setShowGrid] = useState<boolean>(
     searchParams.get('show') === 'grid' ? true : false
   )
+  const [enableSortOrder, setEnableSortOrder] = useState(sort != 'relevance')
 
   const documentUrl = (document: Document) => {
+    const pageparam = page ? `&page=${encodeURIComponent(page)}` : ''
     const filterparam = filter ? `&filter=${encodeURIComponent(filter)}` : ''
+    const sortparam = sort ? `&sort=${encodeURIComponent(sort)}` : ''
+    const sortOrderParam = sortOrder
+      ? `&sortOrder=${encodeURIComponent(sortOrder)}`
+      : ''
     const showparam = showGrid ? `&show=grid` : ''
     return (
-      '/dokument/' + document.id + '?query=' + query + filterparam + showparam
+      '/dokument/' +
+      document.id +
+      '?query=' +
+      query +
+      pageparam +
+      filterparam +
+      showparam +
+      sortparam +
+      sortOrderParam
     )
   }
 
@@ -54,6 +83,14 @@ export function SearchResult({
       currentParams.set('show', grid ? 'grid' : 'list')
       return currentParams
     })
+  }
+
+  const handleSortChange = (event: any) => {
+    onSorting(event.target.value, sortOrder)
+    setEnableSortOrder(event.target.value != 'relevance')
+  }
+  const handleSortOrderChange = (event: any) => {
+    onSorting(sort, event.target.value)
   }
 
   return (
@@ -77,30 +114,81 @@ export function SearchResult({
       </Stack>
       <Divider sx={{ borderColor: 'red' }} />
       <Stack
-        direction="row"
         justifyContent="space-between"
         alignItems="center"
-        sx={{ marginTop: '5px', marginBottom: '5px' }}
+        sx={{
+          marginTop: { sm: '5px', xs: '15px' },
+          marginBottom: '5px',
+          flexDirection: { sm: 'row', xs: 'column' },
+        }}
       >
         <Typography variant="h3">{query}</Typography>
-        <Box>
-          <IconButton
-            onClick={() => {
-              displayGridMode(true)
-            }}
-            sx={{ color: showGrid ? 'secondary.main' : '#adafaf' }}
-          >
-            <AppsIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              displayGridMode(false)
-            }}
-            sx={{ color: !showGrid ? 'secondary.main' : '#adafaf' }}
-          >
-            <FormatListBulletedIcon />
-          </IconButton>
-        </Box>
+        <Stack
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{
+            marginTop: '5px',
+            marginBottom: '5px',
+            flexDirection: { sm: 'row', xs: 'column' },
+          }}
+        >
+          <Box display={'flex'}>
+            <Typography
+              variant="body1"
+              sx={{
+                marginTop: 'auto',
+                marginBottom: 'auto',
+              }}
+            >
+              Sortering
+            </Typography>
+            <FormControl sx={{ m: 1, flexGrow: 1, minWidth: 120 }}>
+              <Select
+                labelId="sort-label"
+                value={sort}
+                label="Sortera"
+                onChange={handleSortChange}
+                variant="standard"
+              >
+                <MenuItem value={'relevance'}>Relevans</MenuItem>
+                <MenuItem value={'filename'}>Filnamn</MenuItem>
+                <MenuItem value={'title'}>Titel</MenuItem>
+                <MenuItem value={'motiveId'}>MotivID</MenuItem>
+                <MenuItem value={'tags'}>Taggar</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+              <Select
+                labelId="sortOrder-label"
+                value={sortOrder}
+                label="Sorteringsordning"
+                onChange={handleSortOrderChange}
+                disabled={!enableSortOrder}
+              >
+                <MenuItem value={'asc'}>Stigande</MenuItem>
+                <MenuItem value={'desc'}>Fallande</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          <Box>
+            <IconButton
+              onClick={() => {
+                displayGridMode(true)
+              }}
+              sx={{ color: showGrid ? 'secondary.main' : '#adafaf' }}
+            >
+              <AppsIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => {
+                displayGridMode(false)
+              }}
+              sx={{ color: !showGrid ? 'secondary.main' : '#adafaf' }}
+            >
+              <FormatListBulletedIcon />
+            </IconButton>
+          </Box>
+        </Stack>
       </Stack>
       <Divider sx={{ borderColor: 'red' }} />
       <Box display="flex" justifyContent="center" sx={{ marginBottom: 2 }}>
@@ -248,7 +336,7 @@ export function SearchResult({
         >
           {documents.map((document) => (
             <Grid item xs={6} md={3} xl={12 / 5} key={`${document.id}-gallery`}>
-              <Link to={'/dokument/' + document.id + '?query=' + query}>
+              <Link to={documentUrl(document)}>
                 <img
                   src={
                     document.pages[0].thumbnailUrl
