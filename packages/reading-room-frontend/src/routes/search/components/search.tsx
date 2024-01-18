@@ -357,7 +357,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                               onChange={(e) => {
                                 const val =
                                   e.target.value === 'string'
-                                    ? e.target.value.split(',')
+                                    ? e.target.value.split(';')
                                     : (e.target.value as string[])
 
                                 if (val.length > 1 && !val[0]) {

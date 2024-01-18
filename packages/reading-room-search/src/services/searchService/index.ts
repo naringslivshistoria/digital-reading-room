@@ -222,7 +222,7 @@ const search = async (
     field: sortString,
     order: sortOrderString,
   })
-  console.log('sortingArray', sortingArray)
+
   const searchResults = await client.search({
     from: start,
     size: size,

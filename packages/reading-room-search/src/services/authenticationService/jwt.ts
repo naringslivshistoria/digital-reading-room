@@ -96,11 +96,11 @@ export const createToken = async (username: string, password: string) => {
       {
         sub: user.id,
         username: user.username,
-        depositors: user.depositors?.split(','),
-        archiveInitiators: user.archiveInitiators?.split(','),
+        depositors: user.depositors?.split(';'),
+        archiveInitiators: user.archiveInitiators?.split(';'),
         documentIds:
           user.documentIds && user.documentIds != ''
-            ? user.documentIds.split(',')
+            ? user.documentIds.split(';')
             : undefined,
       },
       config.auth.secret,
