@@ -31,6 +31,7 @@ interface User {
   failedLoginAttempts: number
   depositors: string | null
   archiveInitiators: string | null
+  documentIds: string | null
 }
 
 enum FilterType {

@@ -26,6 +26,10 @@ jest.mock('../../../common/config', () => {
 
 describe('searchService', () => {
   describe('GET /search?freeTextQuery', () => {
+    afterEach(() => {
+      jest.clearAllMocks()
+    })
+
     it('searches in elastic search', async () => {
       const elasticSpy = jest.spyOn(Client.prototype, 'search')
 
@@ -42,7 +46,7 @@ describe('searchService', () => {
                 },
               },
             ],
-            filter: undefined,
+            filter: { bool: { should: undefined } },
           },
         },
         from: 0,
@@ -67,6 +71,72 @@ describe('searchService', () => {
         query: 'searchQuery',
         results: [searchResultMock.hits.hits[0]._source],
         hits: 20,
+      })
+    })
+
+    it('searches in elastic with sorting by title asc', async () => {
+      const elasticSpy = jest.spyOn(Client.prototype, 'search')
+
+      await request(app.callback()).get(
+        '/search?query=searchQuery&sort=title&sortOrder=asc'
+      )
+
+      expect(elasticSpy).toBeCalledWith({
+        index: 'svejs',
+        query: {
+          bool: {
+            must: [
+              {
+                query_string: {
+                  query: 'searchQuery',
+                },
+              },
+            ],
+            filter: { bool: { should: undefined } },
+          },
+        },
+        from: 0,
+        size: 20,
+        sort: [
+          {
+            'fields.title.value.keyword': 'asc',
+          },
+          '_score',
+        ],
+        track_total_hits: true,
+      })
+    })
+
+    it('searches in elastic with sorting on filename desc', async () => {
+      const elasticSpy = jest.spyOn(Client.prototype, 'search')
+
+      await request(app.callback()).get(
+        '/search?query=searchQuery&sort=filename&sortOrder=desc'
+      )
+
+      expect(elasticSpy).toBeCalledWith({
+        index: 'svejs',
+        query: {
+          bool: {
+            must: [
+              {
+                query_string: {
+                  query: 'searchQuery',
+                },
+              },
+            ],
+            filter: { bool: { should: undefined } },
+          },
+        },
+        from: 0,
+        size: 20,
+        sort: [
+          {
+            'fields.filename.value.keyword': 'desc',
+          },
+          '_score',
+        ],
+        track_total_hits: true,
       })
     })
   })

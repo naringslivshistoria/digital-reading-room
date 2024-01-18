@@ -32,6 +32,7 @@ const getUser = async (username: string) => {
       'failed_login_attempts as failedLoginAttempts',
       'depositors',
       'archiveInitiators',
+      'documentIds',
       'reset_token',
       'reset_token_expires'
     )
@@ -88,6 +89,8 @@ export const createToken = async (username: string, password: string) => {
     // Clear failed login attempts
     await setUserFailedLoginAttempts(user.id, 0)
 
+    console.log('user', user)
+
     // Create token
     const token = jwt.sign(
       {
@@ -95,6 +98,10 @@ export const createToken = async (username: string, password: string) => {
         username: user.username,
         depositors: user.depositors?.split(','),
         archiveInitiators: user.archiveInitiators?.split(','),
+        documentIds:
+          user.documentIds && user.documentIds != ''
+            ? user.documentIds.split(',')
+            : undefined,
       },
       config.auth.secret,
       {

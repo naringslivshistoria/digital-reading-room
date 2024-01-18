@@ -31,7 +31,8 @@ const getFullFieldName = (fieldName: string) => {
 
 const createAccessFilter = (
   depositors: string[] | undefined,
-  archiveInitiators: string[] | undefined
+  archiveInitiators: string[] | undefined,
+  documentIds: string[] | undefined
 ): QueryDslQueryContainer[] | undefined => {
   const accessFilter: QueryDslQueryContainer[] = []
 
@@ -47,6 +48,14 @@ const createAccessFilter = (
     accessFilter.push({
       terms: {
         'fields.depositor.value.keyword': archiveInitiators,
+      },
+    })
+  }
+
+  if (documentIds) {
+    accessFilter.push({
+      terms: {
+        id: documentIds,
       },
     })
   }
@@ -72,7 +81,9 @@ const createSearchQuery = (
   const searchQuery = {
     bool: {
       must,
-      filter: accessFilter,
+      filter: {
+        bool: { should: accessFilter },
+      },
     },
   }
 
@@ -120,6 +131,7 @@ const setValues = async (
   filter: string[] | string | undefined,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
+  documentIds: string[] | undefined,
   valueField: string
 ) => {
   const aggs: Record<string, AggregationsAggregationContainer> = {}
@@ -134,7 +146,11 @@ const setValues = async (
     }
   })
 
-  const accessFilter = createAccessFilter(depositors, archiveInitiators)
+  const accessFilter = createAccessFilter(
+    depositors,
+    archiveInitiators,
+    documentIds
+  )
   const query = createSearchQuery(undefined, accessFilter, filterString)
 
   const searchResults = await client.search({
@@ -184,6 +200,7 @@ const search = async (
   query: string | string[] | undefined,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
+  documentIds: [string] | undefined,
   start = 0,
   size = 20,
   filter: string | string[] | undefined,
@@ -195,25 +212,24 @@ const search = async (
   const sortString = Array.isArray(sort) ? sort[0] : sort
   const sortOrderString = Array.isArray(sortOrder) ? sortOrder[0] : sortOrder
 
-  const accessFilter = createAccessFilter(depositors, archiveInitiators)
-  const searchQuery = createSearchQuery(queryString, accessFilter, filterString)
-
-  console.log(
-    'query string',
-    queryString,
-    'filter string',
-    filterString,
-    'search query',
-    JSON.stringify(searchQuery, null, 2)
+  const accessFilter = createAccessFilter(
+    depositors,
+    archiveInitiators,
+    documentIds
   )
-
+  const searchQuery = createSearchQuery(queryString, accessFilter, filterString)
+  const sortingArray = createSortingArray({
+    field: sortString,
+    order: sortOrderString,
+  })
+  console.log('sortingArray', sortingArray)
   const searchResults = await client.search({
     from: start,
     size: size,
     track_total_hits: true,
     index: config.elasticSearch.indexName,
     query: searchQuery,
-    sort: createSortingArray({ field: sortString, order: sortOrderString }),
+    sort: sortingArray,
   })
 
   const documents = searchResults.hits.hits.map((searchHit): Document => {
@@ -291,6 +307,7 @@ export const routes = (router: KoaRouter) => {
       filter,
       ctx.state?.user?.depositors,
       ctx.state?.user?.archiveInitiators,
+      ctx.state?.user?.documentIds,
       'values'
     )
 
@@ -299,6 +316,7 @@ export const routes = (router: KoaRouter) => {
       undefined,
       ctx.state?.user?.depositors,
       ctx.state?.user?.archiveInitiators,
+      ctx.state?.user?.documentIds,
       'allValues'
     )
 
@@ -320,6 +338,7 @@ export const routes = (router: KoaRouter) => {
         parentFilter,
         ctx.state?.user?.depositors,
         ctx.state?.user?.archiveInitiators,
+        ctx.state?.user?.documentIds,
         'allValues'
       )
     }
@@ -343,6 +362,7 @@ export const routes = (router: KoaRouter) => {
         query,
         ctx.state?.user?.depositors,
         ctx.state?.user?.archiveInitiators,
+        ctx.state?.user?.documentIds,
         start ? Number(start) : 0,
         size ? Number(size) : 20,
         filter,
