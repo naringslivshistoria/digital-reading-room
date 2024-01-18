@@ -29,8 +29,11 @@ export const MyPage = () => {
               marginTop: { xs: '0px', sm: '10px' },
             }}
           >
-            <b>Du kan söka i följande arkiv: </b>
-            {user?.depositors?.concat(user?.archiveInitiators || []).join(', ')}
+            <b>Du kan söka i följande arkiv och dokument: </b>
+            {user?.depositors
+              ?.concat(user?.archiveInitiators || [])
+              .concat(user?.documentIds || [])
+              .join(', ')}
           </Typography>
         </Grid>
         <Grid item xs={0.5} sm={1} />
