@@ -82,6 +82,31 @@ describe('documentService', () => {
         results: documentResultMock._source,
       })
     })
+
+    it("returns 500 if user doesn't have access", async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+
+      const unauthorizedToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: undefined,
+          archiveInitiators: undefined,
+          documentIds: [737],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+
+      const res = await request(app.callback())
+        .get('/document/1337')
+        .set('Authorization', 'Bearer ' + unauthorizedToken)
+
+      expect(res.status).toEqual(500)
+      expect(res.text).toEqual('{"results":"error: Error: Document not found"}')
+    })
   })
 
   describe('GET /document/:id/attachment/:filename', () => {
@@ -100,6 +125,34 @@ describe('documentService', () => {
         responseType: 'stream',
         url: `${config.comprimaAdapter.url}/document/${id}/attachment`,
       })
+    })
+
+    it("returns 404 if user doesn't have access", async () => {
+      const id = '1337'
+      mockedAxios.mockReturnValue(
+        Promise.resolve('SUCCESS') as Promise<unknown>
+      )
+
+      const unauthorizedToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: undefined,
+          archiveInitiators: undefined,
+          documentIds: [737],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+
+      const res = await request(app.callback())
+        .get(`/document/${id}/attachment/filename.jpg`)
+        .set('Authorization', 'Bearer ' + unauthorizedToken)
+
+      expect(res.status).toEqual(404)
+      expect(res.text).toEqual('{"results":"error: document not found"}')
     })
   })
 
@@ -147,6 +200,35 @@ describe('documentService', () => {
 
         expect(res.status).toEqual(200)
         expect(res.body).toEqual(mockedImageBuffer)
+      })
+
+      it("returns 404 if user doesn't have access", async () => {
+        jest
+          .spyOn(Client.prototype, 'get')
+          .mockResolvedValue(documentResultMock)
+
+        const unauthorizedToken = jwt.sign(
+          {
+            sub: 'foo',
+            username: 'bar',
+            depositors: undefined,
+            archiveInitiators: undefined,
+            documentIds: [737],
+          },
+          config.auth.secret,
+          {
+            expiresIn: config.auth.expiresIn,
+          }
+        )
+
+        const res = await request(app.callback())
+          .get('/document/123/thumbnail')
+          .set('Authorization', 'Bearer ' + unauthorizedToken)
+
+        expect(res.status).toEqual(404)
+        expect(res.text).toEqual(
+          '{"results":"error: Error: Document not found"}'
+        )
       })
     })
   })

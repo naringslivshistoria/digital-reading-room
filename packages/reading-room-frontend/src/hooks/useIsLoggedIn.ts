@@ -7,6 +7,7 @@ export interface IsLoggedInResponse {
   username: string
   depositors?: string[] | null
   archiveInitiators?: string[] | null
+  documentIds?: string[] | null
 }
 
 export const useIsLoggedIn = (enabled: boolean) =>

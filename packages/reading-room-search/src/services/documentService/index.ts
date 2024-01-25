@@ -35,11 +35,13 @@ const client = new Client({
 const checkDocumentAccess = (
   document: Document,
   depositors: string[] | undefined,
-  archiveInitiators: string[] | undefined
+  archiveInitiators: string[] | undefined,
+  documentIds: string[] | undefined
 ) => {
   const hasAccess =
     depositors?.includes(document.fields.archiveInitiator?.value) ||
-    archiveInitiators?.includes(document.fields.depositor?.value)
+    archiveInitiators?.includes(document.fields.depositor?.value) ||
+    documentIds?.includes(document.id.toString())
 
   return hasAccess
 }
@@ -47,7 +49,8 @@ const checkDocumentAccess = (
 const getDocument = async (
   id: string,
   depositors: string[] | undefined,
-  archiveInitiators: string[] | undefined
+  archiveInitiators: string[] | undefined,
+  documentIds: string[] | undefined
 ) => {
   try {
     const result = await client.get({
@@ -57,7 +60,9 @@ const getDocument = async (
 
     const document = result._source as Document
 
-    if (!checkDocumentAccess(document, depositors, archiveInitiators)) {
+    if (
+      !checkDocumentAccess(document, depositors, archiveInitiators, documentIds)
+    ) {
       throw new DocumentNotFoundError('Document not found')
     }
 
@@ -81,7 +86,8 @@ export const routes = (router: KoaRouter) => {
       const results = await getDocument(
         id,
         ctx.state?.user?.archiveInitiators,
-        ctx.state?.user?.depositors
+        ctx.state?.user?.depositors,
+        ctx.state?.documentIds
       )
       ctx.body = { results: results }
     } catch (err) {
@@ -104,7 +110,8 @@ export const routes = (router: KoaRouter) => {
       const document = await getDocument(
         id,
         ctx.state.user.archiveInitiators,
-        ctx.state.user.depositors
+        ctx.state.user.depositors,
+        ctx.state.documentIds
       )
 
       if (!document) {
@@ -140,22 +147,26 @@ export const routes = (router: KoaRouter) => {
       const document = await getDocument(
         documentId,
         ctx.state?.user?.archiveInitiators,
-        ctx.state?.user?.depositors
+        ctx.state?.user?.depositors,
+        ctx.state?.documentIds
       )
 
-      if (document) {
-        const dirName =
-          process.cwd() + '/../thumbnails/' + documentId.substring(0, 3) + '/'
-
-        if (!fs.existsSync(dirName)) {
-          fs.mkdirSync(dirName, { recursive: true })
-        }
-
-        const thumbnail = fs.createReadStream(dirName + documentId + '.jpg')
-
-        ctx.response.set('content-type', 'image/jpg')
-        ctx.body = thumbnail
+      if (!document) {
+        ctx.status = 404
+        return
       }
+
+      const dirName =
+        process.cwd() + '/../thumbnails/' + documentId.substring(0, 3) + '/'
+
+      if (!fs.existsSync(dirName)) {
+        fs.mkdirSync(dirName, { recursive: true })
+      }
+
+      const thumbnail = fs.createReadStream(dirName + documentId + '.jpg')
+
+      ctx.response.set('content-type', 'image/jpg')
+      ctx.body = thumbnail
     } catch (err) {
       ctx.status = 500
 
