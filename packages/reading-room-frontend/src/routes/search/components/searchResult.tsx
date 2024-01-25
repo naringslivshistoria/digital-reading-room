@@ -207,6 +207,8 @@ export function SearchResult({
               '.MuiPaginationItem-page': { marginTop: '4px' },
             }}
             siblingCount={4}
+            boundaryCount={0}
+            showFirstButton={true}
           />
         )}
       </Box>
@@ -397,6 +399,8 @@ export function SearchResult({
               '.MuiPaginationItem-page': { marginTop: '4px' },
             }}
             siblingCount={4}
+            boundaryCount={0}
+            showFirstButton={true}
           />
         )}
       </Box>
