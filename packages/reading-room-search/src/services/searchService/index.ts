@@ -111,6 +111,14 @@ const createSearchQuery = (
         searchQuery.bool.must.push({
           wildcard,
         })
+      } else if (filterTerm[0] === 'seriesName') {
+        const terms: { [k: string]: string[] } = {}
+        terms[`${getFullFieldName(filterTerm[0])}`] = filterTerm[1]
+          .split('%%')
+          .map((t) => t.split(' - ').slice(-1)[0])
+        searchQuery.bool.must.push({
+          terms,
+        })
       } else {
         const terms: { [k: string]: string[] } = {}
 
@@ -138,11 +146,30 @@ const setValues = async (
   const filterString = Array.isArray(filter) ? filter[0] : filter
 
   fieldFilterConfigs.forEach((fieldFilterConfig) => {
-    aggs[fieldFilterConfig.fieldName] = {
-      terms: {
-        field: `${getFullFieldName(fieldFilterConfig.fieldName)}`,
-        size: 500,
-      },
+    switch (fieldFilterConfig.fieldName) {
+      case 'seriesName':
+        aggs[fieldFilterConfig.fieldName] = {
+          multi_terms: {
+            terms: [
+              {
+                field: `${getFullFieldName('seriesSignature')}`,
+              },
+              {
+                field: `${getFullFieldName(fieldFilterConfig.fieldName)}`,
+              },
+            ],
+            size: 500,
+          },
+        }
+        break
+      default:
+        aggs[fieldFilterConfig.fieldName] = {
+          terms: {
+            field: `${getFullFieldName(fieldFilterConfig.fieldName)}`,
+            size: 500,
+          },
+        }
+        break
     }
   })
 
@@ -170,8 +197,24 @@ const setValues = async (
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - there is a bug in the ElasticSearch types not exposing buckets
         fieldFilterConfig[valueField] = aggregation.buckets
+          .filter((bucket: any) => {
+            if (
+              fieldFilterConfig.fieldName === 'seriesName' &&
+              bucket.key.length > 1 &&
+              bucket.key[1] === ''
+            )
+              return false
+            return true
+          })
           .map((bucket: any) => {
-            return bucket.key
+            switch (fieldFilterConfig.fieldName) {
+              case 'seriesName':
+                return bucket.key
+                  .filter((k: string) => k && k != '')
+                  .join(' - ')
+              default:
+                return bucket.key
+            }
           })
           .sort((a: string, b: string) => {
             return a == b ? 0 : a < b ? -1 : 1
