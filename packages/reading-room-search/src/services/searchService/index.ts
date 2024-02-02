@@ -236,16 +236,18 @@ const setValues = async (
           })
           .map((bucket: any) => {
             switch (fieldFilterConfig.fieldName) {
-              case 'pageType':
+              case 'pageType': {
                 //group pageTypes
                 const config = pageTypeConfig.find(
                   (c) => c.values[c.values.indexOf(bucket.key)]
                 )
                 return config?.description
-              case 'seriesName':
+              }
+              case 'seriesName': {
                 return bucket.key
                   .filter((k: string) => k && k != '')
                   .join(' - ')
+              }
               default:
                 return bucket.key
             }
