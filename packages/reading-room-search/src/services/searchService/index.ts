@@ -18,6 +18,21 @@ const numericFields: Record<string, boolean> = {
   volume: true,
 }
 
+const pageTypeConfig = [
+  {
+    values: ['Image'],
+    description: 'Bild (Foton & Inscanningar)',
+  },
+  {
+    values: ['Film', 'Text', 'Unknown'],
+    description: 'Ljud & Video',
+  },
+  {
+    values: ['PDF', 'Word', 'Powerpoint', 'Excel'],
+    description: 'Dokument',
+  },
+]
+
 const getFullFieldName = (fieldName: string) => {
   switch (fieldName) {
     case 'pageType':
@@ -119,6 +134,19 @@ const createSearchQuery = (
         searchQuery.bool.must.push({
           terms,
         })
+      } else if (filterTerm[0] === 'pageType') {
+        const terms: { [k: string]: string[] } = {}
+
+        const config = pageTypeConfig.find(
+          (c) => c.description == filterTerm[1]
+        )
+        if (config) {
+          terms[`${getFullFieldName(filterTerm[0])}`] = config.values
+
+          searchQuery.bool.must.push({
+            terms,
+          })
+        }
       } else {
         const terms: { [k: string]: string[] } = {}
 
@@ -208,6 +236,12 @@ const setValues = async (
           })
           .map((bucket: any) => {
             switch (fieldFilterConfig.fieldName) {
+              case 'pageType':
+                //group pageTypes
+                const config = pageTypeConfig.find(
+                  (c) => c.values[c.values.indexOf(bucket.key)]
+                )
+                return config?.description
               case 'seriesName':
                 return bucket.key
                   .filter((k: string) => k && k != '')
@@ -215,6 +249,10 @@ const setValues = async (
               default:
                 return bucket.key
             }
+          })
+          .filter((value: string, index: number, array: Array<string>) => {
+            //distinct
+            return array.indexOf(value) === index
           })
           .sort((a: string, b: string) => {
             return a == b ? 0 : a < b ? -1 : 1
