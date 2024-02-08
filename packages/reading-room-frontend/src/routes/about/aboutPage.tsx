@@ -30,7 +30,7 @@ export const PageAbout = () => {
           <Typography variant="body1" sx={{ marginTop: 2, marginBottom: 4 }}>
             Utöver digitalt material arkiverar vi även fysiskt historiskt
             material åt verksamheter. Vill du söka i det materialet får du
-            besöka våra fysiska läsesalar i Bromma och Uppsala.​
+            besöka våra fysiska läsesalar i Bromma och Uppsala.
           </Typography>
           <Typography variant="h3">Vanliga frågor</Typography>
           <List sx={{ listStyleType: 'disc', marginLeft: '20px' }}>

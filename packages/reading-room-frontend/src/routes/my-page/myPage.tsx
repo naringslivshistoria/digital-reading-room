@@ -30,16 +30,20 @@ export const MyPage = () => {
             }}
           >
             <b>Du kan söka i följande arkiv och dokument: </b>
-            <List sx={{ listStyleType: 'disc', marginLeft: '20px' }}>
-              {user?.depositors
-                ?.concat(user?.archiveInitiators || [])
-                .concat(user?.documentIds || [])
-                .sort()
-                .map((archive) => (
-                  <ListItem sx={{ display: 'list-item' }}>{archive}</ListItem>
-                ))}
-            </List>
           </Typography>
+          <List
+            sx={{ listStyleType: 'disc', paddingTop: 0, marginLeft: '20px' }}
+          >
+            {user?.depositors
+              ?.concat(user?.archiveInitiators || [])
+              .concat(user?.documentIds || [])
+              .sort()
+              .map((archive) => (
+                <ListItem sx={{ display: 'list-item' }} key={archive}>
+                  {archive}
+                </ListItem>
+              ))}
+          </List>
         </Grid>
         <Grid item xs={0.5} sm={1} />
       </Grid>
