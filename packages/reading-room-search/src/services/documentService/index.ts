@@ -36,12 +36,14 @@ const checkDocumentAccess = (
   document: Document,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
-  documentIds: string[] | undefined
+  documentIds: string[] | undefined,
+  fileNames: string[] | undefined
 ) => {
   const hasAccess =
     depositors?.includes(document.fields.archiveInitiator?.value) ||
     archiveInitiators?.includes(document.fields.depositor?.value) ||
-    documentIds?.includes(document.id.toString())
+    documentIds?.includes(document.id.toString()) ||
+    fileNames?.includes(document.fields.filename?.toString())
 
   return hasAccess
 }
@@ -50,7 +52,8 @@ const getDocument = async (
   id: string,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
-  documentIds: string[] | undefined
+  documentIds: string[] | undefined,
+  fileNames: string[] | undefined
 ) => {
   try {
     const result = await client.get({
@@ -61,7 +64,13 @@ const getDocument = async (
     const document = result._source as Document
 
     if (
-      !checkDocumentAccess(document, depositors, archiveInitiators, documentIds)
+      !checkDocumentAccess(
+        document,
+        depositors,
+        archiveInitiators,
+        documentIds,
+        fileNames
+      )
     ) {
       throw new DocumentNotFoundError('Document not found')
     }
@@ -87,7 +96,8 @@ export const routes = (router: KoaRouter) => {
         id,
         ctx.state?.user?.archiveInitiators,
         ctx.state?.user?.depositors,
-        ctx.state?.documentIds
+        ctx.state?.user?.documentIds,
+        ctx.state?.user?.fileNames
       )
       ctx.body = { results: results }
     } catch (err) {
@@ -111,7 +121,8 @@ export const routes = (router: KoaRouter) => {
         id,
         ctx.state.user.archiveInitiators,
         ctx.state.user.depositors,
-        ctx.state.documentIds
+        ctx.state.user.documentIds,
+        ctx.state.user.fileNames
       )
 
       if (!document) {
@@ -148,7 +159,8 @@ export const routes = (router: KoaRouter) => {
         documentId,
         ctx.state?.user?.archiveInitiators,
         ctx.state?.user?.depositors,
-        ctx.state?.documentIds
+        ctx.state?.user?.documentIds,
+        ctx.state?.user?.fileNames
       )
 
       if (!document) {

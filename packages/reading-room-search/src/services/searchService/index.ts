@@ -32,7 +32,8 @@ const getFullFieldName = (fieldName: string) => {
 const createAccessFilter = (
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
-  documentIds: string[] | undefined
+  documentIds: string[] | undefined,
+  fileNames: string[] | undefined
 ): QueryDslQueryContainer[] | undefined => {
   const accessFilter: QueryDslQueryContainer[] = []
 
@@ -47,7 +48,7 @@ const createAccessFilter = (
   if (archiveInitiators) {
     accessFilter.push({
       terms: {
-        'fields.depositor.value.keyword': archiveInitiators,
+        'fields.archiveInitiator.value.keyword': archiveInitiators,
       },
     })
   }
@@ -56,6 +57,14 @@ const createAccessFilter = (
     accessFilter.push({
       terms: {
         id: documentIds,
+      },
+    })
+  }
+
+  if (fileNames) {
+    accessFilter.push({
+      terms: {
+        'fields.filename.value.keyword': fileNames,
       },
     })
   }
@@ -140,6 +149,7 @@ const setValues = async (
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
   documentIds: string[] | undefined,
+  fileNames: string[] | undefined,
   valueField: string
 ) => {
   const aggs: Record<string, AggregationsAggregationContainer> = {}
@@ -176,7 +186,8 @@ const setValues = async (
   const accessFilter = createAccessFilter(
     depositors,
     archiveInitiators,
-    documentIds
+    documentIds,
+    fileNames
   )
   const query = createSearchQuery(undefined, accessFilter, filterString)
 
@@ -244,6 +255,7 @@ const search = async (
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
   documentIds: [string] | undefined,
+  fileNames: [string] | undefined,
   start = 0,
   size = 20,
   filter: string | string[] | undefined,
@@ -258,7 +270,8 @@ const search = async (
   const accessFilter = createAccessFilter(
     depositors,
     archiveInitiators,
-    documentIds
+    documentIds,
+    fileNames
   )
   const searchQuery = createSearchQuery(queryString, accessFilter, filterString)
   const sortingArray = createSortingArray({
@@ -351,6 +364,7 @@ export const routes = (router: KoaRouter) => {
       ctx.state?.user?.depositors,
       ctx.state?.user?.archiveInitiators,
       ctx.state?.user?.documentIds,
+      ctx.state?.user?.fileNames,
       'values'
     )
 
@@ -360,6 +374,7 @@ export const routes = (router: KoaRouter) => {
       ctx.state?.user?.depositors,
       ctx.state?.user?.archiveInitiators,
       ctx.state?.user?.documentIds,
+      ctx.state?.user?.fileNames,
       'allValues'
     )
 
@@ -382,6 +397,7 @@ export const routes = (router: KoaRouter) => {
         ctx.state?.user?.depositors,
         ctx.state?.user?.archiveInitiators,
         ctx.state?.user?.documentIds,
+        ctx.state?.user?.fileNames,
         'allValues'
       )
     }
@@ -406,6 +422,7 @@ export const routes = (router: KoaRouter) => {
         ctx.state?.user?.depositors,
         ctx.state?.user?.archiveInitiators,
         ctx.state?.user?.documentIds,
+        ctx.state?.user?.fileNames,
         start ? Number(start) : 0,
         size ? Number(size) : 20,
         filter,
