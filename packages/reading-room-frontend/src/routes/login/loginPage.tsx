@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { TextField, Button, Alert, Grid, Typography } from '@mui/material'
 import { Stack } from '@mui/system'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 import { SiteHeader } from '../../components/siteHeader'
@@ -74,14 +74,12 @@ export const PageLogin = () => {
             variant="h2"
             sx={{ marginTop: '40px', marginBottom: '20px' }}
           >
-            Välkommen att söka i de digitala arkiven hos Centrum för
-            Näringslivshistoria
+            Sök i det digitala material som finns i våra öppna arkiv och även i
+            slutna arkiv som du fått tillstånd för
           </Typography>
           <Typography variant="body1">
-            Efter att du loggat in kan du direkt söka i de arkiv som är allmänt
-            tillgängliga. Vill du söka i arkiv som kräver tillstånd, mejla
-            bildochfakta@naringslivshistoria.se för hjälp med att söka
-            tillstånd.
+            Hur fungerar digitala läsesalen, vilka arkiv finns, hur söker jag
+            tillstånd för slutna arkiv? <Link to="/om-oss">Läs här</Link>
           </Typography>
           <Typography
             variant="h2"
