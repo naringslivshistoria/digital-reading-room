@@ -252,6 +252,7 @@ const setValues = async (
                 return bucket.key
             }
           })
+          .filter((value: string) => value)
           .filter((value: string, index: number, array: Array<string>) => {
             //distinct
             return array.indexOf(value) === index
