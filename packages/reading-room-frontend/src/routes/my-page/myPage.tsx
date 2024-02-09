@@ -1,4 +1,4 @@
-import { Grid, Typography } from '@mui/material'
+import { Grid, List, ListItem, Typography } from '@mui/material'
 
 import { SiteHeader } from '../../components/siteHeader'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
@@ -30,11 +30,20 @@ export const MyPage = () => {
             }}
           >
             <b>Du kan söka i följande arkiv och dokument: </b>
+          </Typography>
+          <List
+            sx={{ listStyleType: 'disc', paddingTop: 0, marginLeft: '20px' }}
+          >
             {user?.depositors
               ?.concat(user?.archiveInitiators || [])
               .concat(user?.documentIds || [])
-              .join(', ')}
-          </Typography>
+              .sort()
+              .map((archive) => (
+                <ListItem sx={{ display: 'list-item' }} key={archive}>
+                  {archive}
+                </ListItem>
+              ))}
+          </List>
         </Grid>
         <Grid item xs={0.5} sm={1} />
       </Grid>

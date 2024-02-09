@@ -83,7 +83,7 @@ describe('documentService', () => {
       })
     })
 
-    it("returns 500 if user doesn't have access", async () => {
+    it("returns 500 if user doesn't have access to that document", async () => {
       jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
 
       const unauthorizedToken = jwt.sign(
@@ -93,6 +93,32 @@ describe('documentService', () => {
           depositors: undefined,
           archiveInitiators: undefined,
           documentIds: [737],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+
+      const res = await request(app.callback())
+        .get('/document/1337')
+        .set('Authorization', 'Bearer ' + unauthorizedToken)
+
+      expect(res.status).toEqual(500)
+      expect(res.text).toEqual('{"results":"error: Error: Document not found"}')
+    })
+
+    it("returns 500 if user doesn't have access to that file", async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+
+      const unauthorizedToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: undefined,
+          archiveInitiators: undefined,
+          documentIds: undefined,
+          fileNames: 'myFile.jpg',
         },
         config.auth.secret,
         {
@@ -127,7 +153,7 @@ describe('documentService', () => {
       })
     })
 
-    it("returns 404 if user doesn't have access", async () => {
+    it("returns 404 if user doesn't have access to that document", async () => {
       const id = '1337'
       mockedAxios.mockReturnValue(
         Promise.resolve('SUCCESS') as Promise<unknown>
@@ -140,6 +166,35 @@ describe('documentService', () => {
           depositors: undefined,
           archiveInitiators: undefined,
           documentIds: [737],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+
+      const res = await request(app.callback())
+        .get(`/document/${id}/attachment/filename.jpg`)
+        .set('Authorization', 'Bearer ' + unauthorizedToken)
+
+      expect(res.status).toEqual(404)
+      expect(res.text).toEqual('{"results":"error: document not found"}')
+    })
+
+    it("returns 404 if user doesn't have access to that file", async () => {
+      const id = '1337'
+      mockedAxios.mockReturnValue(
+        Promise.resolve('SUCCESS') as Promise<unknown>
+      )
+
+      const unauthorizedToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: undefined,
+          archiveInitiators: undefined,
+          documentIds: undefined,
+          fileNames: 'myFile.jpg',
         },
         config.auth.secret,
         {
