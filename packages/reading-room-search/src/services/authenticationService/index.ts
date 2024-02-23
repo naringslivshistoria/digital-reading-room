@@ -3,7 +3,9 @@ import KoaRouter from '@koa/router'
 import hash from './hash'
 import { createToken, createResetToken, setPassword } from './jwt'
 import createHttpError from 'http-errors'
-import { sendEmail } from './adapters/smtpAdapter'
+import { sendEmail } from '../../common/adapters/smtpAdapter'
+import { createUser } from '../../common/adapters/userAdapter'
+import { User } from '../../common/types'
 
 const cookieOptions = {
   httpOnly: true,
@@ -188,6 +190,51 @@ export const routes = (router: KoaRouter) => {
       ctx.body = {
         message:
           'Error resetting password. User does not exist, password reset has not been initiated or has expired, or password reset token is wrong.',
+      }
+    }
+  })
+
+  router.post('(.*)/create-account', async (ctx) => {
+    if (!ctx.request.body) {
+      return
+    }
+
+    if (!ctx.request.body.username) {
+      ctx.status = 400
+      ctx.request.body = {
+        errorMessage: 'Missing parameter: username',
+      }
+      return
+    }
+
+    if (!ctx.request.body.firstName) {
+      ctx.status = 400
+      ctx.request.body = { errorMessage: 'Missing parameter: firstName' }
+      return
+    }
+
+    if (!ctx.request.body.lastName) {
+      ctx.status = 400
+      ctx.request.body = { errorMessage: 'Missing parameter: lastName' }
+      return
+    }
+    try {
+      const user = await createUser(ctx.request.body as unknown as User)
+
+      //TODO: send password reset email
+
+      //TODO: send info email to admin
+
+      ctx.body = {
+        user: user,
+      }
+    } catch (error: unknown) {
+      ctx.status = 400
+
+      if (error instanceof Error) {
+        ctx.body = {
+          error: error.message,
+        }
       }
     }
   })
