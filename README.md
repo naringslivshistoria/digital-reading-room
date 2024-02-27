@@ -35,7 +35,7 @@ export ELASTIC_PASSWORD=
 export KIBANA_PASSWORD=
 ```
 
-Don't forget to run direnv allow after changing exports in .envrc!
+Don't forget to run `direnv allow` after changing exports in .envrc!
 
 ### Configuration
 
