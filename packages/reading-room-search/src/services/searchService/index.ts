@@ -86,13 +86,13 @@ export const routes = (router: KoaRouter) => {
       // Recursively include all ancestors to avoid false matches when
       // several archives have the same series names etc.
       const parents = findParents(filterConfig, fieldFilterConfigs)
-      const parentFilters = (filter as string)
-        .split('||')
-        .filter((filterPart) => {
-          return parents.some((parent) => {
-            return parent === filterPart.split('::')?.[0]
+      const parentFilters = filter
+        ? (filter as string).split('||').filter((filterPart) => {
+            return parents.some((parent) => {
+              return parent === filterPart.split('::')?.[0]
+            })
           })
-        })
+        : []
 
       const parentFilter = parentFilters.join('||')
 
