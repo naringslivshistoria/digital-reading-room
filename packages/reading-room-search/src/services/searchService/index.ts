@@ -9,6 +9,7 @@ import {
   QueryDslWildcardQuery,
   SearchTotalHits,
 } from '@elastic/elasticsearch/lib/api/types'
+import { findAncestor } from 'typescript'
 
 const client = new Client({
   node: config.elasticSearch.url,
@@ -302,6 +303,24 @@ const search = async (
   }
 }
 
+const findParents = (
+  filter: FieldFilterConfig | undefined,
+  filters: FieldFilterConfig[]
+): string[] => {
+  const parentFieldNames: string[] = []
+
+  if (!filter || !filter.parentField) {
+    return []
+  }
+
+  parentFieldNames.push(filter.parentField)
+  const parentFilter = filters.find((f) => {
+    return f.fieldName === filter.parentField
+  })
+
+  return findParents(parentFilter, filters).concat(parentFieldNames)
+}
+
 export const routes = (router: KoaRouter) => {
   router.get('(.*)/search/get-field-filters', async (ctx) => {
     const filter = ctx.query.filter
@@ -383,13 +402,18 @@ export const routes = (router: KoaRouter) => {
     })
 
     for (const filterConfig of dependentConfigs) {
-      let parentFilter: string | undefined = ''
-
-      if (filter as string) {
-        parentFilter = (filter as string).split('||').find((filterPart) => {
-          return filterPart.split('::')?.[0] === filterConfig.parentField
+      // Recursively include all ancestors to avoid false matches when
+      // several archives have the same series names etc.
+      const parents = findParents(filterConfig, fieldFilterConfigs)
+      const parentFilters = (filter as string)
+        .split('||')
+        .filter((filterPart) => {
+          return parents.some((parent) => {
+            return parent === filterPart.split('::')?.[0]
+          })
         })
-      }
+
+      const parentFilter = parentFilters.join('||')
 
       await setValues(
         [filterConfig],
