@@ -100,13 +100,19 @@ const createSearchQuery = (
     filters.forEach((filter) => {
       const filterTerm = filter.split('::')
       if (numericFields[filterTerm[0]]) {
-        const term: Record<string, QueryDslTermQuery> = {}
-        term[getFullFieldName(filterTerm[0])] = {
-          value: filterTerm[1],
-        }
+        const should: QueryDslQueryContainer[] = []
+
+        filterTerm[1].split('%%').forEach((value) => {
+          const term: Record<string, QueryDslTermQuery> = {}
+          term[getFullFieldName(filterTerm[0])] = {
+            value,
+          }
+
+          should.push({ term })
+        })
 
         searchQuery.bool.must.push({
-          term,
+          bool: { should },
         })
       } else if (filterTerm[0] === 'location' || filterTerm[0] === 'time') {
         const wildcard: { [k: string]: QueryDslWildcardQuery } = {}
