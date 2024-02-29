@@ -49,32 +49,6 @@ const authorizedToken = jwt.sign(
     expiresIn: '3h',
   }
 )
-const authorizedWithFileNameToken = jwt.sign(
-  {
-    sub: 'foo',
-    username: 'bar',
-    depositors: undefined,
-    archiveInitiators: undefined,
-    fileNames: ['DA-2016-040576-SAF_Arbetsgivaren_14_1966_21.pdf'],
-  },
-  'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
-  {
-    expiresIn: '3h',
-  }
-)
-const unAuthorizedToken = jwt.sign(
-  {
-    sub: 'foo',
-    username: 'bar',
-    depositors: [''],
-    archiveInitiators: [''],
-    fileNames: [''],
-  },
-  'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
-  {
-    expiresIn: '3h',
-  }
-)
 
 describe('searchService', () => {
   afterEach(() => {
