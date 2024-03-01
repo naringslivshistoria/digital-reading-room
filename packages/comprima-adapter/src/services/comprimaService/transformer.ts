@@ -173,33 +173,42 @@ const getIndexName = (indexName: string): string => {
 }
 
 const transformDocument = (xmlDocument: ComprimaDocument): Document => {
-  const fields: Fields = {}
+  try {
+    const fields: Fields = {}
 
-  xmlDocument.Indices.Index.forEach((index: ComprimaIndex) => {
-    const translationKey =
-      index.FieldName?.toLowerCase().replace(' ', '-') ?? index.Number
-    const indexName = getIndexName(translationKey)
+    xmlDocument.Indices.Index.forEach((index: ComprimaIndex) => {
+      const translationKey =
+        index.FieldName?.toLowerCase().replace(' ', '-') ?? index.Number
+      const indexName = getIndexName(translationKey)
 
-    if (!removedFields.includes(indexName)) {
-      fields[indexName] = {
-        id: index.Number,
-        originalName: index.FieldName,
-        value: index.Value,
+      if (!removedFields.includes(indexName)) {
+        fields[indexName] = {
+          id: index.Number,
+          originalName: index.FieldName,
+          value: index.Value,
+        }
       }
-    }
-  })
+    })
 
-  return {
-    id: xmlDocument.Id,
-    documentState: xmlDocument.DocumentState,
-    fields,
-    pages: [
-      {
-        pageType: xmlDocument.Pages.Page.PageType,
-        url: xmlDocument.Pages.Page.Data,
-        thumbnailUrl: xmlDocument.Pages.Page.ThumbnailData,
-      },
-    ],
+    return {
+      id: xmlDocument.Id,
+      documentState: xmlDocument.DocumentState,
+      fields,
+      pages: [
+        {
+          pageType: xmlDocument.Pages.Page.PageType,
+          url: xmlDocument.Pages.Page.Data,
+          thumbnailUrl: xmlDocument.Pages.Page.ThumbnailData,
+        },
+      ],
+    }
+  } catch (error) {
+    console.error(
+      `Error transforming document`,
+      JSON.stringify(xmlDocument, null, 2)
+    )
+
+    throw error
   }
 }
 

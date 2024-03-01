@@ -246,10 +246,7 @@ const getDocuments = async (
     let documentsResult =
       searchResponse['s:Envelope']['s:Body'].GetDocumentsResponse
         .GetDocumentsResult
-    documentsResult = documentsResult
-      .replace(/&#xD;/gim, '')
-      .replace(/&gt;/gim, '>')
-      .replace(/&lt;/gim, '<')
+    documentsResult = documentsResult.replace(/&#xD;/gim, '')
 
     const documents =
       parser.parse(documentsResult).C3DocumentResponse.Documents.Document
@@ -262,6 +259,7 @@ const getDocuments = async (
       const documentArray = Array.isArray(documents)
         ? documents
         : Array(documents)
+
       const transformedDocuments = transformer.transformDocuments(documentArray)
 
       return transformedDocuments
