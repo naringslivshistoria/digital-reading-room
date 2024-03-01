@@ -22,6 +22,14 @@ export const MyPage = () => {
             <b>Användarnamn: </b>
             {user?.username}
           </Typography>
+          <Typography variant="body1">
+            <b>Namn: </b>
+            {user?.firstName} {user?.lastName}
+          </Typography>
+          <Typography variant="body1">
+            <b>Organisation: </b>
+            {user?.organization}
+          </Typography>
           <Typography
             variant="body1"
             sx={{

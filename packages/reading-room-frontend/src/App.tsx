@@ -11,6 +11,7 @@ import CentraleSansRegular from '../assets/CentraleSans-Regular.woff2'
 import PublicoTextItalic from '../assets/PublicoText-Italic.woff2'
 import { PageReset } from './routes/login/resetPage'
 import { MyPage } from './routes/my-page/myPage'
+import { CreateAccountPage } from './routes/login/createAccountPage'
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -182,6 +183,7 @@ function App() {
             <Route path="/dokument/:id" element={<DocumentPage />} />
             <Route path="/login/nollstall" element={<PageReset />} />
             <Route path="/login" element={<PageLogin />} />
+            <Route path="/skapa-konto" element={<CreateAccountPage />} />
           </Routes>
         </Box>
       </ThemeProvider>

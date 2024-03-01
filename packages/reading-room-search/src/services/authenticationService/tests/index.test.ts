@@ -5,6 +5,8 @@ import bodyParser from 'koa-bodyparser'
 import { routes } from '../index'
 import hash from '../hash'
 import * as jwt from '../jwt'
+import * as userAdapter from '../../../common/adapters/userAdapter'
+import * as smtpAdapter from '../../../common/adapters/smtpAdapter'
 
 const app = new Koa()
 const router = new KoaRouter()
@@ -24,6 +26,10 @@ jest.mock('../../../common/config', () => {
         port: 6666,
       },
       smtp: {},
+      createAccount: {
+        resetPasswordUrl: 'https://reset',
+        notificationEmailRecipient: 'foo bar',
+      },
     },
   }
 })
@@ -95,6 +101,58 @@ describe('authenticationService', () => {
       })
       expect(res.status).toBe(200)
       expect(res.body).toEqual({ token })
+    })
+  })
+  describe('POST /auth/create-account', () => {
+    it('requires username, firstname and lastname', async () => {
+      const res = await request(app.callback()).post('/auth/create-account')
+      expect(res.status).toBe(400)
+      expect(res.body.errorMessage).toBe(
+        'Missing parameter(s): username, firstName, lastName'
+      )
+    })
+    it('calls createUser with the correct parameters', async () => {
+      const createAccountSpy = jest
+        .spyOn(userAdapter, 'createUser')
+        .mockImplementation(() => Promise.resolve())
+
+      await await request(app.callback()).post('/auth/create-account').send({
+        username: 'foo',
+        firstName: 'bar',
+        lastName: 'barsson',
+        organization: 'FooBar AB',
+      })
+      expect(createAccountSpy).toBeCalledWith({
+        username: 'foo',
+        firstName: 'bar',
+        lastName: 'barsson',
+        depositors: 'Centrum för Näringslivshistoria',
+        organization: 'FooBar AB',
+      })
+    })
+    it('calls the right dependencies', async () => {
+      const createAccountSpy = jest
+        .spyOn(userAdapter, 'createUser')
+        .mockImplementation(() => Promise.resolve())
+
+      const jwtSpy = jest
+        .spyOn(jwt, 'createResetToken')
+        .mockImplementation(() => Promise.resolve('123'))
+
+      const sendMailSpy = jest
+        .spyOn(smtpAdapter, 'sendEmail')
+        .mockImplementation(() => Promise.resolve())
+
+      await request(app.callback()).post('/auth/create-account').send({
+        username: 'foo',
+        firstName: 'bar',
+        lastName: 'barsson',
+        organization: 'FooBar AB',
+      })
+
+      expect(createAccountSpy).toHaveBeenCalled()
+      expect(jwtSpy).toHaveBeenCalled()
+      expect(sendMailSpy).toBeCalledTimes(2)
     })
   })
 })
