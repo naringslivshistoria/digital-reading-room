@@ -30,6 +30,10 @@ export interface Config {
     user: string
     password: string
   }
+  createAccount: {
+    notificationEmailRecipient: 'string'
+    resetPasswordUrl: 'string'
+  }
 }
 
 const config = configPackage({
@@ -60,6 +64,10 @@ const config = configPackage({
       port: 587,
       tls: true,
     },
+    createAccount: {
+      notificationEmailRecipient: '',
+      resetPasswordUrl: 'http://localhost:4002/login/nollstall',
+    },
   },
 })
 
@@ -70,4 +78,5 @@ export default {
   elasticSearch: config.get('elasticSearch'),
   comprimaAdapter: config.get('comprimaAdapter'),
   smtp: config.get('smtp'),
+  createAccount: config.get('createAccount'),
 } as Config

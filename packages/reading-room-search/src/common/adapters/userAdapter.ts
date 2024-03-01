@@ -15,14 +15,13 @@ const db = knex({
   },
 })
 
-export const createUser = async (user: User) => {
-  console.log('createUser user', user)
+export const createUser = async (user: User): Promise<void> => {
   try {
-    const id = await db('users')
-      .insert({ ...user, salt: '', password_hash: '' })
-      .returning('id')
-    console.log('createUser id', id)
-    return id
+    await db('users').insert({
+      ...user,
+      salt: '',
+      password_hash: '',
+    })
   } catch (error: unknown) {
     if (!(error instanceof Error)) {
       throw error
@@ -51,7 +50,10 @@ export const getUser = async (username: string) => {
       'documentIds',
       'fileNames',
       'reset_token',
-      'reset_token_expires'
+      'reset_token_expires',
+      'firstName',
+      'lastName',
+      'organization'
     )
     .from<User>('users')
     .where('username', username)
