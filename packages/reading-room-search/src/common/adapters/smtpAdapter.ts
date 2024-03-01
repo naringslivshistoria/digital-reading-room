@@ -1,4 +1,4 @@
-import config from '../../../common/config'
+import config from '../config'
 import nodemailer from 'nodemailer'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 

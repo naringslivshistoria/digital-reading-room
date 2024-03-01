@@ -67,7 +67,7 @@ export const PageLogin = () => {
   return (
     <>
       <SiteHeader />
-      <Grid container bgcolor="white">
+      <Grid container bgcolor="white" sx={{ marginBottom: 2 }}>
         <Grid item xs={1} md={1} />
         <Grid item xs={10} md={5} lg={3} justifyContent="flex-start">
           <Typography
@@ -124,13 +124,30 @@ export const PageLogin = () => {
               >
                 Logga in
               </Button>
-              <Button
-                onClick={() => {
-                  setShowReset(!showReset)
-                }}
+
+              <Stack
+                columnGap={2}
+                direction="column"
+                // justifyContent="flex-start"
+                sx={{ display: 'inline' }}
               >
-                Glömt lösenord
-              </Button>
+                <Button
+                  onClick={() => {
+                    navigate('/skapa-konto')
+                  }}
+                  sx={{ width: '50%' }}
+                >
+                  Skapa konto
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowReset(!showReset)
+                  }}
+                  sx={{ width: '50%' }}
+                >
+                  Glömt lösenord
+                </Button>
+              </Stack>
               {error && (
                 <Alert severity="error">Inloggning misslyckades!</Alert>
               )}

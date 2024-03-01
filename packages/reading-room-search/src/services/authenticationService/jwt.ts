@@ -1,64 +1,16 @@
 import jwt from 'jsonwebtoken'
-import knex from 'knex'
 import createHttpError from 'http-errors'
 import crypto from 'crypto'
 
 import hash from './hash'
-import { User } from '../../common/types'
+import {
+  getUser,
+  updateResetToken,
+  updateUserFailedLoginAttempts,
+  updateUserLocked,
+  updatePassword,
+} from '../../common/adapters/userAdapter'
 import config from '../../common/config'
-
-const db = knex({
-  client: 'pg',
-  connection: {
-    host: config.postgres.host,
-    user: config.postgres.user,
-    password: config.postgres.password,
-    database: config.postgres.database,
-    port: config.postgres.port,
-    timezone: 'UTC',
-    dateStrings: true,
-  },
-})
-
-const getUser = async (username: string) => {
-  const [user] = await db
-    .select(
-      'id',
-      'username',
-      'password_hash as passwordHash',
-      'salt',
-      'locked',
-      'disabled',
-      'failed_login_attempts as failedLoginAttempts',
-      'depositors',
-      'archiveInitiators',
-      'documentIds',
-      'fileNames',
-      'reset_token',
-      'reset_token_expires',
-      'role'
-    )
-    .from<User>('users')
-    .where('username', username)
-
-  return user
-}
-
-const setUserFailedLoginAttempts = async (
-  userId: number,
-  attempts: number
-): Promise<void> => {
-  await db('users')
-    .where('id', userId)
-    .update({ failed_login_attempts: attempts })
-}
-
-const setUserLocked = async (
-  userId: number,
-  locked: boolean
-): Promise<void> => {
-  await db('users').where('id', userId).update({ locked: locked })
-}
 
 export const createToken = async (username: string, password: string) => {
   try {
@@ -79,17 +31,17 @@ export const createToken = async (username: string, password: string) => {
     if (user.passwordHash !== (await hash.hashPassword(password, user.salt))) {
       const fails = user.failedLoginAttempts + 1
 
-      await setUserFailedLoginAttempts(user.id, fails)
+      await updateUserFailedLoginAttempts(user.id, fails)
 
       if (fails >= config.auth.maxFailedLoginAttempts) {
-        await setUserLocked(user.id, true)
+        await updateUserLocked(user.id, true)
       }
 
       throw createHttpError(401, new Error(`Unknown user or invalid password.`))
     }
 
     // Clear failed login attempts
-    await setUserFailedLoginAttempts(user.id, 0)
+    await updateUserFailedLoginAttempts(user.id, 0)
 
     // Create token
     const token = jwt.sign(
@@ -100,6 +52,9 @@ export const createToken = async (username: string, password: string) => {
         archiveInitiators: user.archiveInitiators?.split(';'),
         fileNames: user.fileNames?.split(';'),
         role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        organization: user.organization,
       },
       config.auth.secret,
       {
@@ -123,14 +78,7 @@ export const createResetToken = async (email: string) => {
 
   const token = crypto.randomBytes(32).toString('hex')
 
-  await db('users')
-    .where({
-      id: user.id,
-    })
-    .update({
-      reset_token: token,
-      reset_token_expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-    })
+  updateResetToken(user, token)
 
   return token
 }
@@ -159,14 +107,5 @@ export const setPassword = async (
     throw new Error('Invalid reset token')
   }
 
-  await db('users')
-    .where({
-      id: user.id,
-    })
-    .update({
-      salt,
-      password_hash: hash,
-      reset_token: null,
-      reset_token_expires: null,
-    })
+  updatePassword(user, salt, hash)
 }

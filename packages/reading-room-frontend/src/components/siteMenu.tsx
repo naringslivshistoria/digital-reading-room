@@ -18,7 +18,9 @@ import { useIsLoggedIn } from '../hooks/useIsLoggedIn'
 
 export const SiteMenu = () => {
   const isPublicPage =
-    location.pathname.startsWith('/login') || location.pathname == '/om-oss'
+    location.pathname.startsWith('/login') ||
+    location.pathname == '/om-oss' ||
+    location.pathname == '/skapa-konto'
   const { data: user } = useIsLoggedIn(!isPublicPage)
 
   const isLoggedIn = !!user?.username

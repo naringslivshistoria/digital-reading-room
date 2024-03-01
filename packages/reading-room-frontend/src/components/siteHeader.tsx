@@ -10,7 +10,9 @@ import { useIsLoggedIn } from '../hooks/useIsLoggedIn'
 export const SiteHeader = () => {
   const location = useLocation()
   const isPublicPage =
-    location.pathname.startsWith('/login') || location.pathname == '/om-oss'
+    location.pathname.startsWith('/login') ||
+    location.pathname == '/om-oss' ||
+    location.pathname == '/skapa-konto'
 
   const { data: user } = useIsLoggedIn(!isPublicPage)
   const isLoggedIn = !!user?.username

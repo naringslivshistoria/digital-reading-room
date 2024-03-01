@@ -32,6 +32,9 @@ interface User {
   depositors: string | null
   archiveInitiators: string | null
   documentIds: string | null
+  firstName: string | null
+  lastName: string | null
+  organization: string | null
 }
 
 enum FilterType {

@@ -3,7 +3,10 @@ import KoaRouter from '@koa/router'
 import hash from './hash'
 import { createToken, createResetToken, setPassword } from './jwt'
 import createHttpError from 'http-errors'
-import { sendEmail } from './adapters/smtpAdapter'
+import { sendEmail } from '../../common/adapters/smtpAdapter'
+import { createUser } from '../../common/adapters/userAdapter'
+import { User } from '../../common/types'
+import config from '../../common/config'
 
 const cookieOptions = {
   httpOnly: true,
@@ -189,6 +192,82 @@ export const routes = (router: KoaRouter) => {
         message:
           'Error resetting password. User does not exist, password reset has not been initiated or has expired, or password reset token is wrong.',
       }
+    }
+  })
+
+  router.post('(.*)/create-account', async (ctx) => {
+    if (
+      !ctx.request.body ||
+      !ctx.request.body.username ||
+      !ctx.request.body.firstName ||
+      !ctx.request.body.lastName
+    ) {
+      ctx.status = 400
+      ctx.body = {
+        errorMessage: 'Missing parameter(s): username, firstName, lastName',
+      }
+      return
+    }
+
+    try {
+      const newUser = {
+        username: ctx.request.body.username as string,
+        firstName: ctx.request.body.firstName as string,
+        lastName: ctx.request.body.lastName as string,
+        depositors: 'Centrum för Näringslivshistoria',
+        organization: ctx.request.body.organization as string,
+      }
+
+      await createUser(newUser as User)
+    } catch (error: unknown) {
+      ctx.status = 400
+      if (error instanceof Error) {
+        ctx.body = {
+          error: error.message,
+        }
+      }
+      return
+    }
+
+    try {
+      const token = await createResetToken(ctx.request.body.username as string)
+
+      const subject = 'Välkommen till den Digitala läsesalen'
+      const body = `Kontot ${
+        ctx.request.body.username
+      } har skapats för dig i den Digitala läsesalen.\n\nAnvänd denna länk för att välja ett lösenord: ${
+        config.createAccount.resetPasswordUrl
+      }/?email=${encodeURIComponent(
+        ctx.request.body.username as string
+      )}&token=${token}`
+
+      await sendEmail(ctx.request.body.username as string, subject, body)
+    } catch (error: unknown) {
+      ctx.status = 400
+      const errorMessage = error instanceof Error ? error.message : ''
+
+      ctx.body = {
+        error: `Epost för att skapa lösenord kunde inte skickas. ${errorMessage}`,
+      }
+      return
+    }
+
+    try {
+      await sendEmail(
+        config.createAccount.notificationEmailRecipient,
+        'Nytt konto har skapats i den digitala läsesalen',
+        `Kontot ${ctx.request.body.username} har skapats i den Digitala läsesalen. Lägg till rättigheter i arkivet genom administrationsgränssnittet`
+      )
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(
+          `Create account e-mail could not be sent to admin. ${error.message}`
+        )
+      }
+    }
+
+    ctx.body = {
+      message: 'A new account has been created',
     }
   })
 }
