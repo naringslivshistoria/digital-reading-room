@@ -51,6 +51,7 @@ export const createToken = async (username: string, password: string) => {
         depositors: user.depositors?.split(';'),
         archiveInitiators: user.archiveInitiators?.split(';'),
         fileNames: user.fileNames?.split(';'),
+        role: user.role,
         firstName: user.firstName,
         lastName: user.lastName,
         organization: user.organization,
