@@ -35,7 +35,8 @@ const getUser = async (username: string) => {
       'documentIds',
       'fileNames',
       'reset_token',
-      'reset_token_expires'
+      'reset_token_expires',
+      'role'
     )
     .from<User>('users')
     .where('username', username)
@@ -98,6 +99,7 @@ export const createToken = async (username: string, password: string) => {
         depositors: user.depositors?.split(';'),
         archiveInitiators: user.archiveInitiators?.split(';'),
         fileNames: user.fileNames?.split(';'),
+        role: user.role,
       },
       config.auth.secret,
       {
