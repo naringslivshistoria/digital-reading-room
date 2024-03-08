@@ -126,7 +126,8 @@ describe('authenticationService', () => {
         username: 'foo',
         firstName: 'bar',
         lastName: 'barsson',
-        depositors: 'Centrum för Näringslivshistoria',
+        depositors:
+          'Centrum för Näringslivshistoria;Föreningen Stockholms Företagsminnen',
         organization: 'FooBar AB',
       })
     })
