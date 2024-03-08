@@ -234,22 +234,13 @@ export const routes = (router: KoaRouter) => {
       const token = await createResetToken(ctx.request.body.username as string)
 
       const subject = 'Välkommen till digitala läsesalen'
-      const body = `
-        Hej,
-        
-        Nu har kontot ${
-          ctx.request.body.username
-        }  skapats för dig i Centrum för Näringslivshistorias digitala läsesal.
-        Använd denna länk för att välja ett lösenord: ${
-          config.createAccount.resetPasswordUrl
-        }/?email=${encodeURIComponent(
+      const body = `Hej,\n\nNu har kontot ${
+        ctx.request.body.username
+      } skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n\nAnvänd denna länk för att välja ett lösenord: ${
+        config.createAccount.resetPasswordUrl
+      }/?email=${encodeURIComponent(
         ctx.request.body.username as string
-      )}&token=${token}
-        Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss
-        Har du några andra frågor, hör av dig till info@naringslivshistoria.se.
-        Välkommen att börja söka!
-        Centrum för Näringslivshistoria
-        www.naringslivshistoria.se`
+      )}&token=${token}\n\nLite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n\nHar du några andra frågor, hör av dig till info@naringslivshistoria.se.\n\nVälkommen att börja söka!\n\nCentrum för Näringslivshistoria\nwww.naringslivshistoria.se`
 
       await sendEmail(ctx.request.body.username as string, subject, body)
     } catch (error: unknown) {
