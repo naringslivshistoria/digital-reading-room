@@ -83,7 +83,11 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
     return filterStrings.join('||')
   }
 
-  const { data: fieldFilterConfigs, refetch: refetchFilters } = useFieldValues({
+  const {
+    isFetching: filtersLoading,
+    data: fieldFilterConfigs,
+    refetch: refetchFilters,
+  } = useFieldValues({
     filter: createFilterString(),
   })
 
@@ -367,7 +371,10 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                 updateFilter(filterConfig.fieldName, val)
                                 search()
                               }}
-                              disabled={isFieldDisabled(filterConfig, filters)}
+                              disabled={
+                                isFieldDisabled(filterConfig, filters) ||
+                                filtersLoading
+                              }
                               multiple
                               sx={{ width: '100%' }}
                               inputProps={{
@@ -377,13 +384,18 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                               }}
                             >
                               {filterConfig.allValues?.map((value: string) => (
-                                <MenuItem key={value} value={value}>
+                                <MenuItem
+                                  key={value}
+                                  value={value}
+                                  disabled={filtersLoading}
+                                >
                                   <Checkbox
                                     checked={
                                       filters[
                                         filterConfig.fieldName
                                       ]?.values.indexOf(value) > -1
                                     }
+                                    disabled={filtersLoading}
                                   />
                                   {filterConfig.values?.includes(value) ? (
                                     <b>{value}</b>

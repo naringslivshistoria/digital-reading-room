@@ -284,10 +284,10 @@ export const metaDataFieldConfigurations: Dictionary<
       type: MetaDataFieldType.VisibleDivider,
       xs: 12,
       sm: 12,
-      hasFields: ['creator', 'company'],
+      hasFields: ['creatorName', 'company'],
     },
     {
-      fieldName: 'creator',
+      fieldName: 'creatorName',
       heading: 'KREATÖR',
       type: MetaDataFieldType.TextField,
       xs: 6,

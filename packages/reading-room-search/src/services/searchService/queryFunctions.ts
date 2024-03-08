@@ -5,7 +5,7 @@ import {
   QueryDslWildcardQuery,
   SearchTotalHits,
 } from '@elastic/elasticsearch/lib/api/types'
-import { Document, FieldFilterConfig } from '../../common/types'
+import { Document, FieldFilterConfig, FilterType } from '../../common/types'
 import config from '../../common/config'
 import { Client } from '@elastic/elasticsearch'
 
@@ -189,30 +189,32 @@ export const setValues = async (
   const filterString = Array.isArray(filter) ? filter[0] : filter
 
   fieldFilterConfigs.forEach((fieldFilterConfig) => {
-    switch (fieldFilterConfig.fieldName) {
-      case 'seriesName':
-        aggs[fieldFilterConfig.fieldName] = {
-          multi_terms: {
-            terms: [
-              {
-                field: `${getFullFieldName('seriesSignature')}`,
-              },
-              {
-                field: `${getFullFieldName(fieldFilterConfig.fieldName)}`,
-              },
-            ],
-            size: 500,
-          },
-        }
-        break
-      default:
-        aggs[fieldFilterConfig.fieldName] = {
-          terms: {
-            field: `${getFullFieldName(fieldFilterConfig.fieldName)}`,
-            size: 500,
-          },
-        }
-        break
+    if (fieldFilterConfig.filterType === FilterType.values) {
+      switch (fieldFilterConfig.fieldName) {
+        case 'seriesName':
+          aggs[fieldFilterConfig.fieldName] = {
+            multi_terms: {
+              terms: [
+                {
+                  field: `${getFullFieldName('seriesSignature')}`,
+                },
+                {
+                  field: `${getFullFieldName(fieldFilterConfig.fieldName)}`,
+                },
+              ],
+              size: 500,
+            },
+          }
+          break
+        default:
+          aggs[fieldFilterConfig.fieldName] = {
+            terms: {
+              field: `${getFullFieldName(fieldFilterConfig.fieldName)}`,
+              size: 500,
+            },
+          }
+          break
+      }
     }
   })
 
