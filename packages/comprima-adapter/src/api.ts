@@ -76,9 +76,15 @@ router.get('/indexlevel', async (ctx) => {
     for (const document of results) {
       try {
         document.level = level
+        /*        if (
+          document.id !== 2203920 &&
+          document.id !== 2203921 &&
+          document.id !== 2203922
+        ) {*/
         await index.indexDocument(document)
         console.log('Successfully indexed document', document.id)
         successful++
+        //}
       } catch (err) {
         console.error(err)
       }
