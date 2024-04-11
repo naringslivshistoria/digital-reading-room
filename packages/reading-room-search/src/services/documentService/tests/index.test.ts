@@ -65,7 +65,7 @@ describe('documentService', () => {
         .set('Authorization', 'Bearer ' + token)
 
       expect(elasticSpy).toBeCalledWith({
-        index: 'comprima',
+        index: config.elasticSearch.indexName,
         id,
       })
     })
@@ -224,7 +224,7 @@ describe('documentService', () => {
           .set('Authorization', 'Bearer ' + token)
 
         expect(elasticSpy).toBeCalledWith({
-          index: 'comprima',
+          index: config.elasticSearch.indexName,
           id,
         })
       })

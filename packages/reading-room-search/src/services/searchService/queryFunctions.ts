@@ -13,9 +13,8 @@ const client = new Client({
   node: config.elasticSearch.url,
 })
 
-const numericFields: Record<string, boolean> = {
-  volume: true,
-}
+// Currently no numeric fields anymore, keep for future use
+const numericFields: Record<string, boolean> = {}
 
 const pageTypeConfig = [
   {
@@ -36,8 +35,6 @@ const getFullFieldName = (fieldName: string) => {
   switch (fieldName) {
     case 'pageType':
       return `pages.${fieldName}.keyword`
-    case 'volume':
-      return `fields.${fieldName}.value`
     default:
       return `fields.${fieldName}.value.keyword`
   }

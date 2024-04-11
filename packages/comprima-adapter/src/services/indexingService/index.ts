@@ -85,8 +85,10 @@ const indexDocument = async (document: Document) => {
       document.pages[0].thumbnailUrl = undefined
     }
 
+    console.log('index', process.env.ELASTIC_SEARCH__INDEX_NAME)
+
     await client.index({
-      index: 'comprima',
+      index: process.env.ELASTIC_SEARCH__INDEX_NAME ?? 'comprima',
       id: document.id.toString(),
       document,
     })
