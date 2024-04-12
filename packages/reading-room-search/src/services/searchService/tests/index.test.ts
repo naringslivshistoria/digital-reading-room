@@ -285,7 +285,7 @@ describe('searchService', () => {
         fieldName: 'pageType',
         displayName: 'Mediatyp',
         filterType: 1,
-        visualSize: 3,
+        visualSize: 2,
         values: ['Bild (Foton & Inscanningar)', 'Dokument', 'Ljud & Video'],
         allValues: ['Bild (Foton & Inscanningar)', 'Dokument', 'Ljud & Video'],
       })
