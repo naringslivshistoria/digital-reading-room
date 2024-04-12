@@ -2,14 +2,10 @@ import { Grid, List, ListItem, Typography } from '@mui/material'
 
 import { SiteHeader } from '../../components/siteHeader'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
-import { useEffect } from 'react'
 
 export const MyPage = () => {
   const { data: user } = useIsLoggedIn(true)
 
-  useEffect(() => {
-    console.log('user', user)
-  }, [user])
   return (
     <>
       <SiteHeader />
@@ -51,6 +47,7 @@ export const MyPage = () => {
               .concat(user?.documentIds || [])
               .concat(user?.series || [])
               .concat(user?.volumes || [])
+              .filter((a) => a != '')
               .sort()
               .map((archive) => (
                 <ListItem sx={{ display: 'list-item' }} key={archive}>

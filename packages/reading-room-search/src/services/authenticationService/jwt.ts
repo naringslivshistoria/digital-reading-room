@@ -43,8 +43,6 @@ export const createToken = async (username: string, password: string) => {
     // Clear failed login attempts
     await updateUserFailedLoginAttempts(user.id, 0)
 
-    console.log('user', user)
-
     // Create token
     const token = jwt.sign(
       {

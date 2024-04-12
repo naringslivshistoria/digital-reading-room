@@ -100,7 +100,7 @@ const createAccessFilter = (
         should: series
           .filter(
             (archiveInitiator) =>
-              archiveInitiator != '' && archiveInitiator.split('>').length >= 1
+              archiveInitiator != '' && archiveInitiator.split('>').length >= 2
           )
           .map((serie): QueryDslQueryContainer => {
             return {
@@ -135,7 +135,7 @@ const createAccessFilter = (
     accessFilter.push({
       bool: {
         should: volumes
-          .filter((volume) => volume != '' && volume.split('>').length >= 1)
+          .filter((volume) => volume != '' && volume.split('>').length >= 3)
           .map((volume): QueryDslQueryContainer => {
             return {
               bool: {
@@ -159,7 +159,7 @@ const createAccessFilter = (
                   },
                   {
                     terms: {
-                      'fields.volumes.value': [volume.split('>')[3]],
+                      'fields.volume.value.keyword': [volume.split('>')[3]],
                     },
                   },
                 ],
@@ -185,7 +185,6 @@ const createAccessFilter = (
       },
     })
   }
-  console.log('accessFilter', JSON.stringify(accessFilter))
   return accessFilter.length == 0 ? undefined : accessFilter
 }
 

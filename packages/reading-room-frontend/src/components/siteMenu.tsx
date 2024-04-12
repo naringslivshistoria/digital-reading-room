@@ -15,7 +15,6 @@ import PopupState, { bindMenu, bindTrigger } from 'material-ui-popup-state'
 import LogoutIcon from '@mui/icons-material/Logout'
 
 import { useIsLoggedIn } from '../hooks/useIsLoggedIn'
-import { useEffect } from 'react'
 
 export const SiteMenu = () => {
   const isPublicPage =
@@ -25,11 +24,6 @@ export const SiteMenu = () => {
   const { data: user } = useIsLoggedIn(!isPublicPage)
 
   const isLoggedIn = !!user?.username
-
-  useEffect(() => {
-    console.log('user siteMenu', user)
-    console.log('isLoggedIn', isLoggedIn)
-  }, [user])
 
   return (
     <>
