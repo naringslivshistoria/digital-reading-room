@@ -8,6 +8,9 @@ export interface IsLoggedInResponse {
   depositors?: string[] | null
   archiveInitiators?: string[] | null
   documentIds?: string[] | null
+  series?: string[] | null
+  volumes?: string[] | null
+  filesNames?: string[] | null
   firstName: string
   lastName: string
   organization: string

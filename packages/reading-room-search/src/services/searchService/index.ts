@@ -1,10 +1,13 @@
 import KoaRouter from '@koa/router'
 import { FilterType, FieldFilterConfig } from '../../common/types'
 import { findParents, search, setValues } from './queryFunctions'
+import { arch } from 'os'
 
 export const routes = (router: KoaRouter) => {
   router.get('(.*)/search/get-field-filters', async (ctx) => {
     const filter = ctx.query.filter
+
+    console.log('ctx.state?.user', ctx.state?.user)
 
     const fieldFilterConfigs: FieldFilterConfig[] = [
       {
@@ -63,6 +66,8 @@ export const routes = (router: KoaRouter) => {
       filter,
       ctx.state?.user?.depositors,
       ctx.state?.user?.archiveInitiators,
+      ctx.state?.user?.series,
+      ctx.state?.user?.volumes,
       ctx.state?.user?.documentIds,
       ctx.state?.user?.fileNames,
       'values'
@@ -73,6 +78,8 @@ export const routes = (router: KoaRouter) => {
       undefined,
       ctx.state?.user?.depositors,
       ctx.state?.user?.archiveInitiators,
+      ctx.state?.user?.series,
+      ctx.state?.user?.volumes,
       ctx.state?.user?.documentIds,
       ctx.state?.user?.fileNames,
       'allValues'
@@ -82,25 +89,60 @@ export const routes = (router: KoaRouter) => {
       return filterConfig.parentField !== undefined
     })
 
+    // console.log('dependentConfigs', dependentConfigs)
+
+    //TODO: replace with parent from field instead?
+
+    // för varje arkivbildare
+    //   plocka upp deponent och lägg till i field filters
+
+    // för varje serie
+    //   plocka upp deponent & arkivbildare och lägg till
+
+    // för varje volym
+    //   plocka upp deponent, arkivbildare, serie och lägg till
+
     for (const filterConfig of dependentConfigs) {
       // Recursively include all ancestors to avoid false matches when
       // several archives have the same series names etc.
+      // console.log('filterConfig', filterConfig)
+
       const parents = findParents(filterConfig, fieldFilterConfigs)
+      // console.log('parents', parents)
       const parentFilters = filter
         ? (filter as string).split('||').filter((filterPart) => {
+            console.log('filterPart', filterPart)
             return parents.some((parent) => {
               return parent === filterPart.split('::')?.[0]
             })
           })
         : []
 
-      const parentFilter = parentFilters.join('||')
+      // parentFilter depositor::Föreningen Stockholms Företagsminnen||archiveInitiator::Bazarbolaget
 
+      // const parentFilters = []
+
+      // for (const archiveInitiator of ctx.state?.user?.archiveInitiators) {
+      //   console.log('archiveInitiator', archiveInitiator)
+      //   if (filterConfig.fieldName == 'archiveInitiator') {
+      //     parentFilters.push(`depositor::${archiveInitiator.split('>')[0]}`)
+      //   } else if (filterConfig.fieldName == 'seriesName') {
+      //     parentFilters.push(
+      //       `archiveInitiator::${archiveInitiator.split('>')[1]}`
+      //     )
+      //   }
+      // }
+
+      // console.log('parentFilters', parentFilters)
+
+      const parentFilter = parentFilters.join('||')
       await setValues(
         [filterConfig],
         parentFilter,
         ctx.state?.user?.depositors,
         ctx.state?.user?.archiveInitiators,
+        ctx.state?.user?.series,
+        ctx.state?.user?.volumes,
         ctx.state?.user?.documentIds,
         ctx.state?.user?.fileNames,
         'allValues'
@@ -126,6 +168,8 @@ export const routes = (router: KoaRouter) => {
         query,
         ctx.state?.user?.depositors,
         ctx.state?.user?.archiveInitiators,
+        ctx.state?.user?.series,
+        ctx.state?.user?.volumes,
         ctx.state?.user?.documentIds,
         ctx.state?.user?.fileNames,
         start ? Number(start) : 0,

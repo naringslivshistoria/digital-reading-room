@@ -14,6 +14,8 @@ router.get('(.*)/auth/is-logged-in', async (ctx) => {
       depositors: ctx.state?.user?.depositors,
       archiveInitiators: ctx.state?.user?.archiveInitiators,
       documentIds: ctx.state?.user?.documentIds,
+      series: ctx.state?.user?.series,
+      volumes: ctx.state?.user?.volumes,
       firstName: ctx.state?.user?.firstName,
       lastName: ctx.state?.user?.lastName,
       organization: ctx.state?.user?.organization,

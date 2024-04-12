@@ -15,6 +15,7 @@ import PopupState, { bindMenu, bindTrigger } from 'material-ui-popup-state'
 import LogoutIcon from '@mui/icons-material/Logout'
 
 import { useIsLoggedIn } from '../hooks/useIsLoggedIn'
+import { useEffect } from 'react'
 
 export const SiteMenu = () => {
   const isPublicPage =
@@ -24,6 +25,11 @@ export const SiteMenu = () => {
   const { data: user } = useIsLoggedIn(!isPublicPage)
 
   const isLoggedIn = !!user?.username
+
+  useEffect(() => {
+    console.log('user siteMenu', user)
+    console.log('isLoggedIn', isLoggedIn)
+  }, [user])
 
   return (
     <>
@@ -82,7 +88,7 @@ export const SiteMenu = () => {
                   <CloseIcon />
                 </IconButton>
 
-                {isLoggedIn ? (
+                {isLoggedIn && user ? (
                   <Stack>
                     <MenuItem
                       component={'div'}
@@ -110,11 +116,11 @@ export const SiteMenu = () => {
                       <div>
                         <b>Tillgängliga arkiv:</b>
                         {user?.depositors &&
-                          user.depositors.map((depositor) => (
+                          user?.depositors.map((depositor) => (
                             <div key={depositor}>{depositor}</div>
                           ))}
                         {user?.archiveInitiators &&
-                          user.archiveInitiators.map((archiveInitiator) => (
+                          user?.archiveInitiators.map((archiveInitiator) => (
                             <div key={archiveInitiator}>{archiveInitiator}</div>
                           ))}
                       </div>

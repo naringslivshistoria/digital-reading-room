@@ -8,6 +8,8 @@ import {
 import { Document, FieldFilterConfig, FilterType } from '../../common/types'
 import config from '../../common/config'
 import { Client } from '@elastic/elasticsearch'
+import { access } from 'fs'
+import { arch } from 'os'
 
 const client = new Client({
   node: config.elasticSearch.url,
@@ -46,12 +48,14 @@ const getFullFieldName = (fieldName: string) => {
 const createAccessFilter = (
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
+  series: string[] | undefined,
+  volumes: string[] | undefined,
   documentIds: string[] | undefined,
   fileNames: string[] | undefined
 ): QueryDslQueryContainer[] | undefined => {
   const accessFilter: QueryDslQueryContainer[] = []
 
-  if (depositors) {
+  if (depositors && depositors.length > 0) {
     accessFilter.push({
       terms: {
         'fields.depositor.value.keyword': depositors,
@@ -59,15 +63,140 @@ const createAccessFilter = (
     })
   }
 
-  if (archiveInitiators) {
+  if (archiveInitiators && archiveInitiators.length > 0) {
+    const part = archiveInitiators
+      .filter((archiveInitiator) => archiveInitiator.length > 0)
+      .map((archiveInitiator) => {
+        const a = archiveInitiator.split('>')[0]
+        const b = archiveInitiator.split('>')[1]
+        return {
+          bool: {
+            must: [
+              {
+                terms: {
+                  'fields.depositor.value.keyword': [a],
+                },
+              },
+              {
+                terms: {
+                  'fields.archiveInitiator.value.keyword': [b],
+                },
+              },
+            ],
+          },
+        }
+      })
+
+    console.log('part', JSON.stringify(part))
     accessFilter.push({
-      terms: {
-        'fields.archiveInitiator.value.keyword': archiveInitiators,
+      bool: {
+        should: part,
       },
     })
+
+    // accessFilter.push({
+    //   bool: {
+    //     must: [
+    //       {
+    //         terms: {
+    //           'fields.depositor.value.keyword': archiveInitiators.map(
+    //             (arch) => arch.split('>')[0]
+    //           ),
+    //         },
+    //       },
+    //       {
+    //         terms: {
+    //           'fields.archiveInitiator.value.keyword': archiveInitiators.map(
+    //             (arch) => arch.split('>')[1]
+    //           ),
+    //         },
+    //       },
+    //     ],
+    //   },
+    // })
+
+    // accessFilter.push({
+    //   terms: {
+    //     'fields.depositor.value.keyword': archiveInitiators.map(
+    //       (arch) => arch.split('>')[0]
+    //     ),
+    //   },
+    // })
+    // accessFilter.push({
+    //   terms: {
+    //     'fields.archiveInitiator.value.keyword': archiveInitiators.map(
+    //       (arch) => arch.split('>')[1]
+    //     ),
+    //   },
+    // })
   }
 
-  if (documentIds) {
+  // if (series && series.length > 0) {
+  //   accessFilter.push({
+  //     bool: {
+  //       must: [
+  //         {
+  //           terms: {
+  //             'fields.depositor.value.keyword': series.map(
+  //               (arch) => arch.split('>')[0]
+  //             ),
+  //           },
+  //         },
+  //         {
+  //           terms: {
+  //             'fields.archiveInitiator.value.keyword': series.map(
+  //               (arch) => arch.split('>')[1]
+  //             ),
+  //           },
+  //         },
+  //         {
+  //           terms: {
+  //             'fields.seriesName.value.keyword': series.map(
+  //               (arch) => arch.split('>')[2]
+  //             ),
+  //           },
+  //         },
+  //       ],
+  //     },
+  //   })
+  // }
+
+  // if (volumes && volumes.length > 0) {
+  //   accessFilter.push({
+  //     bool: {
+  //       must: [
+  //         {
+  //           terms: {
+  //             'fields.depositor.value.keyword': volumes.map(
+  //               (arch) => arch.split('>')[0]
+  //             ),
+  //           },
+  //         },
+  //         {
+  //           terms: {
+  //             'fields.archiveInitiator.value.keyword': volumes.map(
+  //               (arch) => arch.split('>')[1]
+  //             ),
+  //           },
+  //         },
+  //         {
+  //           terms: {
+  //             'fields.seriesName.value.keyword': volumes.map(
+  //               (arch) => arch.split('>')[2]
+  //             ),
+  //           },
+  //         },
+  //         {
+  //           terms: {
+  //             'fields.volume.value': volumes.map((arch) => arch.split('>')[3]),
+  //           },
+  //         },
+  //       ],
+  //     },
+  //   })
+  // }
+
+  if (documentIds && documentIds.length > 0) {
     accessFilter.push({
       terms: {
         id: documentIds,
@@ -75,14 +204,14 @@ const createAccessFilter = (
     })
   }
 
-  if (fileNames) {
+  if (fileNames && fileNames.length > 0) {
     accessFilter.push({
       terms: {
         'fields.filename.value.keyword': fileNames,
       },
     })
   }
-
+  console.log('accessFilter', JSON.stringify(accessFilter))
   return accessFilter.length == 0 ? undefined : accessFilter
 }
 
@@ -181,6 +310,8 @@ export const setValues = async (
   filter: string[] | string | undefined,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
+  series: string[] | undefined,
+  volumes: string[] | undefined,
   documentIds: string[] | undefined,
   fileNames: string[] | undefined,
   valueField: string
@@ -221,6 +352,8 @@ export const setValues = async (
   const accessFilter = createAccessFilter(
     depositors,
     archiveInitiators,
+    series,
+    volumes,
     documentIds,
     fileNames
   )
@@ -302,6 +435,8 @@ export const search = async (
   query: string | string[] | undefined,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
+  series: string[] | undefined,
+  volumes: string[] | undefined,
   documentIds: [string] | undefined,
   fileNames: [string] | undefined,
   start = 0,
@@ -318,6 +453,8 @@ export const search = async (
   const accessFilter = createAccessFilter(
     depositors,
     archiveInitiators,
+    series,
+    volumes,
     documentIds,
     fileNames
   )

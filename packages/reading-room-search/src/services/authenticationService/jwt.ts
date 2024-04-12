@@ -43,14 +43,33 @@ export const createToken = async (username: string, password: string) => {
     // Clear failed login attempts
     await updateUserFailedLoginAttempts(user.id, 0)
 
+    console.log('user', user)
+
     // Create token
     const token = jwt.sign(
       {
         sub: user.id,
         username: user.username,
-        depositors: user.depositors?.split(';'),
-        archiveInitiators: user.archiveInitiators?.split(';'),
-        fileNames: user.fileNames?.split(';'),
+        depositors:
+          user.depositors && user.depositors != ''
+            ? user.depositors?.replace(/;$/, '').split(';')
+            : [],
+        archiveInitiators:
+          user.archiveInitiators && user.archiveInitiators != ''
+            ? user.archiveInitiators?.replace(/;$/, '').split(';')
+            : [],
+        fileNames:
+          user.fileNames && user.fileNames != ''
+            ? user.fileNames?.replace(/;$/, '').split(';')
+            : [],
+        series:
+          user.series && user.series != ''
+            ? user.series?.replace(/;$/, '').split(';')
+            : [],
+        volumes:
+          user.volumes && user.volumes != ''
+            ? user.volumes?.replace(/;$/, '').split(';')
+            : [],
         role: user.role,
         firstName: user.firstName,
         lastName: user.lastName,

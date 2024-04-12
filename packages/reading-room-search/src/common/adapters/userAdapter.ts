@@ -49,6 +49,8 @@ export const getUser = async (username: string) => {
       'archiveInitiators',
       'documentIds',
       'fileNames',
+      'series',
+      'volumes',
       'reset_token',
       'reset_token_expires',
       'firstName',
