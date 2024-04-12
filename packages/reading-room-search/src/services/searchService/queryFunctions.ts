@@ -35,6 +35,8 @@ const getFullFieldName = (fieldName: string) => {
   switch (fieldName) {
     case 'pageType':
       return `pages.${fieldName}.keyword`
+    case 'attachmentType':
+      return `${fieldName}.keyword`
     default:
       return `fields.${fieldName}.value.keyword`
   }

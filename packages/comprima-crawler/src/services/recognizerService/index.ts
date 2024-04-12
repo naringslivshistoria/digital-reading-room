@@ -13,7 +13,7 @@ export const recognizeNext = async () => {
   const next = await client.search<Document>({
     index: config.elasticSearch.indexName,
     from: 0,
-    size: 100,
+    size: 10,
     query: {
       bool: {
         must_not: {
@@ -58,10 +58,19 @@ const documentFalseObjects: Record<string, boolean> = {
 }
 
 const updateAttachmentType = async (
-  document: Document,
+  documentId: number,
   attachmentType: AttachmentType
 ) => {
-  await client.update()
+  await client.update({
+    id: documentId.toString(),
+    index: config.elasticSearch.indexName,
+    doc: {
+      attachmentType: attachmentType,
+    },
+    refresh: true,
+  })
+
+  console.log(documentId, attachmentType)
 }
 
 const recognizeAttachment = async (document: Document) => {
@@ -83,5 +92,5 @@ const recognizeAttachment = async (document: Document) => {
       pageTypeToAttachmentType[document.pages[0].pageType.toLowerCase()]
   }
 
-  await updateAttachmentType(document, attachmentType)
+  await updateAttachmentType(document.id, attachmentType)
 }

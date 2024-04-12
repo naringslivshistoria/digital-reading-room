@@ -57,7 +57,6 @@ let recognized = 0
     case 'recognize':
       do {
         recognized = await recognizeNext()
-        break
       } while (recognized > 0)
       break
     default:
