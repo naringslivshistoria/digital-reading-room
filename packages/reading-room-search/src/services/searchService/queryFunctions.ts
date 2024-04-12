@@ -64,137 +64,114 @@ const createAccessFilter = (
   }
 
   if (archiveInitiators && archiveInitiators.length > 0) {
-    const part = archiveInitiators
-      .filter((archiveInitiator) => archiveInitiator.length > 0)
-      .map((archiveInitiator) => {
-        const a = archiveInitiator.split('>')[0]
-        const b = archiveInitiator.split('>')[1]
-        return {
-          bool: {
-            must: [
-              {
-                terms: {
-                  'fields.depositor.value.keyword': [a],
-                },
-              },
-              {
-                terms: {
-                  'fields.archiveInitiator.value.keyword': [b],
-                },
-              },
-            ],
-          },
-        }
-      })
-
-    console.log('part', JSON.stringify(part))
     accessFilter.push({
       bool: {
-        should: part,
+        should: archiveInitiators
+          .filter(
+            (archiveInitiator) =>
+              archiveInitiator != '' && archiveInitiator.split('>').length >= 1
+          )
+          .map((archiveInitiator): QueryDslQueryContainer => {
+            return {
+              bool: {
+                must: [
+                  {
+                    terms: {
+                      'fields.depositor.value.keyword': [
+                        archiveInitiator.split('>')[0],
+                      ],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.archiveInitiator.value.keyword': [
+                        archiveInitiator.split('>')[1],
+                      ],
+                    },
+                  },
+                ],
+              },
+            }
+          }),
       },
     })
-
-    // accessFilter.push({
-    //   bool: {
-    //     must: [
-    //       {
-    //         terms: {
-    //           'fields.depositor.value.keyword': archiveInitiators.map(
-    //             (arch) => arch.split('>')[0]
-    //           ),
-    //         },
-    //       },
-    //       {
-    //         terms: {
-    //           'fields.archiveInitiator.value.keyword': archiveInitiators.map(
-    //             (arch) => arch.split('>')[1]
-    //           ),
-    //         },
-    //       },
-    //     ],
-    //   },
-    // })
-
-    // accessFilter.push({
-    //   terms: {
-    //     'fields.depositor.value.keyword': archiveInitiators.map(
-    //       (arch) => arch.split('>')[0]
-    //     ),
-    //   },
-    // })
-    // accessFilter.push({
-    //   terms: {
-    //     'fields.archiveInitiator.value.keyword': archiveInitiators.map(
-    //       (arch) => arch.split('>')[1]
-    //     ),
-    //   },
-    // })
   }
 
-  // if (series && series.length > 0) {
-  //   accessFilter.push({
-  //     bool: {
-  //       must: [
-  //         {
-  //           terms: {
-  //             'fields.depositor.value.keyword': series.map(
-  //               (arch) => arch.split('>')[0]
-  //             ),
-  //           },
-  //         },
-  //         {
-  //           terms: {
-  //             'fields.archiveInitiator.value.keyword': series.map(
-  //               (arch) => arch.split('>')[1]
-  //             ),
-  //           },
-  //         },
-  //         {
-  //           terms: {
-  //             'fields.seriesName.value.keyword': series.map(
-  //               (arch) => arch.split('>')[2]
-  //             ),
-  //           },
-  //         },
-  //       ],
-  //     },
-  //   })
-  // }
+  if (series && series.length > 0) {
+    accessFilter.push({
+      bool: {
+        should: series
+          .filter(
+            (archiveInitiator) =>
+              archiveInitiator != '' && archiveInitiator.split('>').length >= 1
+          )
+          .map((serie): QueryDslQueryContainer => {
+            return {
+              bool: {
+                must: [
+                  {
+                    terms: {
+                      'fields.depositor.value.keyword': [serie.split('>')[0]],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.archiveInitiator.value.keyword': [
+                        serie.split('>')[1],
+                      ],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.seriesName.value.keyword': [serie.split('>')[2]],
+                    },
+                  },
+                ],
+              },
+            }
+          }),
+      },
+    })
+  }
 
-  // if (volumes && volumes.length > 0) {
-  //   accessFilter.push({
-  //     bool: {
-  //       must: [
-  //         {
-  //           terms: {
-  //             'fields.depositor.value.keyword': volumes.map(
-  //               (arch) => arch.split('>')[0]
-  //             ),
-  //           },
-  //         },
-  //         {
-  //           terms: {
-  //             'fields.archiveInitiator.value.keyword': volumes.map(
-  //               (arch) => arch.split('>')[1]
-  //             ),
-  //           },
-  //         },
-  //         {
-  //           terms: {
-  //             'fields.seriesName.value.keyword': volumes.map(
-  //               (arch) => arch.split('>')[2]
-  //             ),
-  //           },
-  //         },
-  //         {
-  //           terms: {
-  //             'fields.volume.value': volumes.map((arch) => arch.split('>')[3]),
-  //           },
-  //         },
-  //       ],
-  //     },
-  //   })
-  // }
+  if (volumes && volumes.length > 0) {
+    accessFilter.push({
+      bool: {
+        should: volumes
+          .filter((volume) => volume != '' && volume.split('>').length >= 1)
+          .map((volume): QueryDslQueryContainer => {
+            return {
+              bool: {
+                must: [
+                  {
+                    terms: {
+                      'fields.depositor.value.keyword': [volume.split('>')[0]],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.archiveInitiator.value.keyword': [
+                        volume.split('>')[1],
+                      ],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.seriesName.value.keyword': [volume.split('>')[2]],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.volumes.value': [volume.split('>')[3]],
+                    },
+                  },
+                ],
+              },
+            }
+          }),
+      },
+    })
+  }
 
   if (documentIds && documentIds.length > 0) {
     accessFilter.push({
