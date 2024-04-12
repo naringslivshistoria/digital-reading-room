@@ -31,7 +31,7 @@ const saveThumbnail = async (document: Document) => {
       const response = await axios.get(document.pages[0].thumbnailUrl, {
         responseType: 'arraybuffer',
         maxContentLength,
-        timeout: 10 * 1000,
+        timeout: 60 * 1000,
       })
 
       if (
