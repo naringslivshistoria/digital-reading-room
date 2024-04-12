@@ -33,7 +33,7 @@ const supportedExtensions = [
 const markAsFailed = async (documentId: string) => {
   await client.update({
     id: documentId,
-    index: 'comprima',
+    index: config.elasticSearch.indexName,
     doc: {
       ocrText: '--- exterr ---',
     },
@@ -42,7 +42,7 @@ const markAsFailed = async (documentId: string) => {
 
 export const ocrNext = async () => {
   const next = await client.search({
-    index: 'comprima',
+    index: config.elasticSearch.indexName,
     from: 0,
     size: 10,
     query: {
