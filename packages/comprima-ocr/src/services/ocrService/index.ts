@@ -24,7 +24,7 @@ const getAttachment = async (documentId: string) => {
 const addOcrTextToDocument = async (documentId: string, text: string) => {
   await client.update({
     id: documentId,
-    index: 'comprima',
+    index: config.elasticSearch.indexName,
     doc: {
       ocrText: text,
     },
