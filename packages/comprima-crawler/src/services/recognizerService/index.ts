@@ -2,7 +2,8 @@ import { Client } from '@elastic/elasticsearch'
 import config from '../../common/config'
 import log from '../../common/log'
 import { detectObjects } from './cocoAdapter'
-import { Document } from '../../common/types'
+import { AttachmentType, Document } from '../../common/types'
+import { pageTypeToAttachmentType } from '../../common/translations'
 
 const client = new Client({
   node: config.elasticSearch.url,
@@ -10,14 +11,14 @@ const client = new Client({
 
 export const recognizeNext = async () => {
   const next = await client.search<Document>({
-    index: 'comprima',
+    index: config.elasticSearch.indexName,
     from: 0,
     size: 100,
     query: {
       bool: {
         must_not: {
           exists: {
-            field: 'ocrText',
+            field: 'attachmentType',
           },
         },
       },
@@ -43,9 +44,44 @@ export const recognizeNext = async () => {
   return recognized
 }
 
-const recognizeAttachment = async (document: Document) => {
-  const result = await detectObjects(document.id.toString())
-  return 'photo'
+const documentFalseObjects: Record<string, boolean> = {
+  refrigerator: true,
+  tv: true,
+  clock: true,
+  book: true,
+  'stop sign': true,
+  laptop: true,
+  'traffic light': true,
+  remote: true,
+  toilet: true,
+  microwave: true,
+}
 
-  return 'unknown'
+const updateAttachmentType = async (
+  document: Document,
+  attachmentType: AttachmentType
+) => {
+  await client.update()
+}
+
+const recognizeAttachment = async (document: Document) => {
+  const results = await detectObjects(document.id.toString())
+
+  let attachmentType: AttachmentType
+
+  if (results) {
+    for (const result of results) {
+      if (!documentFalseObjects[result.class]) {
+        attachmentType = 'Foto'
+        break
+      }
+    }
+  }
+
+  if (!attachmentType) {
+    attachmentType =
+      pageTypeToAttachmentType[document.pages[0].pageType.toLowerCase()]
+  }
+
+  await updateAttachmentType(document, attachmentType)
 }

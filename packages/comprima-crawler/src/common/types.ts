@@ -37,3 +37,10 @@ export interface Document {
   level?: string
   pages: [Page]
 }
+
+export type AttachmentType =
+  | 'Foto'
+  | 'Inscanning'
+  | 'Ljud & Video'
+  | 'Dokument'
+  | undefined

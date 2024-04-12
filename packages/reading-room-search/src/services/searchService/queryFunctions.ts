@@ -9,15 +9,7 @@ import { Document, FieldFilterConfig, FilterType } from '../../common/types'
 import config from '../../common/config'
 import { Client } from '@elastic/elasticsearch'
 
-const client = new Client({
-  node: config.elasticSearch.url,
-})
-
-const numericFields: Record<string, boolean> = {
-  volume: true,
-}
-
-const pageTypeConfig = [
+export const pageTypeConfig = [
   {
     values: ['Image'],
     description: 'Bild (Foton & Inscanningar)',
@@ -31,6 +23,14 @@ const pageTypeConfig = [
     description: 'Dokument',
   },
 ]
+
+const client = new Client({
+  node: config.elasticSearch.url,
+})
+
+const numericFields: Record<string, boolean> = {
+  volume: true,
+}
 
 const getFullFieldName = (fieldName: string) => {
   switch (fieldName) {
