@@ -31,6 +31,7 @@ const saveThumbnail = async (document: Document) => {
       const response = await axios.get(document.pages[0].thumbnailUrl, {
         responseType: 'arraybuffer',
         maxContentLength,
+        timeout: 10 * 1000,
       })
 
       if (
@@ -62,7 +63,7 @@ const saveThumbnail = async (document: Document) => {
       const errorString = error.toString()
 
       if (errorString.includes('maxContentLength size of')) {
-        console.debug(
+        console.error(
           'Aborting download of oversized thumbnail file',
           errorString
         )
@@ -98,7 +99,11 @@ const indexDocument = async (document: Document) => {
 }
 
 const healthCheck = async () => {
-  await axios.get(ELASTICSEARCH_URL + '/_cluster/health')
+  try {
+    await axios.get(ELASTICSEARCH_URL + '/_cluster/health')
+  } catch (error) {
+    console.error('Elasticsearch health check failed', error)
+  }
 }
 
 export default {

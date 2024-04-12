@@ -9,10 +9,6 @@ import { Document, FieldFilterConfig, FilterType } from '../../common/types'
 import config from '../../common/config'
 import { Client } from '@elastic/elasticsearch'
 
-const client = new Client({
-  node: config.elasticSearch.url,
-})
-
 // Currently no numeric fields anymore, keep for future use
 const numericFields: Record<string, boolean> = {}
 
@@ -31,10 +27,16 @@ const pageTypeConfig = [
   },
 ]
 
+const client = new Client({
+  node: config.elasticSearch.url,
+})
+
 const getFullFieldName = (fieldName: string) => {
   switch (fieldName) {
     case 'pageType':
       return `pages.${fieldName}.keyword`
+    case 'attachmentType':
+      return `${fieldName}.keyword`
     default:
       return `fields.${fieldName}.value.keyword`
   }

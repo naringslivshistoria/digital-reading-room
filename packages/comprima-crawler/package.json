@@ -36,6 +36,9 @@
   "dependencies": {
     "@elastic/elasticsearch": "^8.6.0",
     "@iteam/config": "^12.1.2",
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow/tfjs": "^4.17.0",
+    "@tensorflow/tfjs-node": "^4.17.0",
     "@tsconfig/node18": "^1.0.1",
     "axios": "^1.3.4",
     "chalk": "^4.1.2",
