@@ -4,7 +4,11 @@
  */
 exports.up = function (knex) {
   return knex.schema.alterTable('levels', function (t) {
-    t.dropUnique([], 'levels_level_unique')
+    try {
+      t.dropUnique([], 'levels_level_unique')
+    } catch (error) {
+      console.log('Already deleted')
+    }
   })
 }
 

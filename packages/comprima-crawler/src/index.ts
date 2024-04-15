@@ -60,7 +60,7 @@ let recognized = 0
       } while (recognized > 0)
       break
     default:
-      log.warn(`CRAWLER_MODE must be either 'index', 'update' or 'ocr`)
+      log.warn(`CRAWLER_MODE must be either 'index', 'recognize' or 'ocr`)
       log.error(`Unknown mode ${config.mode}!`)
       throw new Error(`Unknown mode ${config.mode}!`)
   }
