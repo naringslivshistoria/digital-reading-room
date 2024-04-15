@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install --omit=dev
 
-FROM node:18.14.1-alpine AS runner
+FROM node:18.14.1-slim AS runner
 WORKDIR /app
 
 COPY . .
