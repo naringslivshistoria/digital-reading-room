@@ -20,8 +20,9 @@ export const detectObjects = async (attachmentFileName: string) => {
     const image = tfnode.node.decodeImage(fileData)
     const result = await model.detect(image)
 
+    process.stdout.write(dirname + '/' + attachmentFileName + '.jpg' + ' : ')
+
     if (result && result.length > 0) {
-      process.stdout.write(dirname + '/' + attachmentFileName + '.jpg' + ' : ')
       result.forEach((res) => {
         process.stdout.write('[' + res.class + ':' + res.score + '] ')
       })
