@@ -1,7 +1,6 @@
 import KoaRouter from '@koa/router'
 import { FilterType, FieldFilterConfig } from '../../common/types'
 import { findParents, search, setValues } from './queryFunctions'
-import { arch } from 'os'
 
 export const routes = (router: KoaRouter) => {
   router.get('(.*)/search/get-field-filters', async (ctx) => {

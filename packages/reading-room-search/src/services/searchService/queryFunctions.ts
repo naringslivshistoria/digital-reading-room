@@ -8,8 +8,6 @@ import {
 import { Document, FieldFilterConfig, FilterType } from '../../common/types'
 import config from '../../common/config'
 import { Client } from '@elastic/elasticsearch'
-import { access } from 'fs'
-import { arch } from 'os'
 
 const client = new Client({
   node: config.elasticSearch.url,
