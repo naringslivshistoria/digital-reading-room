@@ -69,6 +69,8 @@ export const routes = (router: KoaRouter) => {
       filter,
       ctx.state?.user?.depositors,
       ctx.state?.user?.archiveInitiators,
+      ctx.state?.user?.series,
+      ctx.state?.user?.volumes,
       ctx.state?.user?.documentIds,
       ctx.state?.user?.fileNames,
       'values'
@@ -79,6 +81,8 @@ export const routes = (router: KoaRouter) => {
       undefined,
       ctx.state?.user?.depositors,
       ctx.state?.user?.archiveInitiators,
+      ctx.state?.user?.series,
+      ctx.state?.user?.volumes,
       ctx.state?.user?.documentIds,
       ctx.state?.user?.fileNames,
       'allValues'
@@ -91,6 +95,7 @@ export const routes = (router: KoaRouter) => {
     for (const filterConfig of dependentConfigs) {
       // Recursively include all ancestors to avoid false matches when
       // several archives have the same series names etc.
+
       const parents = findParents(filterConfig, fieldFilterConfigs)
       const parentFilters = filter
         ? (filter as string).split('||').filter((filterPart) => {
@@ -101,12 +106,13 @@ export const routes = (router: KoaRouter) => {
         : []
 
       const parentFilter = parentFilters.join('||')
-
       await setValues(
         [filterConfig],
         parentFilter,
         ctx.state?.user?.depositors,
         ctx.state?.user?.archiveInitiators,
+        ctx.state?.user?.series,
+        ctx.state?.user?.volumes,
         ctx.state?.user?.documentIds,
         ctx.state?.user?.fileNames,
         'allValues'
@@ -132,6 +138,8 @@ export const routes = (router: KoaRouter) => {
         query,
         ctx.state?.user?.depositors,
         ctx.state?.user?.archiveInitiators,
+        ctx.state?.user?.series,
+        ctx.state?.user?.volumes,
         ctx.state?.user?.documentIds,
         ctx.state?.user?.fileNames,
         start ? Number(start) : 0,

@@ -17,7 +17,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Typography from '@mui/material/Typography'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import {
   FieldFilter,
@@ -293,11 +293,10 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                     marginLeft: { xs: '-20px', sm: '0px' },
                   }}
                 >
-                  <b>Du kan söka i följande arkiv: </b>
-                  {user?.depositors
-                    ?.concat(user?.archiveInitiators || [])
-                    .sort((a, b) => a.localeCompare(b))
-                    .join(', ')}
+                  <b>
+                    Se vilka arkiv du kan söka i på{' '}
+                    <Link to="/min-sida">Min sida</Link>{' '}
+                  </b>
                 </Typography>
               </Grid>
             </Grid>

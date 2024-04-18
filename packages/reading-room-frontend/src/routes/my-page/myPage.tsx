@@ -45,6 +45,9 @@ export const MyPage = () => {
             {user?.depositors
               ?.concat(user?.archiveInitiators || [])
               .concat(user?.documentIds || [])
+              .concat(user?.series || [])
+              .concat(user?.volumes || [])
+              .filter((a) => a != '')
               .sort()
               .map((archive) => (
                 <ListItem sx={{ display: 'list-item' }} key={archive}>

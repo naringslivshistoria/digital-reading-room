@@ -82,7 +82,7 @@ export const SiteMenu = () => {
                   <CloseIcon />
                 </IconButton>
 
-                {isLoggedIn ? (
+                {isLoggedIn && user ? (
                   <Stack>
                     <MenuItem
                       component={'div'}
@@ -110,11 +110,11 @@ export const SiteMenu = () => {
                       <div>
                         <b>Tillgängliga arkiv:</b>
                         {user?.depositors &&
-                          user.depositors.map((depositor) => (
+                          user?.depositors.map((depositor) => (
                             <div key={depositor}>{depositor}</div>
                           ))}
                         {user?.archiveInitiators &&
-                          user.archiveInitiators.map((archiveInitiator) => (
+                          user?.archiveInitiators.map((archiveInitiator) => (
                             <div key={archiveInitiator}>{archiveInitiator}</div>
                           ))}
                       </div>

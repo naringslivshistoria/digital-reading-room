@@ -106,6 +106,7 @@ describe('authenticationService', () => {
   describe('POST /auth/create-account', () => {
     it('requires username, firstname and lastname', async () => {
       const res = await request(app.callback()).post('/auth/create-account')
+
       expect(res.status).toBe(400)
       expect(res.body.errorMessage).toBe(
         'Missing parameter(s): username, firstName, lastName'
@@ -129,6 +130,7 @@ describe('authenticationService', () => {
         depositors:
           'Centrum för Näringslivshistoria;Föreningen Stockholms Företagsminnen',
         organization: 'FooBar AB',
+        role: 'User',
       })
     })
     it('calls the right dependencies', async () => {

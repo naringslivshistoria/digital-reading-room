@@ -41,8 +41,8 @@ const authorizedToken = jwt.sign(
   {
     sub: 'foo',
     username: 'bar',
-    depositors: undefined,
-    archiveInitiators: ['Svenska Arbetsgivareföreningen (SAF)'],
+    depositors: ['Svenska Arbetsgivareföreningen (SAF)'],
+    archiveInitiators: [],
   },
   'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
   {
@@ -292,7 +292,7 @@ describe('searchService', () => {
     })
   })
   describe('GET /search?freeTextQuery', () => {
-    it('searches in elastic search with correct access filter for archiveInitiator', async () => {
+    it('searches in elastic search with correct access filter for depositor', async () => {
       const elasticSpy = jest.spyOn(Client.prototype, 'search')
 
       await request(app.callback())
@@ -315,8 +315,401 @@ describe('searchService', () => {
                 should: [
                   {
                     terms: {
-                      'fields.archiveInitiator.value.keyword': [
+                      'fields.depositor.value.keyword': [
                         'Svenska Arbetsgivareföreningen (SAF)',
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        from: 0,
+        size: 20,
+        sort: [
+          {
+            'fields.undefined.value.keyword': undefined,
+          },
+          '_score',
+        ],
+        track_total_hits: true,
+      })
+    })
+
+    it('searches in elastic with correct access filter for archiveInitiator', async () => {
+      const token = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: ['My Company'],
+          archiveInitiators: ['My Company>Main Company Archive'],
+        },
+        'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
+        {
+          expiresIn: '3h',
+        }
+      )
+      const elasticSpy = jest.spyOn(Client.prototype, 'search')
+
+      await request(app.callback())
+        .get('/search?query=searchQuery')
+        .set('Authorization', 'Bearer ' + token)
+
+      expect(elasticSpy).toBeCalledWith({
+        index: 'svejs',
+        query: {
+          bool: {
+            must: [{ query_string: { query: 'searchQuery' } }],
+            filter: {
+              bool: {
+                should: [
+                  {
+                    terms: { 'fields.depositor.value.keyword': ['My Company'] },
+                  },
+                  {
+                    bool: {
+                      should: [
+                        {
+                          bool: {
+                            must: [
+                              {
+                                terms: {
+                                  'fields.depositor.value.keyword': [
+                                    'My Company',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.archiveInitiator.value.keyword': [
+                                    'Main Company Archive',
+                                  ],
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        from: 0,
+        size: 20,
+        sort: [
+          {
+            'fields.undefined.value.keyword': undefined,
+          },
+          '_score',
+        ],
+        track_total_hits: true,
+      })
+    })
+
+    it('searches in elastic with correct access filter with multiple archiveInitiator', async () => {
+      const token = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: [],
+          archiveInitiators: [
+            'My Company>Main Company Archive',
+            'My Company>Historic Archive',
+          ],
+        },
+        'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
+        {
+          expiresIn: '3h',
+        }
+      )
+      const elasticSpy = jest.spyOn(Client.prototype, 'search')
+
+      await request(app.callback())
+        .get('/search?query=searchQuery')
+        .set('Authorization', 'Bearer ' + token)
+
+      expect(elasticSpy).toBeCalledWith({
+        index: 'svejs',
+        query: {
+          bool: {
+            must: [{ query_string: { query: 'searchQuery' } }],
+            filter: {
+              bool: {
+                should: [
+                  {
+                    bool: {
+                      should: [
+                        {
+                          bool: {
+                            must: [
+                              {
+                                terms: {
+                                  'fields.depositor.value.keyword': [
+                                    'My Company',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.archiveInitiator.value.keyword': [
+                                    'Main Company Archive',
+                                  ],
+                                },
+                              },
+                            ],
+                          },
+                        },
+                        {
+                          bool: {
+                            must: [
+                              {
+                                terms: {
+                                  'fields.depositor.value.keyword': [
+                                    'My Company',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.archiveInitiator.value.keyword': [
+                                    'Historic Archive',
+                                  ],
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        from: 0,
+        size: 20,
+        sort: [
+          {
+            'fields.undefined.value.keyword': undefined,
+          },
+          '_score',
+        ],
+        track_total_hits: true,
+      })
+    })
+
+    it('searches in elastic with correct access filter with multiple series', async () => {
+      const token = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: [],
+          archiveInitiators: [],
+          series: [
+            'My Company>Main Company Archive>My First Serie',
+            'My Company>Main Company Archive>My Second Serie',
+          ],
+        },
+        'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
+        {
+          expiresIn: '3h',
+        }
+      )
+      const elasticSpy = jest.spyOn(Client.prototype, 'search')
+
+      await request(app.callback())
+        .get('/search?query=searchQuery')
+        .set('Authorization', 'Bearer ' + token)
+
+      expect(elasticSpy).toBeCalledWith({
+        index: 'svejs',
+        query: {
+          bool: {
+            must: [{ query_string: { query: 'searchQuery' } }],
+            filter: {
+              bool: {
+                should: [
+                  {
+                    bool: {
+                      should: [
+                        {
+                          bool: {
+                            must: [
+                              {
+                                terms: {
+                                  'fields.depositor.value.keyword': [
+                                    'My Company',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.archiveInitiator.value.keyword': [
+                                    'Main Company Archive',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.seriesName.value.keyword': [
+                                    'My First Serie',
+                                  ],
+                                },
+                              },
+                            ],
+                          },
+                        },
+                        {
+                          bool: {
+                            must: [
+                              {
+                                terms: {
+                                  'fields.depositor.value.keyword': [
+                                    'My Company',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.archiveInitiator.value.keyword': [
+                                    'Main Company Archive',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.seriesName.value.keyword': [
+                                    'My Second Serie',
+                                  ],
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        from: 0,
+        size: 20,
+        sort: [
+          {
+            'fields.undefined.value.keyword': undefined,
+          },
+          '_score',
+        ],
+        track_total_hits: true,
+      })
+    })
+
+    it('searches in elastic with correct access filter with multiple volumes', async () => {
+      const token = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: [],
+          archiveInitiators: [],
+          series: [],
+          volumes: [
+            'My Company>Main Company Archive>My First Serie>Volume 1',
+            'My Company>Main Company Archive>My First Serie>2',
+          ],
+        },
+        'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
+        {
+          expiresIn: '3h',
+        }
+      )
+      const elasticSpy = jest.spyOn(Client.prototype, 'search')
+
+      await request(app.callback())
+        .get('/search?query=searchQuery')
+        .set('Authorization', 'Bearer ' + token)
+
+      expect(elasticSpy).toBeCalledWith({
+        index: 'svejs',
+        query: {
+          bool: {
+            must: [{ query_string: { query: 'searchQuery' } }],
+            filter: {
+              bool: {
+                should: [
+                  {
+                    bool: {
+                      should: [
+                        {
+                          bool: {
+                            must: [
+                              {
+                                terms: {
+                                  'fields.depositor.value.keyword': [
+                                    'My Company',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.archiveInitiator.value.keyword': [
+                                    'Main Company Archive',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.seriesName.value.keyword': [
+                                    'My First Serie',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.volume.value.keyword': ['Volume 1'],
+                                },
+                              },
+                            ],
+                          },
+                        },
+                        {
+                          bool: {
+                            must: [
+                              {
+                                terms: {
+                                  'fields.depositor.value.keyword': [
+                                    'My Company',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.archiveInitiator.value.keyword': [
+                                    'Main Company Archive',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.seriesName.value.keyword': [
+                                    'My First Serie',
+                                  ],
+                                },
+                              },
+                              {
+                                terms: {
+                                  'fields.volume.value.keyword': ['2'],
+                                },
+                              },
+                            ],
+                          },
+                        },
                       ],
                     },
                   },
@@ -375,7 +768,7 @@ describe('searchService', () => {
                 should: [
                   {
                     terms: {
-                      'fields.archiveInitiator.value.keyword': [
+                      'fields.depositor.value.keyword': [
                         'Svenska Arbetsgivareföreningen (SAF)',
                       ],
                     },
@@ -420,7 +813,7 @@ describe('searchService', () => {
                 should: [
                   {
                     terms: {
-                      'fields.archiveInitiator.value.keyword': [
+                      'fields.depositor.value.keyword': [
                         'Svenska Arbetsgivareföreningen (SAF)',
                       ],
                     },

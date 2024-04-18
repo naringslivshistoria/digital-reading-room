@@ -195,7 +195,7 @@ export const routes = (router: KoaRouter) => {
     }
   })
 
-  router.post('(.*)/create-account', async (ctx) => {
+  router.post('(.*)/auth/create-account', async (ctx) => {
     if (
       !ctx.request.body ||
       !ctx.request.body.username ||
@@ -217,9 +217,10 @@ export const routes = (router: KoaRouter) => {
         depositors:
           'Centrum för Näringslivshistoria;Föreningen Stockholms Företagsminnen',
         organization: ctx.request.body.organization as string,
+        role: 'User',
       }
 
-      await createUser(newUser as User)
+      await createUser(newUser as unknown as User)
     } catch (error: unknown) {
       ctx.status = 400
       if (error instanceof Error) {

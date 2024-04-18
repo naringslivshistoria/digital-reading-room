@@ -45,12 +45,14 @@ const getFullFieldName = (fieldName: string) => {
 const createAccessFilter = (
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
+  series: string[] | undefined,
+  volumes: string[] | undefined,
   documentIds: string[] | undefined,
   fileNames: string[] | undefined
 ): QueryDslQueryContainer[] | undefined => {
   const accessFilter: QueryDslQueryContainer[] = []
 
-  if (depositors) {
+  if (depositors && depositors.length > 0) {
     accessFilter.push({
       terms: {
         'fields.depositor.value.keyword': depositors,
@@ -58,15 +60,117 @@ const createAccessFilter = (
     })
   }
 
-  if (archiveInitiators) {
+  if (archiveInitiators && archiveInitiators.length > 0) {
     accessFilter.push({
-      terms: {
-        'fields.archiveInitiator.value.keyword': archiveInitiators,
+      bool: {
+        should: archiveInitiators
+          .filter(
+            (archiveInitiator) =>
+              archiveInitiator != '' && archiveInitiator.split('>').length >= 1
+          )
+          .map((archiveInitiator): QueryDslQueryContainer => {
+            return {
+              bool: {
+                must: [
+                  {
+                    terms: {
+                      'fields.depositor.value.keyword': [
+                        archiveInitiator.split('>')[0],
+                      ],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.archiveInitiator.value.keyword': [
+                        archiveInitiator.split('>')[1],
+                      ],
+                    },
+                  },
+                ],
+              },
+            }
+          }),
       },
     })
   }
 
-  if (documentIds) {
+  if (series && series.length > 0) {
+    accessFilter.push({
+      bool: {
+        should: series
+          .filter(
+            (archiveInitiator) =>
+              archiveInitiator != '' && archiveInitiator.split('>').length >= 2
+          )
+          .map((serie): QueryDslQueryContainer => {
+            return {
+              bool: {
+                must: [
+                  {
+                    terms: {
+                      'fields.depositor.value.keyword': [serie.split('>')[0]],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.archiveInitiator.value.keyword': [
+                        serie.split('>')[1],
+                      ],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.seriesName.value.keyword': [serie.split('>')[2]],
+                    },
+                  },
+                ],
+              },
+            }
+          }),
+      },
+    })
+  }
+
+  if (volumes && volumes.length > 0) {
+    accessFilter.push({
+      bool: {
+        should: volumes
+          .filter((volume) => volume != '' && volume.split('>').length >= 3)
+          .map((volume): QueryDslQueryContainer => {
+            return {
+              bool: {
+                must: [
+                  {
+                    terms: {
+                      'fields.depositor.value.keyword': [volume.split('>')[0]],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.archiveInitiator.value.keyword': [
+                        volume.split('>')[1],
+                      ],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.seriesName.value.keyword': [volume.split('>')[2]],
+                    },
+                  },
+                  {
+                    terms: {
+                      'fields.volume.value.keyword': [volume.split('>')[3]],
+                    },
+                  },
+                ],
+              },
+            }
+          }),
+      },
+    })
+  }
+
+  if (documentIds && documentIds.length > 0) {
     accessFilter.push({
       terms: {
         id: documentIds,
@@ -74,14 +178,13 @@ const createAccessFilter = (
     })
   }
 
-  if (fileNames) {
+  if (fileNames && fileNames.length > 0) {
     accessFilter.push({
       terms: {
         'fields.filename.value.keyword': fileNames,
       },
     })
   }
-
   return accessFilter.length == 0 ? undefined : accessFilter
 }
 
@@ -180,6 +283,8 @@ export const setValues = async (
   filter: string[] | string | undefined,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
+  series: string[] | undefined,
+  volumes: string[] | undefined,
   documentIds: string[] | undefined,
   fileNames: string[] | undefined,
   valueField: string
@@ -220,6 +325,8 @@ export const setValues = async (
   const accessFilter = createAccessFilter(
     depositors,
     archiveInitiators,
+    series,
+    volumes,
     documentIds,
     fileNames
   )
@@ -301,6 +408,8 @@ export const search = async (
   query: string | string[] | undefined,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
+  series: string[] | undefined,
+  volumes: string[] | undefined,
   documentIds: [string] | undefined,
   fileNames: [string] | undefined,
   start = 0,
@@ -317,6 +426,8 @@ export const search = async (
   const accessFilter = createAccessFilter(
     depositors,
     archiveInitiators,
+    series,
+    volumes,
     documentIds,
     fileNames
   )
