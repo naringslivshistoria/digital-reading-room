@@ -10,7 +10,7 @@ export interface IsLoggedInResponse {
   documentIds?: string[] | null
   series?: string[] | null
   volumes?: string[] | null
-  filesNames?: string[] | null
+  fileNames?: string[] | null
   firstName: string
   lastName: string
   organization: string
