@@ -12,12 +12,12 @@ export const pageTypeDescriptions: Record<string, string> = {
 }
 
 export const pageTypeToAttachmentType: Record<string, AttachmentType> = {
-  image: 'Inscanning',
-  film: 'Ljud & Video',
-  text: 'Ljud & Video',
-  unknown: 'Ljud & Video',
-  pdf: 'Dokument',
-  word: 'Dokument',
-  powerpoint: 'Dokument',
-  excel: 'Dokument',
+  image: 'Dokument (inscannat)',
+  film: 'Ljud & video',
+  text: 'Ljud & video',
+  unknown: 'Ljud & video',
+  pdf: 'Dokument (pdf, doc, mm...)',
+  word: 'Dokument (pdf, doc, mm...)',
+  powerpoint: 'Dokument (pdf, doc, mm...)',
+  excel: 'Dokument (pdf, doc, mm...)',
 }
