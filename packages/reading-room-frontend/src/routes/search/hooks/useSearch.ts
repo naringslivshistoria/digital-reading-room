@@ -108,6 +108,8 @@ export const useSearch = ({
       }
     },
     onError: onError,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   })
 
 export const useCheckLogin = ({ token }: { token: string | null }) => {

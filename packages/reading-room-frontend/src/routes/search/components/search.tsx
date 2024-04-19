@@ -63,7 +63,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
     parseFilter(searchParams.get('filter'))
   )
 
-  const { data: user } = useIsLoggedIn(true)
+  useIsLoggedIn(true)
 
   const createFilterString = () => {
     const filterStrings = Object.keys(filters)
