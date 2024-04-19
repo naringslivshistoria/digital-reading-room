@@ -28,6 +28,10 @@ export const detectObjects = async (attachmentFileName: string) => {
       })
       process.stdout.write('\n-----\n')
     }
+
+    tfnode.dispose(image)
+    tfnode.disposeVariables()
+
     return result
   } catch (error) {
     return null

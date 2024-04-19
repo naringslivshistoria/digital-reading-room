@@ -40,7 +40,7 @@ export interface Document {
 
 export type AttachmentType =
   | 'Foto'
-  | 'Inscanning'
-  | 'Ljud & Video'
-  | 'Dokument'
+  | 'Dokument (inscannat)'
+  | 'Ljud & video'
+  | 'Dokument (pdf, doc, mm...)'
   | undefined
