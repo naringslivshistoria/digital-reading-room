@@ -43,9 +43,14 @@ export const DocumentPage = () => {
   const sort = searchParams.get('sort') ?? undefined
   const sortOrder = searchParams.get('sortOrder') ?? undefined
   const position = searchParams.get('position') ?? undefined
+  const [documentNotLoaded, setDocumentNotLoaded] = useState(false)
 
   const navigate = useNavigate()
   const [showDownload, setShowDownload] = useState<boolean>(false)
+
+  const onDocumentSearchError = () => {
+    setDocumentNotLoaded(true)
+  }
 
   useIsLoggedIn(true)
 
@@ -60,6 +65,7 @@ export const DocumentPage = () => {
     filter: filter == undefined ? '' : filter,
     sort,
     sortOrder,
+    onError: onDocumentSearchError,
   })
 
   useEffect(() => {
@@ -81,6 +87,7 @@ export const DocumentPage = () => {
     }
 
     setDocument(thisDoc)
+    setDocumentNotLoaded(false)
   }, [id, data, position, searchParams, document, navigate])
 
   useEffect(() => {
@@ -147,60 +154,60 @@ export const DocumentPage = () => {
       <Grid container bgcolor="white">
         <Grid item xs={1} />
         <Grid item xs={10} sx={{ marginBottom: 10 }}>
+          <Grid container display="flex">
+            <Box
+              sx={{
+                marginTop: 3,
+                marginBottom: 2,
+                width: { sm: 140, xs: 20 },
+                marginRight: 'auto',
+              }}
+            >
+              {prevDocumentUrl && (
+                <Link to={prevDocumentUrl}>
+                  <ChevronLeftIcon sx={{ marginTop: '-2px' }} />{' '}
+                  <Box sx={{ display: { sm: 'inline', xs: 'none' } }}>
+                    Föregående
+                  </Box>
+                </Link>
+              )}
+            </Box>
+            <Box
+              sx={{
+                marginTop: 3,
+                marginBottom: 2,
+                marginLeft: 'auto',
+                marginRight: 'auto',
+              }}
+            >
+              <Link to={`/search?${searchParams.toString()}`}>
+                Alla sökträffar
+              </Link>
+            </Box>
+            <Box
+              sx={{
+                marginTop: 3,
+                marginBottom: 2,
+                width: { sm: 73, xs: 20 },
+                direction: 'row',
+                alignContent: 'end',
+                marginLeft: 'auto',
+                marginRight: 0,
+              }}
+            >
+              {nextDocumentUrl && (
+                <Link to={nextDocumentUrl}>
+                  <Box sx={{ display: { sm: 'inline', xs: 'none' } }}>
+                    Nästa
+                  </Box>
+                  <ChevronRightIcon sx={{ marginTop: '-2px' }} />
+                </Link>
+              )}
+            </Box>
+          </Grid>
+          <Divider sx={{ borderColor: 'red' }} />
           {document ? (
             <>
-              <Grid container display="flex">
-                <Box
-                  sx={{
-                    marginTop: 3,
-                    marginBottom: 2,
-                    width: { sm: 140, xs: 20 },
-                    marginRight: 'auto',
-                  }}
-                >
-                  {prevDocumentUrl && (
-                    <Link to={prevDocumentUrl}>
-                      <ChevronLeftIcon sx={{ marginTop: '-2px' }} />{' '}
-                      <Box sx={{ display: { sm: 'inline', xs: 'none' } }}>
-                        Föregående
-                      </Box>
-                    </Link>
-                  )}
-                </Box>
-                <Box
-                  sx={{
-                    marginTop: 3,
-                    marginBottom: 2,
-                    marginLeft: 'auto',
-                    marginRight: 'auto',
-                  }}
-                >
-                  <Link to={`/search?${searchParams.toString()}`}>
-                    Alla sökträffar
-                  </Link>
-                </Box>
-                <Box
-                  sx={{
-                    marginTop: 3,
-                    marginBottom: 2,
-                    width: { sm: 73, xs: 20 },
-                    direction: 'row',
-                    alignContent: 'end',
-                    marginLeft: 'auto',
-                    marginRight: 0,
-                  }}
-                >
-                  {nextDocumentUrl && (
-                    <Link to={nextDocumentUrl}>
-                      <Box sx={{ display: { sm: 'inline', xs: 'none' } }}>
-                        Nästa
-                      </Box>
-                      <ChevronRightIcon sx={{ marginTop: '-2px' }} />
-                    </Link>
-                  )}
-                </Box>
-              </Grid>
-              <Divider sx={{ borderColor: 'red' }} />
               <Stack
                 direction="row"
                 justifyContent="space-between"
@@ -357,7 +364,13 @@ export const DocumentPage = () => {
               </Stack>
             </>
           ) : (
-            <div style={{ padding: '30px' }}>Felaktigt dokumentid</div>
+            <div style={{ padding: '30px' }}>
+              {documentNotLoaded ? (
+                <>Dokumentet kunde inte hämtas på grund av ett oväntat fel.</>
+              ) : (
+                <>Dokumentet hämtas...</>
+              )}
+            </div>
           )}
         </Grid>
         <Grid item xs={1} />

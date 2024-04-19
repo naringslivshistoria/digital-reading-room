@@ -61,12 +61,14 @@ export const useSearch = ({
   filter,
   sort,
   sortOrder,
+  onError,
 }: {
   query: string | undefined | null
   startIndex: number
   filter: string | undefined | null
   sort: string | undefined | null
   sortOrder: string | undefined | null
+  onError: () => void
 }) =>
   useQuery<SearchResponse, AxiosError>({
     queryKey: ['search', query, startIndex, filter, sort, sortOrder],
@@ -105,6 +107,7 @@ export const useSearch = ({
         return failureCount <= 1
       }
     },
+    onError: onError,
   })
 
 export const useCheckLogin = ({ token }: { token: string | null }) => {
