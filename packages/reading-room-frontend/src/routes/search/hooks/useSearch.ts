@@ -68,7 +68,7 @@ export const useSearch = ({
   filter: string | undefined | null
   sort: string | undefined | null
   sortOrder: string | undefined | null
-  onError: () => void
+  onError?: () => void
 }) =>
   useQuery<SearchResponse, AxiosError>({
     queryKey: ['search', query, startIndex, filter, sort, sortOrder],
