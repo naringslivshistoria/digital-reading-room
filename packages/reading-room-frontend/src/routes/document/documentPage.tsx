@@ -65,7 +65,7 @@ export const DocumentPage = () => {
     filter: filter == undefined ? '' : filter,
     sort,
     sortOrder,
-    onError: onDocumentSearchError,
+    //onError: onDocumentSearchError,
   })
 
   useEffect(() => {
