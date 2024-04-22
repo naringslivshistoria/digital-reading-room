@@ -41,7 +41,7 @@ const checkDocumentAccess = (
   documentIds: string[] | undefined,
   fileNames: string[] | undefined
 ) => {
-  const hasAccessToArchive = (): Boolean => {
+  const hasAccessToArchive = () => {
     let hasAccess = false
     archiveInitiators?.forEach((archiveInitiator) => {
       if (
