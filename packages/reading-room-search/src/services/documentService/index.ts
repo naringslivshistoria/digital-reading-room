@@ -36,12 +36,55 @@ const checkDocumentAccess = (
   document: Document,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
+  series: string[] | undefined,
+  volumes: string[] | undefined,
   documentIds: string[] | undefined,
   fileNames: string[] | undefined
 ) => {
+  const hasAccessToArchive = () => {
+    let hasAccess = false
+    archiveInitiators?.forEach((archiveInitiator) => {
+      if (
+        document.fields.depositor?.value == archiveInitiator.split('>')[0] &&
+        document.fields.archiveInitiator?.value ==
+          archiveInitiator.split('>')[1]
+      ) {
+        hasAccess = true
+      }
+    })
+    return hasAccess
+  }
+  const hasAccessToSeries = () => {
+    series?.forEach((serie) => {
+      if (
+        document.fields.depositor?.value == serie.split('>')[0] &&
+        document.fields.archiveInitiator?.value == serie.split('>')[1] &&
+        document.fields.seriesName?.value == serie.split('>')[2]
+      )
+        return true
+    })
+    return false
+  }
+
+  const hasAccessToVolumes = () => {
+    let hasAccess = false
+    volumes?.forEach((volume) => {
+      if (
+        document.fields.depositor?.value == volume.split('>')[0] &&
+        document.fields.archiveInitiator?.value == volume.split('>')[1] &&
+        document.fields.seriesName?.value == volume.split('>')[2] &&
+        document.fields.volume?.value == volume.split('>')[3]
+      )
+        hasAccess = true
+    })
+    return hasAccess
+  }
+
   const hasAccess =
-    depositors?.includes(document.fields.archiveInitiator?.value) ||
-    archiveInitiators?.includes(document.fields.depositor?.value) ||
+    depositors?.includes(document.fields.depositor?.value) ||
+    hasAccessToArchive() ||
+    hasAccessToSeries() ||
+    hasAccessToVolumes() ||
     documentIds?.includes(document.id.toString()) ||
     fileNames?.includes(document.fields.filename?.toString())
 
@@ -52,6 +95,8 @@ const getDocument = async (
   id: string,
   depositors: string[] | undefined,
   archiveInitiators: string[] | undefined,
+  series: string[] | undefined,
+  volumes: string[] | undefined,
   documentIds: string[] | undefined,
   fileNames: string[] | undefined
 ) => {
@@ -68,6 +113,8 @@ const getDocument = async (
         document,
         depositors,
         archiveInitiators,
+        series,
+        volumes,
         documentIds,
         fileNames
       )
@@ -94,8 +141,10 @@ export const routes = (router: KoaRouter) => {
     try {
       const results = await getDocument(
         id,
-        ctx.state?.user?.archiveInitiators,
         ctx.state?.user?.depositors,
+        ctx.state?.user?.archiveInitiators,
+        ctx.state?.user?.series,
+        ctx.state?.user?.volumes,
         ctx.state?.user?.documentIds,
         ctx.state?.user?.fileNames
       )
@@ -119,8 +168,10 @@ export const routes = (router: KoaRouter) => {
       // that attachment thereby is allowed to be retrieved
       const document = await getDocument(
         id,
-        ctx.state.user.archiveInitiators,
-        ctx.state.user.depositors,
+        ctx.state?.user?.depositors,
+        ctx.state?.user?.archiveInitiators,
+        ctx.state?.user?.series,
+        ctx.state?.user?.volumes,
         ctx.state.user.documentIds,
         ctx.state.user.fileNames
       )
@@ -157,8 +208,10 @@ export const routes = (router: KoaRouter) => {
       // that attachment thereby is allowed to be retrieved
       const document = await getDocument(
         documentId,
-        ctx.state?.user?.archiveInitiators,
         ctx.state?.user?.depositors,
+        ctx.state?.user?.archiveInitiators,
+        ctx.state?.user?.series,
+        ctx.state?.user?.volumes,
         ctx.state?.user?.documentIds,
         ctx.state?.user?.fileNames
       )

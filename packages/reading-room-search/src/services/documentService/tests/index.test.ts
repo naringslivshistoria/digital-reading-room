@@ -37,7 +37,9 @@ const token = jwt.sign(
     sub: 'foo',
     username: 'bar',
     depositors: undefined,
-    archiveInitiators: ['Svenska Arbetsgivareföreningen (SAF)'],
+    archiveInitiators: [
+      'Svenskt Näringsliv>Svenska Arbetsgivareföreningen (SAF)',
+    ],
   },
   config.auth.secret,
   {
@@ -76,11 +78,112 @@ describe('documentService', () => {
       const res = await request(app.callback())
         .get('/document/1337')
         .set('Authorization', 'Bearer ' + token)
-
       expect(res.status).toEqual(200)
       expect(res.body).toEqual({
         results: documentResultMock._source,
       })
+    })
+
+    it("returns 500 if user doesn't have access to that depositor", async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+
+      const unauthorizedToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: ['My Company'],
+          archiveInitiators: [],
+          series: [],
+          volumes: [],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+
+      const res = await request(app.callback())
+        .get('/document/1337')
+        .set('Authorization', 'Bearer ' + unauthorizedToken)
+
+      expect(res.status).toEqual(500)
+      expect(res.text).toEqual('{"results":"error: Error: Document not found"}')
+    })
+
+    it("returns 500 if user doesn't have access to that archiveInitiator", async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+
+      const unauthorizedToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: ['My Company'],
+          archiveInitiators: ['My Company>My Archive'],
+          series: [],
+          volumes: [],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+
+      const res = await request(app.callback())
+        .get('/document/1337')
+        .set('Authorization', 'Bearer ' + unauthorizedToken)
+
+      expect(res.status).toEqual(500)
+      expect(res.text).toEqual('{"results":"error: Error: Document not found"}')
+    })
+    it("returns 500 if user doesn't have access to that series", async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+
+      const unauthorizedToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: [],
+          archiveInitiators: [],
+          series: ['My Company>My Archive>My First Serie'],
+          volumes: [],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+
+      const res = await request(app.callback())
+        .get('/document/1337')
+        .set('Authorization', 'Bearer ' + unauthorizedToken)
+
+      expect(res.status).toEqual(500)
+      expect(res.text).toEqual('{"results":"error: Error: Document not found"}')
+    })
+    it("returns 500 if user doesn't have access to that volume", async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+
+      const unauthorizedToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: [],
+          archiveInitiators: [],
+          series: [],
+          volumes: ['My Company>My Archive>My First Serie>Volume 1'],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+
+      const res = await request(app.callback())
+        .get('/document/1337')
+        .set('Authorization', 'Bearer ' + unauthorizedToken)
+
+      expect(res.status).toEqual(500)
+      expect(res.text).toEqual('{"results":"error: Error: Document not found"}')
     })
 
     it("returns 500 if user doesn't have access to that document", async () => {
@@ -90,8 +193,8 @@ describe('documentService', () => {
         {
           sub: 'foo',
           username: 'bar',
-          depositors: undefined,
-          archiveInitiators: undefined,
+          depositors: [],
+          archiveInitiators: [],
           documentIds: [737],
         },
         config.auth.secret,
