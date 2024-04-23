@@ -20,16 +20,10 @@ export const routes = (router: KoaRouter) => {
         visualSize: 3,
       },
       {
-        fieldName: 'pageType',
+        fieldName: 'attachmentType',
         displayName: 'Mediatyp',
         filterType: FilterType.values,
-        visualSize: 2,
-      },
-      {
-        fieldName: 'attachmentType',
-        displayName: 'Mediatyp 2',
-        filterType: FilterType.values,
-        visualSize: 2,
+        visualSize: 3,
       },
       {
         fieldName: 'depositor',
