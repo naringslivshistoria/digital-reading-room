@@ -107,7 +107,6 @@ describe('documentService', () => {
         .get('/document/1337')
         .set('Authorization', 'Bearer ' + aToken)
 
-      console.log('res.body', res.body)
       expect(res.status).toEqual(200)
       expect(res.body).toEqual({
         results: documentResultMock._source,
@@ -137,7 +136,6 @@ describe('documentService', () => {
         .get('/document/1337')
         .set('Authorization', 'Bearer ' + aToken)
 
-      console.log('res.body', res.body)
       expect(res.status).toEqual(200)
       expect(res.body).toEqual({
         results: documentResultMock._source,
