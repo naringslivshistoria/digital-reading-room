@@ -295,6 +295,7 @@ export default {
               value: '',
             },
           },
+          attachmentType: 'Document (pdf, doc, mm)',
           pages: [
             {
               pageType: 'Pdf',
