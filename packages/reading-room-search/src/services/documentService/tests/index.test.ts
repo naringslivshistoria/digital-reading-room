@@ -84,6 +84,93 @@ describe('documentService', () => {
       })
     })
 
+    it('returns a document for a user with series access and acess to another deponent', async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+
+      const aToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: ['My Company'],
+          archiveInitiators: [],
+          series: [
+            'Svenskt Näringsliv>Svenska Arbetsgivareföreningen (SAF)>SAF-tidningen',
+          ],
+          volumes: [],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+      const res = await request(app.callback())
+        .get('/document/1337')
+        .set('Authorization', 'Bearer ' + aToken)
+
+      expect(res.status).toEqual(200)
+      expect(res.body).toEqual({
+        results: documentResultMock._source,
+      })
+    })
+
+    it('returns a document for a user with volume access and acess to another deponent', async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+
+      const aToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: ['My Company'],
+          archiveInitiators: [],
+          series: [],
+          volumes: [
+            'Svenskt Näringsliv>Svenska Arbetsgivareföreningen (SAF)>SAF-tidningen>13',
+          ],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+      const res = await request(app.callback())
+        .get('/document/1337')
+        .set('Authorization', 'Bearer ' + aToken)
+
+      expect(res.status).toEqual(200)
+      expect(res.body).toEqual({
+        results: documentResultMock._source,
+      })
+    })
+
+    it('returns a document for a user with archive access and acess to another series', async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+
+      const aToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: [],
+          archiveInitiators: [
+            'Svenskt Näringsliv>Svenska Arbetsgivareföreningen (SAF)',
+          ],
+          series: ['My Company>My Archive>My First Series'],
+          volumes: [],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+      const res = await request(app.callback())
+        .get('/document/1337')
+        .set('Authorization', 'Bearer ' + aToken)
+
+      expect(res.status).toEqual(200)
+      expect(res.body).toEqual({
+        results: documentResultMock._source,
+      })
+    })
+
     it("returns 500 if user doesn't have access to that depositor", async () => {
       jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
 

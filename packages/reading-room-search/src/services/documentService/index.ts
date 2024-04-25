@@ -55,15 +55,16 @@ const checkDocumentAccess = (
     return hasAccess
   }
   const hasAccessToSeries = () => {
+    let hasAccess = false
     series?.forEach((serie) => {
       if (
         document.fields.depositor?.value == serie.split('>')[0] &&
         document.fields.archiveInitiator?.value == serie.split('>')[1] &&
         document.fields.seriesName?.value == serie.split('>')[2]
       )
-        return true
+        hasAccess = true
     })
-    return false
+    return hasAccess
   }
 
   const hasAccessToVolumes = () => {
