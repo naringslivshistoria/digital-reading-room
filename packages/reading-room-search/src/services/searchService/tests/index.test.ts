@@ -88,6 +88,16 @@ describe('searchService', () => {
               { key: 'Excel', doc_count: 476 },
             ],
           },
+          attachmentType: {
+            doc_count_error_upper_bound: 0,
+            sum_other_doc_count: 0,
+            buckets: [
+              { key: 'Dokument (pdf, doc, mm...)', doc_count: 476 },
+              { key: 'Dokument (inscannat)', doc_count: 476 },
+              { key: 'Foto', doc_count: 476 },
+              { key: 'Ljud & video', doc_count: 476 },
+            ],
+          },
           seriesName: {
             doc_count_error_upper_bound: 0,
             sum_other_doc_count: 0,
@@ -279,16 +289,20 @@ describe('searchService', () => {
         .set('Authorization', 'Bearer ' + authorizedToken)
 
       const pageTypeFilter = resp.body.find(
-        (f: FieldFilterConfig) => f.fieldName == 'pageType'
+        (f: FieldFilterConfig) => f.fieldName == 'attachmentType'
       )
 
       expect(pageTypeFilter).toEqual({
-        fieldName: 'pageType',
+        fieldName: 'attachmentType',
         displayName: 'Mediatyp',
         filterType: 1,
-        visualSize: 2,
-        values: ['Bild (Foton & Inscanningar)', 'Dokument', 'Ljud & Video'],
-        allValues: ['Bild (Foton & Inscanningar)', 'Dokument', 'Ljud & Video'],
+        visualSize: 3,
+        values: [
+          'Dokument (inscannat)',
+          'Dokument (pdf, doc, mm...)',
+          'Foto',
+          'Ljud & video',
+        ],
       })
     })
   })
