@@ -42,6 +42,7 @@ const authorizedToken = jwt.sign(
     sub: 'foo',
     username: 'bar',
     depositors: ['Svenska Arbetsgivareföreningen (SAF)'],
+    // depositors: ['Svenskt Näringsliv'], //Svenska Arbetsgivareföreningen (SAF)'],
     archiveInitiators: [],
   },
   'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
