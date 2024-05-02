@@ -171,6 +171,34 @@ describe('documentService', () => {
       })
     })
 
+    it('returns a document for a user with fileName access', async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+
+      const aToken = jwt.sign(
+        {
+          sub: 'foo',
+          username: 'bar',
+          depositors: ['My Company'],
+          archiveInitiators: [],
+          series: [],
+          volumes: [],
+          fileNames: ['DA-2016-040576-SAF_Arbetsgivaren_14_1966_21.pdf'],
+        },
+        config.auth.secret,
+        {
+          expiresIn: config.auth.expiresIn,
+        }
+      )
+      const res = await request(app.callback())
+        .get('/document/1337')
+        .set('Authorization', 'Bearer ' + aToken)
+
+      expect(res.status).toEqual(200)
+      expect(res.body).toEqual({
+        results: documentResultMock._source,
+      })
+    })
+
     it("returns 500 if user doesn't have access to that depositor", async () => {
       jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
 
