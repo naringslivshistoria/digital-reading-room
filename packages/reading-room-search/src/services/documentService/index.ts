@@ -87,7 +87,7 @@ const checkDocumentAccess = (
     hasAccessToSeries() ||
     hasAccessToVolumes() ||
     documentIds?.includes(document.id.toString()) ||
-    fileNames?.includes(document.fields.filename?.toString())
+    fileNames?.includes(document.fields.filename?.value.toString())
 
   return hasAccess
 }
