@@ -188,7 +188,7 @@ const createAccessFilter = (
   return accessFilter.length == 0 ? undefined : accessFilter
 }
 
-const createSearchQuery = (
+export const createSearchQuery = (
   queryString: string | undefined,
   accessFilter: QueryDslQueryContainer[] | undefined,
   filterString: string | undefined
@@ -246,7 +246,7 @@ const createSearchQuery = (
         const terms: { [k: string]: string[] } = {}
         terms[`${getFullFieldName(filterTerm[0])}`] = filterTerm[1]
           .split('%%')
-          .map((t) => t.split(' - ').slice(-1)[0])
+          .map((t) => t.split(/ - (.*)/s).slice(-2)[0])
         searchQuery.bool.must.push({
           terms,
         })
