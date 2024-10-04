@@ -103,6 +103,7 @@ const indexTranslatedNames: IndexName = {
   ägare: 'owner',
   beskrivning: 'description',
   försäkringsnummer: 'insuranceNumber',
+  nummer: 'number',
   '1': 'motiveId',
   '2': 'filename',
   '3': 'title',
