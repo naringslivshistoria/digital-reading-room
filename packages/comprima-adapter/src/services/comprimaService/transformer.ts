@@ -102,8 +102,12 @@ const indexTranslatedNames: IndexName = {
   gatunr: 'streetNumber',
   ägare: 'owner',
   beskrivning: 'description',
-  försäkringsnummer: 'insuranceNumber',
   nummer: 'number',
+  försäkringsnummer: 'insuranceNumber',
+  arkitekt: 'architect',
+  utförande: 'make',
+  skala: 'scale',
+  dokumenttyp: 'documentType',
   '1': 'motiveId',
   '2': 'filename',
   '3': 'title',
@@ -204,7 +208,7 @@ const transformDocument = (xmlDocument: ComprimaDocument): Document => {
       ],
     }
   } catch (error) {
-    console.error(
+    console.log(
       `Error transforming document`,
       JSON.stringify(xmlDocument, null, 2)
     )

@@ -278,7 +278,7 @@ export function SearchResult({
                       sx={{ display: { xs: 'none', sm: 'block' } }}
                     >
                       <Typography variant="h4">ARKITEKT</Typography>
-                      {document.fields['arkitekt']?.value}
+                      {document.fields['architect']?.value}
                     </Grid>
                     <Grid
                       item
@@ -286,7 +286,7 @@ export function SearchResult({
                       sx={{ display: { xs: 'none', sm: 'block' } }}
                     >
                       <Typography variant="h4">DOKUMENTTYP</Typography>
-                      {document.fields.dokumenttyp?.value}
+                      {document.fields.documentType?.value}
                     </Grid>
                     <Grid
                       item

@@ -181,29 +181,28 @@ export const metaDataFieldConfigurations: Dictionary<
       sm: 4,
     },
     {
-      fieldName: 'arkitekt',
+      fieldName: 'architect',
       heading: 'ARKITEKT',
       type: MetaDataFieldType.TextField,
       xs: 6,
       sm: 4,
     },
     {
-      //stämmer denna? visas ej
-      fieldName: 'utförande',
+      fieldName: 'make',
       heading: 'UTFÖRANDE',
       type: MetaDataFieldType.TextField,
       xs: 6,
       sm: 4,
     },
     {
-      fieldName: 'skala',
+      fieldName: 'scale',
       heading: 'SKALA',
       type: MetaDataFieldType.TextField,
       xs: 6,
       sm: 4,
     },
     {
-      fieldName: 'dokumenttyp',
+      fieldName: 'documentType',
       heading: 'DOKUMENTTYP',
       type: MetaDataFieldType.TextField,
       xs: 6,
