@@ -263,65 +263,111 @@ export function SearchResult({
                   </Typography>
                   ({document.fields.archiveInitiator?.value})
                 </Link>
-                <Grid
-                  container
-                  rowSpacing={{ xs: 1, sm: 2 }}
-                  columnSpacing={{ xs: 1, sm: 2 }}
-                >
+
+                {document.fields.archiveInitiator?.value ==
+                  'Hantverkslotteriet' && (
                   <Grid
-                    item
-                    md={8}
-                    sx={{ display: { xs: 'none', sm: 'block' } }}
+                    container
+                    rowSpacing={{ xs: 1, sm: 2 }}
+                    columnSpacing={{ xs: 1, sm: 2 }}
                   >
-                    <MetaDataField
-                      document={document}
-                      heading="BESKRIVNING"
-                      fieldName={'description'}
-                    />
+                    <Grid
+                      item
+                      xs={0}
+                      sm={4}
+                      sx={{ display: { xs: 'none', sm: 'block' } }}
+                    >
+                      <Typography variant="h4">ARKITEKT</Typography>
+                      {document.fields['architect']?.value}
+                    </Grid>
+                    <Grid
+                      item
+                      sm={4}
+                      sx={{ display: { xs: 'none', sm: 'block' } }}
+                    >
+                      <Typography variant="h4">DOKUMENTTYP</Typography>
+                      {document.fields.documentType?.value}
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      sm={4}
+                      sx={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      <MetaDataField
+                        document={document}
+                        heading="ÅR"
+                        fieldName={'year'}
+                      />
+                    </Grid>
                   </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <MetaDataField
-                      document={document}
-                      heading="ÅRTAL"
-                      fieldName={'time'}
-                    />
-                  </Grid>
+                )}
+                {document.fields.archiveInitiator?.value !=
+                  'Hantverkslotteriet' && (
                   <Grid
-                    item
-                    xs={0}
-                    sm={4}
-                    sx={{ display: { xs: 'none', sm: 'block' } }}
+                    container
+                    rowSpacing={{ xs: 1, sm: 2 }}
+                    columnSpacing={{ xs: 1, sm: 2 }}
                   >
-                    <Typography variant="h4">GEOGRAFI</Typography>
-                    {createGeographyString(document)}
+                    <Grid
+                      item
+                      md={8}
+                      sx={{ display: { xs: 'none', sm: 'block' } }}
+                    >
+                      <MetaDataField
+                        document={document}
+                        heading="BESKRIVNING"
+                        fieldName={'description'}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <MetaDataField
+                        document={document}
+                        heading="ÅRTAL"
+                        fieldName={'time'}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      xs={0}
+                      sm={4}
+                      sx={{ display: { xs: 'none', sm: 'block' } }}
+                    >
+                      <Typography variant="h4">GEOGRAFI</Typography>
+                      {createGeographyString(document)}
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      sm={4}
+                      sx={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      <MetaDataField
+                        document={document}
+                        heading="MOTIVID"
+                        fieldName={'motiveId'}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      sm={4}
+                      sx={{ display: { xs: 'none', sm: 'block' } }}
+                    >
+                      <Typography variant="h4">MEDIETYP</Typography>
+                      {document.pages[0].pageType} (
+                      {document.fields.format?.value})<br />
+                      {document.fields.filename?.value}
+                    </Grid>
                   </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    sm={4}
-                    sx={{
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    <MetaDataField
-                      document={document}
-                      heading="MOTIVID"
-                      fieldName={'motiveId'}
-                    />
-                  </Grid>
-                  <Grid
-                    item
-                    sm={4}
-                    sx={{ display: { xs: 'none', sm: 'block' } }}
-                  >
-                    <Typography variant="h4">MEDIETYP</Typography>
-                    {document.pages[0].pageType} (
-                    {document.fields.format?.value})<br />
-                    {document.fields.filename?.value}
-                  </Grid>
-                </Grid>
+                )}
               </Stack>
               <Grid />
             </Grid>
