@@ -20,7 +20,7 @@ import { createGeographyString } from '..'
 import { Document } from '../../../common/types'
 import noImage from '../../../../assets/no-image.png'
 import { MetaDataField } from '../../../components/metaDataField'
-
+import { createMediaTypeField } from '../utils/createGeographyString'
 interface Props {
   documents: Document[] | undefined
   query: string | undefined
@@ -373,9 +373,7 @@ export function SearchResult({
                       sx={{ display: { xs: 'none', sm: 'block' } }}
                     >
                       <Typography variant="h4">MEDIETYP</Typography>
-                      {document.pages[0].pageType} (
-                      {document.fields.format?.value})<br />
-                      {document.fields.filename?.value}
+                      {createMediaTypeField(document)}
                     </Grid>
                   </Grid>
                 )}
