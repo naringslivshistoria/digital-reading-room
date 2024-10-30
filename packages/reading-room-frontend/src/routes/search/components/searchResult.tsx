@@ -20,7 +20,7 @@ import { createGeographyString } from '..'
 import { Document } from '../../../common/types'
 import noImage from '../../../../assets/no-image.png'
 import { MetaDataField } from '../../../components/metaDataField'
-
+import { createMediaTypeField } from '../utils/createGeographyString'
 interface Props {
   documents: Document[] | undefined
   query: string | undefined
@@ -87,10 +87,21 @@ export function SearchResult({
 
   const handleSortChange = (event: any) => {
     onSorting(event.target.value, sortOrder)
-    setEnableSortOrder(event.target.value != 'relevance')
+    setEnableSortOrder(event.target.value !== 'relevance')
+    setSearchParams((currentParams: URLSearchParams) => {
+      currentParams.set('sort', event.target.value)
+      event.target.value === 'relevance'
+        ? currentParams.delete('sortOrder')
+        : currentParams.set('sortOrder', sortOrder)
+      return currentParams
+    })
   }
   const handleSortOrderChange = (event: any) => {
     onSorting(sort, event.target.value)
+    setSearchParams((currentParams: URLSearchParams) => {
+      currentParams.set('sortOrder', event.target.value)
+      return currentParams
+    })
   }
 
   return (
@@ -362,9 +373,7 @@ export function SearchResult({
                       sx={{ display: { xs: 'none', sm: 'block' } }}
                     >
                       <Typography variant="h4">MEDIETYP</Typography>
-                      {document.pages[0].pageType} (
-                      {document.fields.format?.value})<br />
-                      {document.fields.filename?.value}
+                      {createMediaTypeField(document)}
                     </Grid>
                   </Grid>
                 )}
