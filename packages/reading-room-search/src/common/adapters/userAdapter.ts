@@ -59,6 +59,14 @@ export const getUser = async (username: string) => {
   return user
 }
 
+export const getDepositors = async (username: string) => {
+  const depositors = await db
+    .select('depositors')
+    .from<User>('users')
+    .where('username', username)
+  return depositors[0].depositors
+}
+
 export const updateUserFailedLoginAttempts = async (
   userId: number,
   attempts: number

@@ -23,7 +23,6 @@ export const useIsLoggedIn = (enabled: boolean) =>
       const { data } = await axios.get<IsLoggedInResponse>(
         `${searchUrl}/auth/is-logged-in`
       )
-
       return data
     },
     retry: false,
@@ -34,4 +33,6 @@ export const useIsLoggedIn = (enabled: boolean) =>
     // expired since that hook has staletime 0 and always makes a network call.
     staleTime: 10 * 60 * 1000,
     enabled: enabled,
+    refetchInterval: 1 * 60 * 1000,
+    refetchOnWindowFocus: true,
   })
