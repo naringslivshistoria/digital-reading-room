@@ -87,10 +87,21 @@ export function SearchResult({
 
   const handleSortChange = (event: any) => {
     onSorting(event.target.value, sortOrder)
-    setEnableSortOrder(event.target.value != 'relevance')
+    setEnableSortOrder(event.target.value !== 'relevance')
+    setSearchParams((currentParams: URLSearchParams) => {
+      currentParams.set('sort', event.target.value)
+      event.target.value === 'relevance'
+        ? currentParams.delete('sortOrder')
+        : currentParams.set('sortOrder', sortOrder)
+      return currentParams
+    })
   }
   const handleSortOrderChange = (event: any) => {
     onSorting(sort, event.target.value)
+    setSearchParams((currentParams: URLSearchParams) => {
+      currentParams.set('sortOrder', event.target.value)
+      return currentParams
+    })
   }
 
   return (
