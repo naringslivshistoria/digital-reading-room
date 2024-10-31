@@ -25,4 +25,23 @@ interface Dictionary<Type> {
   [key: string]: Type
 }
 
+export interface CreateAccountFormData {
+  username: string
+  secondUsername: string
+  firstName: string
+  lastName: string
+  organization: string
+  password: string
+  retypePassword: string
+}
+
+export interface CreateAccountFormErrors {
+  username: string
+  secondUsername: string
+  firstName: string
+  lastName: string
+  password: string
+  retypePassword: string
+}
+
 export type { Document, Dictionary, Field, Fields }

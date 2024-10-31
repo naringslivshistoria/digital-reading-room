@@ -1,114 +1,168 @@
 import { useEffect, useState } from 'react'
-import { TextField, Button, Alert, Grid, Typography } from '@mui/material'
-import { Stack } from '@mui/system'
+import {
+  TextField,
+  Button,
+  Alert,
+  Grid,
+  Typography,
+  Box,
+  Container,
+} from '@mui/material'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
-
 import { SiteHeader } from '../../components/siteHeader'
+import {
+  CreateAccountFormData,
+  CreateAccountFormErrors,
+} from '../../common/types'
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || '/api'
 
 export const CreateAccountPage = () => {
-  const [username, setUsername] = useState<string>('')
-  const [secondUsername, setSecondUsername] = useState<string>('')
-  const [firstName, setFirstName] = useState<string>('')
-  const [lastName, setLastName] = useState<string>('')
-  const [organization, setOrganization] = useState<string>('')
-  const [password, setPassword] = useState<string>('')
-  const [retypePassword, setRetypePassword] = useState<string>('')
-  const [error, setError] = useState<boolean>(false)
-  const [duplicateError, setDuplicateError] = useState<boolean>(false)
-  const [validationError, setValidationError] = useState<boolean>(false)
-  const [emailFormatValidationError, setEmailFormatValidationError] =
-    useState<boolean>(false)
-  const [emailValidationError, setEmailValidationError] =
-    useState<boolean>(false)
-  const [passwordValidationError, setPasswordValidationError] =
-    useState<boolean>(false)
+  const [formData, setFormData] = useState<CreateAccountFormData>({
+    username: '',
+    secondUsername: '',
+    firstName: '',
+    lastName: '',
+    organization: '',
+    password: '',
+    retypePassword: '',
+  })
 
-  const [accountCreated, setAccountCreated] = useState<boolean>(false)
+  const [errors, setErrors] = useState<CreateAccountFormErrors>({
+    username: '',
+    secondUsername: '',
+    firstName: '',
+    lastName: '',
+    password: '',
+    retypePassword: '',
+  })
+
+  const [submitError, setSubmitError] = useState<string>('')
+  const [accountCreated, setAccountCreated] = useState(false)
 
   const validateEmailFormat = (email: string) => {
     return String(email)
       .toLowerCase()
-      .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      )
+      .match(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i)
   }
 
-  const doCreateAccount = async () => {
-    setError(false)
-    setDuplicateError(false)
+  const handleInputChange =
+    (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: event.target.value,
+      }))
 
-    if (username == '' || firstName == '' || lastName == '' || password == '') {
-      setValidationError(true)
-      return
+      setErrors((prev) => ({
+        ...prev,
+        [field]: '',
+      }))
     }
 
-    if (password != retypePassword) {
-      setPasswordValidationError(true)
-      return
+  const validateForm = (): boolean => {
+    const newErrors: CreateAccountFormErrors = {
+      username: '',
+      secondUsername: '',
+      firstName: '',
+      lastName: '',
+      password: '',
+      retypePassword: '',
     }
 
-    if (!validateEmailFormat(username)) {
-      setEmailFormatValidationError(true)
-      return
+    let isValid = true
+
+    if (!formData.username) {
+      newErrors.username = 'E-postadress krävs'
+      isValid = false
+    } else if (!validateEmailFormat(formData.username)) {
+      newErrors.username = 'Ogiltig e-postadress'
+      isValid = false
     }
 
-    if (username != secondUsername) {
-      setEmailValidationError(true)
-      return
+    if (formData.username !== formData.secondUsername) {
+      newErrors.secondUsername = 'E-postadresserna matchar inte'
+      isValid = false
     }
 
-    setValidationError(false)
-    setEmailFormatValidationError(false)
-    setEmailValidationError(false)
+    if (!formData.firstName) {
+      newErrors.firstName = 'Förnamn krävs'
+      isValid = false
+    }
+
+    if (!formData.lastName) {
+      newErrors.lastName = 'Efternamn krävs'
+      isValid = false
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Lösenord krävs'
+      isValid = false
+    }
+
+    if (formData.password.length < 8) {
+      newErrors.password = 'Lösenordet måste vara minst 8 tecken långt'
+      isValid = false
+    }
+
+    if (formData.password !== formData.retypePassword) {
+      newErrors.retypePassword = 'Lösenorden matchar inte'
+      isValid = false
+    }
+
+    setErrors(newErrors)
+    return isValid
+  }
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setSubmitError('')
+
+    if (!validateForm()) {
+      return
+    }
 
     try {
-      const result = await axios(`${backendUrl}/auth/create-account`, {
-        method: 'post',
-        data: {
-          username,
-          firstName,
-          lastName,
-          organization,
-          password,
-        },
+      const result = await axios.post(`${backendUrl}/auth/create-account`, {
+        username: formData.username,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        organization: formData.organization,
+        password: formData.password,
       })
 
       if (result.status === 200) {
         setAccountCreated(true)
-      } else {
-        setError(true)
       }
     } catch (error: any) {
-      console.error(error)
-      if (error.response.data.error == 'Username is already in use')
-        setDuplicateError(true)
-      else setError(true)
+      if (error.response?.data?.error === 'Username is already in use') {
+        setSubmitError(
+          'E-postadressen används redan. Använd funktionen för glömt lösenord för att återställa ditt befintliga konto.'
+        )
+      } else {
+        setSubmitError('Ett fel uppstod när kontot skulle skapas')
+      }
     }
   }
 
-  useEffect(() => {
-    if (
-      error ||
-      validationError ||
-      emailValidationError ||
-      emailFormatValidationError
-    )
-      window.scrollTo(0, document.body.scrollHeight)
-  }, [error, validationError, emailValidationError, emailFormatValidationError])
+  const fields = [
+    { field: 'username', label: 'E-postadress*', type: 'email' },
+    {
+      field: 'secondUsername',
+      label: 'Upprepa e-postadress*',
+      type: 'email',
+    },
+    { field: 'firstName', label: 'Förnamn*' },
+    { field: 'lastName', label: 'Efternamn*' },
+    { field: 'password', label: 'Lösenord*', type: 'password' },
+    {
+      field: 'retypePassword',
+      label: 'Upprepa lösenord*',
+      type: 'password',
+    },
+    { field: 'organization', label: 'Organisation' },
+  ]
 
-  useEffect(() => {
-    if (username && firstName && lastName) setValidationError(false)
-  }, [username, firstName, lastName])
-
-  useEffect(() => {
-    if (validateEmailFormat(username)) setEmailFormatValidationError(false)
-    if (username == secondUsername) setEmailValidationError(false)
-  }, [username, secondUsername])
-
-  emailValidationError
   return (
     <>
       <SiteHeader />
@@ -121,144 +175,72 @@ export const CreateAccountPage = () => {
           >
             Skapa konto
           </Typography>
-          {accountCreated && (
-            <Typography variant="body1">
+
+          {accountCreated ? (
+            <Typography>
               Ditt nya konto i den digitala läsesalen är nu redo att användas!
             </Typography>
-          )}
-          {!accountCreated && (
-            <>
-              <Typography variant="body1">
+          ) : (
+            <Box component="form" onSubmit={handleSubmit} noValidate>
+              <Typography sx={{ mb: 3 }}>
                 Alla som använder digitala läsesalen behöver skapa ett eget
                 (kostnadsfritt) konto för att kunna logga in:
               </Typography>
 
-              <Stack rowGap={2} justifyContent="flex-start">
-                <TextField
-                  id="username"
-                  onChange={(e) => {
-                    setUsername(e.target.value)
-                  }}
-                  value={username}
-                  label="E-postadress*"
-                  variant="standard"
-                  type="email"
-                />
-                <TextField
-                  id="secondUsername"
-                  onChange={(e) => {
-                    setSecondUsername(e.target.value)
-                  }}
-                  value={secondUsername}
-                  label="Upprepa e-postadress*"
-                  variant="standard"
-                  type="email"
-                />
-                <TextField
-                  id="firstName"
-                  onChange={(e) => {
-                    setFirstName(e.target.value)
-                  }}
-                  value={firstName}
-                  label="Förnamn*"
-                  variant="standard"
-                />
-                <TextField
-                  id="lastName"
-                  onChange={(e) => {
-                    setLastName(e.target.value)
-                  }}
-                  value={lastName}
-                  label="Efternamn*"
-                  variant="standard"
-                />
-                <TextField
-                  id="password"
-                  onChange={(e) => {
-                    setPassword(e.target.value)
-                  }}
-                  value={password}
-                  label="Lösenord*"
-                  variant="standard"
-                />
-                <TextField
-                  id="retypePassword"
-                  onChange={(e) => {
-                    setRetypePassword(e.target.value)
-                  }}
-                  value={retypePassword}
-                  label="Retype lösenord*"
-                  variant="standard"
-                />
-                <TextField
-                  id="organization"
-                  onChange={(e) => {
-                    setOrganization(e.target.value)
-                  }}
-                  value={organization}
-                  label="Organisation"
-                  variant="standard"
-                />
-                <Button
-                  variant="text"
-                  onClick={doCreateAccount}
-                  sx={{
-                    marginTop: 2,
-                    borderRadius: 0,
-                    bgcolor: '#53565a',
+              <Grid container spacing={2}>
+                {fields.map(({ field, label, type }) => (
+                  <Grid item xs={12} key={field}>
+                    <TextField
+                      fullWidth
+                      id={field}
+                      name={field}
+                      label={label}
+                      type={type || 'text'}
+                      value={formData[field as keyof typeof formData]}
+                      onChange={handleInputChange(field)}
+                      error={!!errors[field as keyof CreateAccountFormErrors]}
+                      helperText={
+                        errors[field as keyof CreateAccountFormErrors]
+                      }
+                      variant="standard"
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="text"
+                sx={{
+                  marginTop: 2,
+                  borderRadius: 0,
+                  bgcolor: '#53565a',
+                  color: 'white',
+                  '&:hover': {
+                    backgroundColor: 'secondary.main',
                     color: 'white',
-                    '&:hover': {
-                      backgroundColor: 'secondary.main',
-                      color: 'white',
-                    },
-                  }}
-                >
-                  Skapa konto
-                </Button>
-                <Typography variant="body1">* Obligatoriska fält</Typography>
-                {emailFormatValidationError && (
-                  <Alert severity="warning">
-                    E-postadressen måste vara en giltig e-postadress
-                  </Alert>
-                )}
-                {emailValidationError && (
-                  <Alert severity="warning">
-                    E-postadressen måste fyllas i två gånger. Stämmer
-                    stavningen?
-                  </Alert>
-                )}
-                {passwordValidationError && (
-                  <Alert severity="warning">
-                    Lösenorden måste vara identiska.
-                  </Alert>
-                )}
-                {validationError && (
-                  <Alert severity="warning">
-                    För att skapa konto måste du fylla i alla obligatoriska
-                    fält:
-                    <ul>
-                      <li>&ndash; E-postadress</li>
-                      <li>&ndash; Förnamn</li>
-                      <li>&ndash; Efternamn</li>
-                      <li>&ndash; Lösenord</li>
-                    </ul>
-                  </Alert>
-                )}
-                {error && (
-                  <Alert severity="error">
-                    Något gick fel när ditt konto skulle skapas
-                  </Alert>
-                )}
-                {duplicateError && (
-                  <Alert severity="error">
-                    E-postadressen används redan. Ett nytt konto har inte
-                    skapats. Använd funktionen för{' '}
-                    <Link to="/login">Glömt lösenord</Link> för att skapa ett
-                    nytt lösenord på ditt befintliga konto
-                  </Alert>
-                )}
-              </Stack>
-            </>
+                  },
+                }}
+              >
+                Skapa konto
+              </Button>
+
+              <Typography variant="body2" sx={{ mt: 2, mb: 2 }}>
+                * Obligatoriska fält
+              </Typography>
+
+              {submitError && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  {submitError}
+                  {submitError.includes('används redan') && (
+                    <Box component="span" sx={{ ml: 1 }}>
+                      <Link to="/login">Gå till inloggning</Link>
+                    </Box>
+                  )}
+                </Alert>
+              )}
+            </Box>
           )}
         </Grid>
         <Grid item xs={0} md={5} lg={7}></Grid>

@@ -240,12 +240,12 @@ export const routes = (router: KoaRouter) => {
 
     try {
       const subject = 'Välkommen till digitala läsesalen'
-      const body = `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n\n
-        Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n\n
-        Har du några andra frågor, hör av dig till info@naringslivshistoria.se.\n\n
-        Välkommen att börja söka!\n\n
-        Centrum för Näringslivshistoria\n
-        www.naringslivshistoria.se`
+      const body = `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
+Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n
+Har du några andra frågor, hör av dig till info@naringslivshistoria.se.\n
+Välkommen att börja söka!\n
+Centrum för Näringslivshistoria
+www.naringslivshistoria.se`
 
       await sendEmail(ctx.request.body.username as string, subject, body)
     } catch (error: unknown) {
