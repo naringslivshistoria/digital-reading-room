@@ -17,11 +17,7 @@ const db = knex({
 
 export const createUser = async (user: User): Promise<void> => {
   try {
-    await db('users').insert({
-      ...user,
-      salt: '',
-      password_hash: '',
-    })
+    await db('users').insert(user)
   } catch (error: unknown) {
     if (!(error instanceof Error)) {
       throw error

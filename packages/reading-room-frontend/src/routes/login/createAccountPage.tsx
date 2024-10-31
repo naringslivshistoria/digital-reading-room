@@ -14,12 +14,16 @@ export const CreateAccountPage = () => {
   const [firstName, setFirstName] = useState<string>('')
   const [lastName, setLastName] = useState<string>('')
   const [organization, setOrganization] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [retypePassword, setRetypePassword] = useState<string>('')
   const [error, setError] = useState<boolean>(false)
   const [duplicateError, setDuplicateError] = useState<boolean>(false)
   const [validationError, setValidationError] = useState<boolean>(false)
   const [emailFormatValidationError, setEmailFormatValidationError] =
     useState<boolean>(false)
   const [emailValidationError, setEmailValidationError] =
+    useState<boolean>(false)
+  const [passwordValidationError, setPasswordValidationError] =
     useState<boolean>(false)
 
   const [accountCreated, setAccountCreated] = useState<boolean>(false)
@@ -36,8 +40,13 @@ export const CreateAccountPage = () => {
     setError(false)
     setDuplicateError(false)
 
-    if (username == '' || firstName == '' || lastName == '') {
+    if (username == '' || firstName == '' || lastName == '' || password == '') {
       setValidationError(true)
+      return
+    }
+
+    if (password != retypePassword) {
+      setPasswordValidationError(true)
       return
     }
 
@@ -63,6 +72,7 @@ export const CreateAccountPage = () => {
           firstName,
           lastName,
           organization,
+          password,
         },
       })
 
@@ -114,8 +124,6 @@ export const CreateAccountPage = () => {
           {accountCreated && (
             <Typography variant="body1">
               Ditt nya konto i den digitala läsesalen är nu redo att användas!
-              En länk för att välja lösenord har skickats till e-postadressen du
-              valt.
             </Typography>
           )}
           {!accountCreated && (
@@ -165,6 +173,24 @@ export const CreateAccountPage = () => {
                   variant="standard"
                 />
                 <TextField
+                  id="password"
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                  }}
+                  value={password}
+                  label="Lösenord*"
+                  variant="standard"
+                />
+                <TextField
+                  id="retypePassword"
+                  onChange={(e) => {
+                    setRetypePassword(e.target.value)
+                  }}
+                  value={retypePassword}
+                  label="Retype lösenord*"
+                  variant="standard"
+                />
+                <TextField
                   id="organization"
                   onChange={(e) => {
                     setOrganization(e.target.value)
@@ -201,6 +227,11 @@ export const CreateAccountPage = () => {
                     stavningen?
                   </Alert>
                 )}
+                {passwordValidationError && (
+                  <Alert severity="warning">
+                    Lösenorden måste vara identiska.
+                  </Alert>
+                )}
                 {validationError && (
                   <Alert severity="warning">
                     För att skapa konto måste du fylla i alla obligatoriska
@@ -209,6 +240,7 @@ export const CreateAccountPage = () => {
                       <li>&ndash; E-postadress</li>
                       <li>&ndash; Förnamn</li>
                       <li>&ndash; Efternamn</li>
+                      <li>&ndash; Lösenord</li>
                     </ul>
                   </Alert>
                 )}
