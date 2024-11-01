@@ -205,7 +205,8 @@ export const routes = (router: KoaRouter) => {
     ) {
       ctx.status = 400
       ctx.body = {
-        errorMessage: 'Missing parameter(s): username, firstName, lastName',
+        errorMessage:
+          'Missing parameter(s): username, firstName, lastName, password',
       }
       return
     }
