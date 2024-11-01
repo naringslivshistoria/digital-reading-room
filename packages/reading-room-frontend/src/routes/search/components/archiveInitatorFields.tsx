@@ -11,7 +11,6 @@ export default function ArchiveInitiatorFields({
   document: Document
 }) {
   const fields = []
-  console.log(document.fields)
   switch (document.fields?.archiveInitiator?.value) {
     case 'Hantverkslotteriet':
       fields.push({
@@ -29,6 +28,11 @@ export default function ArchiveInitiatorFields({
       break
     case 'Brandförsäkringsverket':
       fields.push({
+        heading: 'ÄGARE',
+        fieldName: 'owner',
+        fullWidth: true,
+      })
+      fields.push({
         heading: 'FÖRSÄKRINGSNUMMER',
         fieldName: 'insuranceNumber',
       })
@@ -39,10 +43,6 @@ export default function ArchiveInitiatorFields({
       fields.push({
         heading: 'VERKSAMHET',
         fieldName: 'business',
-      })
-      fields.push({
-        heading: 'ÄGARE',
-        fieldName: 'owner',
       })
       fields.push({
         heading: 'ORT',
@@ -91,7 +91,7 @@ export default function ArchiveInitiatorFields({
           item
           key={index}
           xs={12}
-          sm={field.fieldName === 'description' ? 8 : 4}
+          sm={field.fieldName === 'description' ? 8 : field.fullWidth ? 12 : 4}
           sx={{
             display: {
               xs:
