@@ -25,10 +25,15 @@ export const MetaDataField = ({
 
   return (
     <>
-      {document.fields[fieldName ?? '']?.value && (
+      {document.fields[fieldName ?? '']?.value ? (
         <>
           <Typography variant="h4">{heading}</Typography>
           {getFieldValueString(fieldName ?? '')}
+        </>
+      ) : (
+        <>
+          <Typography variant="h4">{heading}</Typography>
+          <Typography variant="body1">-</Typography>
         </>
       )}
     </>
