@@ -59,12 +59,22 @@ export const getUser = async (username: string) => {
   return user
 }
 
-export const getDepositors = async (username: string) => {
-  const depositors = await db
-    .select('depositors')
+export const getUserData = async (username: string) => {
+  const [userData] = await db
+    .select(
+      'firstName',
+      'lastName',
+      'organization',
+      'depositors',
+      'archiveInitiators',
+      'documentIds',
+      'fileNames',
+      'series',
+      'volumes'
+    )
     .from<User>('users')
     .where('username', username)
-  return depositors[0].depositors
+  return userData
 }
 
 export const updateUserFailedLoginAttempts = async (

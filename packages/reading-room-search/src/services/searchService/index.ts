@@ -1,6 +1,7 @@
 import KoaRouter from '@koa/router'
 import { FilterType, FieldFilterConfig } from '../../common/types'
 import { findParents, search, setValues } from './queryFunctions'
+import { fetchAndUpdateUserData } from './userUtils'
 
 export const routes = (router: KoaRouter) => {
   router.get('(.*)/search/get-field-filters', async (ctx) => {
@@ -57,6 +58,14 @@ export const routes = (router: KoaRouter) => {
     const standaloneConfigs = fieldFilterConfigs.filter((filterConfig) => {
       return !filterConfig.parentField
     })
+
+    try {
+      await fetchAndUpdateUserData(ctx)
+    } catch (error) {
+      ctx.status = 500
+      ctx.body = { error: 'Failed to fetch user data' }
+      return
+    }
 
     await setValues(
       fieldFilterConfigs,
@@ -124,6 +133,14 @@ export const routes = (router: KoaRouter) => {
         errorMessage:
           'Required parameter missing: either query or filter must be specified',
       }
+      return
+    }
+
+    try {
+      await fetchAndUpdateUserData(ctx)
+    } catch (error) {
+      ctx.status = 500
+      ctx.body = { error: 'Failed to fetch user data' }
       return
     }
 
