@@ -104,25 +104,36 @@ describe('authenticationService', () => {
     })
   })
   describe('POST /auth/create-account', () => {
-    it('requires username, firstname and lastname', async () => {
+    it('requires username, firstname, lastname and password', async () => {
       const res = await request(app.callback()).post('/auth/create-account')
 
       expect(res.status).toBe(400)
       expect(res.body.errorMessage).toBe(
-        'Missing parameter(s): username, firstName, lastName'
+        'Missing parameter(s): username, firstName, lastName, password'
       )
     })
     it('calls createUser with the correct parameters', async () => {
+      const mockHash = {
+        password: 'hashedPassword123',
+        salt: 'salt123',
+      }
+
+      const hashSpy = jest
+        .spyOn(hash, 'createSaltAndHash')
+        .mockResolvedValue(mockHash)
+
       const createAccountSpy = jest
         .spyOn(userAdapter, 'createUser')
         .mockImplementation(() => Promise.resolve())
 
-      await await request(app.callback()).post('/auth/create-account').send({
+      await request(app.callback()).post('/auth/create-account').send({
         username: 'foo',
         firstName: 'bar',
         lastName: 'barsson',
         organization: 'FooBar AB',
+        password: 'securePassword123',
       })
+
       expect(createAccountSpy).toBeCalledWith({
         username: 'foo',
         firstName: 'bar',
@@ -131,6 +142,8 @@ describe('authenticationService', () => {
           'Centrum för Näringslivshistoria;Föreningen Stockholms Företagsminnen',
         organization: 'FooBar AB',
         role: 'User',
+        password_hash: mockHash.password,
+        salt: mockHash.salt,
       })
     })
     it('calls the right dependencies', async () => {
@@ -138,9 +151,9 @@ describe('authenticationService', () => {
         .spyOn(userAdapter, 'createUser')
         .mockImplementation(() => Promise.resolve())
 
-      const jwtSpy = jest
-        .spyOn(jwt, 'createResetToken')
-        .mockImplementation(() => Promise.resolve('123'))
+      const hashSpy = jest
+        .spyOn(hash, 'createSaltAndHash')
+        .mockResolvedValue({ password: 'hash', salt: 'salt' })
 
       const sendMailSpy = jest
         .spyOn(smtpAdapter, 'sendEmail')
@@ -151,10 +164,11 @@ describe('authenticationService', () => {
         firstName: 'bar',
         lastName: 'barsson',
         organization: 'FooBar AB',
+        password: 'securePassword123',
       })
 
       expect(createAccountSpy).toHaveBeenCalled()
-      expect(jwtSpy).toHaveBeenCalled()
+      expect(hashSpy).toHaveBeenCalled()
       expect(sendMailSpy).toBeCalledTimes(2)
     })
   })
