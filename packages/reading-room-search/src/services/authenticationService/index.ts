@@ -200,20 +200,28 @@ export const routes = (router: KoaRouter) => {
       !ctx.request.body ||
       !ctx.request.body.username ||
       !ctx.request.body.firstName ||
-      !ctx.request.body.lastName
+      !ctx.request.body.lastName ||
+      !ctx.request.body.password
     ) {
       ctx.status = 400
       ctx.body = {
-        errorMessage: 'Missing parameter(s): username, firstName, lastName',
+        errorMessage:
+          'Missing parameter(s): username, firstName, lastName, password',
       }
       return
     }
 
     try {
+      const { password, salt } = await hash.createSaltAndHash(
+        ctx.request.body.password as string
+      )
+
       const newUser = {
         username: ctx.request.body.username as string,
         firstName: ctx.request.body.firstName as string,
         lastName: ctx.request.body.lastName as string,
+        password_hash: password,
+        salt,
         depositors:
           'Centrum för Näringslivshistoria;Föreningen Stockholms Företagsminnen',
         organization: ctx.request.body.organization as string,
@@ -232,16 +240,13 @@ export const routes = (router: KoaRouter) => {
     }
 
     try {
-      const token = await createResetToken(ctx.request.body.username as string)
-
       const subject = 'Välkommen till digitala läsesalen'
-      const body = `Hej,\n\nNu har kontot ${
-        ctx.request.body.username
-      } skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n\nAnvänd denna länk för att välja ett lösenord: ${
-        config.createAccount.resetPasswordUrl
-      }/?email=${encodeURIComponent(
-        ctx.request.body.username as string
-      )}&token=${token}\n\nLite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n\nHar du några andra frågor, hör av dig till info@naringslivshistoria.se.\n\nVälkommen att börja söka!\n\nCentrum för Näringslivshistoria\nwww.naringslivshistoria.se`
+      const body = `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
+Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n
+Har du några andra frågor, hör av dig till info@naringslivshistoria.se.\n
+Välkommen att börja söka!\n
+Centrum för Näringslivshistoria
+www.naringslivshistoria.se`
 
       await sendEmail(ctx.request.body.username as string, subject, body)
     } catch (error: unknown) {
@@ -249,7 +254,7 @@ export const routes = (router: KoaRouter) => {
       const errorMessage = error instanceof Error ? error.message : ''
 
       ctx.body = {
-        error: `Epost för att skapa lösenord kunde inte skickas. ${errorMessage}`,
+        error: `Epost för nytt konto kunde inte skickas. ${errorMessage}`,
       }
       return
     }
