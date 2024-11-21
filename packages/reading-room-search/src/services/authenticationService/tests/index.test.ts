@@ -118,13 +118,13 @@ describe('authenticationService', () => {
         salt: 'salt123',
       }
 
-      const hashSpy = jest
-        .spyOn(hash, 'createSaltAndHash')
-        .mockResolvedValue(mockHash)
-
       const createAccountSpy = jest
         .spyOn(userAdapter, 'createUser')
         .mockImplementation(() => Promise.resolve())
+
+      const hashSpy = jest
+        .spyOn(hash, 'createSaltAndHash')
+        .mockResolvedValue(mockHash)
 
       await request(app.callback()).post('/auth/create-account').send({
         username: 'foo',
@@ -145,6 +145,8 @@ describe('authenticationService', () => {
         password_hash: mockHash.password,
         salt: mockHash.salt,
       })
+
+      expect(hashSpy).toHaveBeenCalledWith('securePassword123')
     })
     it('calls the right dependencies', async () => {
       const createAccountSpy = jest
