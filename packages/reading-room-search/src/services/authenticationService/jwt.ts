@@ -17,15 +17,15 @@ export const createToken = async (username: string, password: string) => {
     const user = await getUser(username)
 
     if (!user) {
-      throw createHttpError(401, new Error(`Unknown user or invalid password.`))
+      throw createHttpError(401, `Unknown user or invalid password.`)
     }
 
     if (user.locked === true) {
-      throw createHttpError(403, new Error(`User locked: ${username}.`))
+      throw createHttpError(403, `User locked: ${username}.`)
     }
 
     if (user.disabled === true) {
-      throw createHttpError(403, new Error(`User disabled: ${username}.`))
+      throw createHttpError(403, `User disabled: ${username}.`)
     }
 
     if (user.passwordHash !== (await hash.hashPassword(password, user.salt))) {
@@ -37,41 +37,16 @@ export const createToken = async (username: string, password: string) => {
         await updateUserLocked(user.id, true)
       }
 
-      throw createHttpError(401, new Error(`Unknown user or invalid password.`))
+      throw createHttpError(401, `Unknown user or invalid password.`)
     }
 
-    // Clear failed login attempts
     await updateUserFailedLoginAttempts(user.id, 0)
 
-    // Create token
     const token = jwt.sign(
       {
         sub: user.id,
         username: user.username,
-        depositors:
-          user.depositors && user.depositors != ''
-            ? user.depositors?.replace(/;$/, '').split(';')
-            : [],
-        archiveInitiators:
-          user.archiveInitiators && user.archiveInitiators != ''
-            ? user.archiveInitiators?.replace(/;$/, '').split(';')
-            : [],
-        fileNames:
-          user.fileNames && user.fileNames != ''
-            ? user.fileNames?.replace(/;$/, '').split(';')
-            : [],
-        series:
-          user.series && user.series != ''
-            ? user.series?.replace(/;$/, '').split(';')
-            : [],
-        volumes:
-          user.volumes && user.volumes != ''
-            ? user.volumes?.replace(/;$/, '').split(';')
-            : [],
         role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        organization: user.organization,
       },
       config.auth.secret,
       {

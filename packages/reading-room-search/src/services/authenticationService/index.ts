@@ -7,13 +7,15 @@ import { sendEmail } from '../../common/adapters/smtpAdapter'
 import { createUser } from '../../common/adapters/userAdapter'
 import { User } from '../../common/types'
 import config from '../../common/config'
+import { fetchUserData } from '../userService'
 
 const cookieOptions = {
   httpOnly: true,
   overwrite: true,
-  sameSite: false,
+  sameSite: 'lax' as const,
   secure: false,
   domain: process.env.COOKIE_DOMAIN ?? 'dev.cfn.iteam.se',
+  path: '/',
 }
 
 export const routes = (router: KoaRouter) => {
@@ -83,6 +85,7 @@ export const routes = (router: KoaRouter) => {
     const username = ctx.request.body?.username as string
     const password = ctx.request.body?.password as string
 
+    console.log('Login')
     if (!username || !password) {
       ctx.status = 400
       ctx.body = { errorMessage: 'Missing parameter(s): username, password' }
@@ -90,24 +93,34 @@ export const routes = (router: KoaRouter) => {
     }
 
     try {
-      const token = await createToken(username, password)
+      const tokenResult = await createToken(username, password)
+      const token = tokenResult.token
 
-      ctx.cookies.set('readingroom', token.token, cookieOptions)
-      ctx.body = token
+      ctx.cookies.set('readingroom', token, cookieOptions)
+
+      const userData = await fetchUserData(username)
+      if (ctx.session) {
+        ctx.session.user = {
+          username,
+          ...userData,
+        }
+      }
+
+      ctx.body = { message: 'Login successful' }
     } catch (error) {
       if (createHttpError.isHttpError(error)) {
-        ctx.status = (error as createHttpError.HttpError).statusCode
-        ctx.body = { message: (error as createHttpError.HttpError).message }
+        ctx.status = error.statusCode
+        ctx.body = { message: error.message }
       } else {
         ctx.status = 500
-        ctx.body = { message: (error as Error).message }
+        ctx.body = { message: 'Internal server error' }
       }
     }
   })
 
   router.get('(.*)/auth/logout', async (ctx) => {
     ctx.cookies.set('readingroom', null, cookieOptions)
-
+    ctx.session = null
     ctx.redirect('/login')
   })
 

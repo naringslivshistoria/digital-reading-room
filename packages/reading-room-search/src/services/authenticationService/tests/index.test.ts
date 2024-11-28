@@ -2,16 +2,38 @@ import request from 'supertest'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
+import session from 'koa-session'
 import { routes } from '../index'
 import hash from '../hash'
 import * as jwt from '../jwt'
+import * as userService from '../../userService'
 import * as userAdapter from '../../../common/adapters/userAdapter'
 import * as smtpAdapter from '../../../common/adapters/smtpAdapter'
+import { User } from '../../../common/types'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const app = new Koa()
+app.keys = [process.env.SESSION_SECRET || 'dev-session-secret']
+
+app.use(
+  session(
+    {
+      key: 'koa.sess',
+      maxAge: 86400000,
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+    },
+    app
+  )
+)
+
+app.use(bodyParser())
+
 const router = new KoaRouter()
 routes(router)
-app.use(bodyParser())
 app.use(router.routes())
 
 jest.mock('../../../common/config', () => {
@@ -26,6 +48,11 @@ jest.mock('../../../common/config', () => {
         port: 6666,
       },
       smtp: {},
+      auth: {
+        secret: 'test-secret',
+        expiresIn: '1h',
+        maxFailedLoginAttempts: 5,
+      },
       createAccount: {
         resetPasswordUrl: 'https://reset',
         notificationEmailRecipient: 'foo bar',
@@ -36,13 +63,13 @@ jest.mock('../../../common/config', () => {
 
 describe('authenticationService', () => {
   describe('GET /auth/generatehash', () => {
-    it('requires a password query parameter', async () => {
+    it('kräver en query-parameter för lösenord', async () => {
       const res = await request(app.callback()).get('/auth/generatehash')
       expect(res.status).toBe(400)
       expect(res.body.errorMessage).toBe('Missing parameter: password')
     })
 
-    it('generates a salt and hash', async () => {
+    it('genererar en salt och hash', async () => {
       const mockResolve = {
         salt: 'salt1234',
         password: 'hash5678',
@@ -54,7 +81,7 @@ describe('authenticationService', () => {
       expect(hashSpy).toBeCalledWith('abc1337')
     })
 
-    it('returns a salt and hash', async () => {
+    it('returnerar en salt och hash', async () => {
       const mockResolve = {
         salt: 'salt1234',
         password: 'hash5678',
@@ -72,7 +99,7 @@ describe('authenticationService', () => {
   })
 
   describe('POST /auth/login', () => {
-    it('requires username and password', async () => {
+    it('kräver användarnamn och lösenord', async () => {
       const res = await request(app.callback()).post('/auth/login')
       expect(res.status).toBe(400)
       expect(res.body.errorMessage).toBe(
@@ -80,29 +107,59 @@ describe('authenticationService', () => {
       )
     })
 
-    it('calls create token with username and password', async () => {
+    it('anropar createToken med användarnamn och lösenord', async () => {
       const token = 'abc123'
       const jwtSpy = jest.spyOn(jwt, 'createToken').mockResolvedValue({ token })
+      const userDataSpy = jest
+        .spyOn(userService, 'fetchUserData')
+        .mockResolvedValue({
+          firstName: 'Test',
+          lastName: 'User',
+          organization: 'Test Org',
+          depositors: ['Dep1', 'Dep2'],
+          archiveInitiators: [],
+          series: [],
+          volumes: [],
+          documentIds: [],
+          fileNames: [],
+        })
 
-      await await request(app.callback()).post('/auth/login').send({
+      const res = await request(app.callback()).post('/auth/login').send({
         username: 'foo',
         password: 'bar',
       })
+
       expect(jwtSpy).toBeCalledWith('foo', 'bar')
+      expect(userDataSpy).toBeCalledWith('foo')
+      expect(res.status).toBe(200)
+      expect(res.body).toEqual({ message: 'Login successful' })
     })
 
-    it('calls create token with username and password', async () => {
+    it('sätter sessionen och cookie vid lyckad inloggning', async () => {
       const token = 'abc123'
       jest.spyOn(jwt, 'createToken').mockResolvedValue({ token })
+      jest.spyOn(userService, 'fetchUserData').mockResolvedValue({
+        firstName: 'Test',
+        lastName: 'User',
+        organization: 'Test Org',
+        depositors: ['Dep1', 'Dep2'],
+        archiveInitiators: [],
+        series: [],
+        volumes: [],
+        documentIds: [],
+        fileNames: [],
+      })
 
-      const res = await await request(app.callback()).post('/auth/login').send({
+      const res = await request(app.callback()).post('/auth/login').send({
         username: 'foo',
         password: 'bar',
       })
-      expect(res.status).toBe(200)
-      expect(res.body).toEqual({ token })
+
+      expect(res.headers['set-cookie']).toBeDefined()
+      expect(res.headers['set-cookie'][0]).toContain('readingroom')
     })
   })
+
   describe('POST /auth/create-account', () => {
     it('requires username, firstname, lastname and password', async () => {
       const res = await request(app.callback()).post('/auth/create-account')
@@ -120,7 +177,9 @@ describe('authenticationService', () => {
 
       const createAccountSpy = jest
         .spyOn(userAdapter, 'createUser')
-        .mockImplementation(() => Promise.resolve())
+        .mockImplementation(async (user: User) => {
+          return Promise.resolve()
+        })
 
       const hashSpy = jest
         .spyOn(hash, 'createSaltAndHash')
@@ -148,10 +207,13 @@ describe('authenticationService', () => {
 
       expect(hashSpy).toHaveBeenCalledWith('securePassword123')
     })
-    it('calls the right dependencies', async () => {
+
+    it('anropar rätt beroenden', async () => {
       const createAccountSpy = jest
         .spyOn(userAdapter, 'createUser')
-        .mockImplementation(() => Promise.resolve())
+        .mockImplementation(async (user: User) => {
+          return Promise.resolve()
+        })
 
       const hashSpy = jest
         .spyOn(hash, 'createSaltAndHash')

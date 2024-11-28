@@ -1,8 +1,7 @@
-// api.ts
 import KoaRouter from '@koa/router'
 import { routes as searchRoutes } from './services/searchService'
 import { routes as documentRoutes } from './services/documentService'
-import { fetchAndUpdateUserData } from './services/searchService/userUtils'
+import { fetchUserData } from './services/userService'
 
 const router = new KoaRouter()
 
@@ -10,20 +9,29 @@ searchRoutes(router)
 documentRoutes(router)
 
 router.get('(.*)/auth/is-logged-in', async (ctx) => {
+  console.log('Is logged in')
   if (ctx.state?.user?.username) {
     try {
-      await fetchAndUpdateUserData(ctx)
+      const userData = await fetchUserData(ctx.state.user.username)
+
+      if (ctx.session) {
+        ctx.session.user = {
+          ...ctx.session.user,
+          ...userData,
+        }
+      }
+
       ctx.body = {
         username: ctx.state.user.username,
-        firstName: ctx.state.user.firstName,
-        lastName: ctx.state.user.lastName,
-        organization: ctx.state.user.organization,
-        depositors: ctx.state.user.depositors,
-        archiveInitiators: ctx.state.user.archiveInitiators,
-        documentIds: ctx.state.user.documentIds,
-        series: ctx.state.user.series,
-        volumes: ctx.state.user.volumes,
-        fileNames: ctx.state.user.fileNames,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        organization: userData.organization,
+        depositors: userData.depositors,
+        archiveInitiators: userData.archiveInitiators,
+        documentIds: userData.documentIds,
+        series: userData.series,
+        volumes: userData.volumes,
+        fileNames: userData.fileNames,
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
