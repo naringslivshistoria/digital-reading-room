@@ -9,7 +9,6 @@ searchRoutes(router)
 documentRoutes(router)
 
 router.get('(.*)/auth/is-logged-in', async (ctx) => {
-  console.log('Is logged in')
   if (ctx.state?.user?.username) {
     try {
       const userData = await fetchUserData(ctx.state.user.username)
