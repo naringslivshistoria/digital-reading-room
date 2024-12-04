@@ -30,6 +30,6 @@ export const useIsLoggedIn = (enabled: boolean) =>
     },
     retry: false,
     enabled,
-    refetchInterval: 60 * 1000,
-    refetchOnWindowFocus: true,
+    refetchInterval: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   })

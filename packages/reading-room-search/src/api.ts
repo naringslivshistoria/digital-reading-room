@@ -14,6 +14,14 @@ router.get('(.*)/auth/is-logged-in', async (ctx) => {
     try {
       const userData = await fetchUserData(ctx.state.user.username)
 
+      if (userData.locked || userData.disabled) {
+        ctx.status = 401
+        ctx.body = {
+          error: `User is ${userData.locked ? 'locked' : 'disabled'}`,
+        }
+        return
+      }
+
       if (ctx.session) {
         ctx.session.user = {
           ...ctx.session.user,

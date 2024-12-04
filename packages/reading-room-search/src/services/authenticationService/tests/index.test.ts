@@ -9,7 +9,6 @@ import * as jwt from '../jwt'
 import * as userService from '../../userService'
 import * as userAdapter from '../../../common/adapters/userAdapter'
 import * as smtpAdapter from '../../../common/adapters/smtpAdapter'
-import { User } from '../../../common/types'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -177,7 +176,7 @@ describe('authenticationService', () => {
 
       const createAccountSpy = jest
         .spyOn(userAdapter, 'createUser')
-        .mockImplementation(async (user: User) => {
+        .mockImplementation(async () => {
           return Promise.resolve()
         })
 
@@ -211,7 +210,7 @@ describe('authenticationService', () => {
     it('anropar rätt beroenden', async () => {
       const createAccountSpy = jest
         .spyOn(userAdapter, 'createUser')
-        .mockImplementation(async (user: User) => {
+        .mockImplementation(async () => {
           return Promise.resolve()
         })
 

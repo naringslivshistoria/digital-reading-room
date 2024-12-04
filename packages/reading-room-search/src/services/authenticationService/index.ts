@@ -85,7 +85,6 @@ export const routes = (router: KoaRouter) => {
     const username = ctx.request.body?.username as string
     const password = ctx.request.body?.password as string
 
-    console.log('Login')
     if (!username || !password) {
       ctx.status = 400
       ctx.body = { errorMessage: 'Missing parameter(s): username, password' }

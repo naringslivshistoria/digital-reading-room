@@ -29,9 +29,12 @@ interface User {
   passwordHash: string
   salt: string
   failedLoginAttempts: number
-  depositors: string | null
-  archiveInitiators: string | null
-  documentIds: string | null
+  depositors: string[]
+  archiveInitiators: string[]
+  documentIds: string[]
+  series: string[]
+  volumes: string[]
+  fileNames: string[]
   firstName: string | null
   lastName: string | null
   organization: string | null

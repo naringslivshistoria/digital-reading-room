@@ -1,31 +1,28 @@
 import { getUserData } from '../../common/adapters/userAdapter'
+import { User } from '../../common/types'
 
-export const fetchUserData = async (username: string) => {
+export const fetchUserData = async (
+  username: string
+): Promise<Partial<User>> => {
   try {
     const userData = await getUserData(username)
 
-    const parsedUserData = {
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      organization: userData.organization,
-      depositors: userData.depositors
-        ? userData.depositors.replace(/;$/, '').split(';')
-        : [],
-      archiveInitiators: userData.archiveInitiators
-        ? userData.archiveInitiators.replace(/;$/, '').split(';')
-        : [],
-      series: userData.series
-        ? userData.series.replace(/;$/, '').split(';')
-        : [],
-      volumes: userData.volumes
-        ? userData.volumes.replace(/;$/, '').split(';')
-        : [],
-      documentIds: userData.documentIds
-        ? userData.documentIds.replace(/;$/, '').split(';')
-        : [],
-      fileNames: userData.fileNames
-        ? userData.fileNames.replace(/;$/, '').split(';')
-        : [],
+    const parseField = (field: string | null | undefined): string[] => {
+      return field ? field.replace(/;$/, '').split(';') : []
+    }
+
+    const parsedUserData: Partial<User> = {
+      ...userData,
+      depositors: parseField(userData.depositors as string | null | undefined),
+      archiveInitiators: parseField(
+        userData.archiveInitiators as string | null | undefined
+      ),
+      series: parseField(userData.series as string | null | undefined),
+      volumes: parseField(userData.volumes as string | null | undefined),
+      documentIds: parseField(
+        userData.documentIds as string | null | undefined
+      ),
+      fileNames: parseField(userData.fileNames as string | null | undefined),
     }
 
     return parsedUserData
