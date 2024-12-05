@@ -59,6 +59,26 @@ export const getUser = async (username: string) => {
   return user
 }
 
+export const getUserData = async (username: string): Promise<Partial<User>> => {
+  const [userData] = await db
+    .select(
+      'firstName',
+      'lastName',
+      'organization',
+      'depositors',
+      'archiveInitiators',
+      'documentIds',
+      'fileNames',
+      'series',
+      'volumes',
+      'locked',
+      'disabled'
+    )
+    .from<User>('users')
+    .where('username', username)
+  return userData
+}
+
 export const updateUserFailedLoginAttempts = async (
   userId: number,
   attempts: number

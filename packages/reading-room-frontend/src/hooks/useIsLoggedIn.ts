@@ -21,17 +21,15 @@ export const useIsLoggedIn = (enabled: boolean) =>
     queryKey: ['login'],
     queryFn: async () => {
       const { data } = await axios.get<IsLoggedInResponse>(
-        `${searchUrl}/auth/is-logged-in`
+        `${searchUrl}/auth/is-logged-in`,
+        {
+          withCredentials: true,
+        }
       )
-
       return data
     },
     retry: false,
-    // Staletime determines if an actual network query should be performed.
-    // Staletime 10 minutes for this hook means the site will "autologout" no
-    // more than 10 minutes after the server-side session has expired.
-    // Any attempt at search will fail immediately if the server-side session has
-    // expired since that hook has staletime 0 and always makes a network call.
-    staleTime: 10 * 60 * 1000,
-    enabled: enabled,
+    enabled,
+    refetchInterval: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   })

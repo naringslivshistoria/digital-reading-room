@@ -246,7 +246,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
               }}
             />
           </Grid>
-          <Grid item sm={3}>
+          <Grid item sm={3} sx={{ display: 'flex', alignItems: 'center' }}>
             <Box
               sx={{
                 // marginTop: { xs: '0px', sm: '7px' },
@@ -259,8 +259,16 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                   setShowHelp(true)
                 }}
               >
-                <Typography variant="body1" sx={{ color: 'black' }}>
-                  <HelpOutlineIcon sx={{ color: '#00AFD8' }} /> Söktips
+                <HelpOutlineIcon sx={{ color: '#00AFD8' }} />
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: 'black',
+                    lineHeight: 1,
+                    marginLeft: '5px',
+                  }}
+                >
+                  Söktips
                 </Typography>
               </IconButton>
             </Box>

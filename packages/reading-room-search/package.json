@@ -18,6 +18,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/koa-session": "^6.4.5",
     "@types/node": "^18.14.0",
     "@types/pg": "^8.6.6",
     "eslint": "^8.13.0",
@@ -55,6 +56,7 @@
     "koa-bodyparser": "^4.3.0",
     "koa-jwt": "^4.0.4",
     "koa-pino-logger": "^4.0.0",
+    "koa-session": "^6.4.0",
     "nodemailer": "^6.9.7",
     "pg": "^8.9.0",
     "ts-node": "^10.7.0"
