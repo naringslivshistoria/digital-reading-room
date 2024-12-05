@@ -120,7 +120,12 @@ const createAccessFilter = (
                   },
                   {
                     terms: {
-                      'fields.seriesName.value.keyword': [serie.split('>')[2]],
+                      'fields.seriesName.value.keyword': [
+                        serie
+                          .split('>')[2]
+                          .split(/ - (.*)/s)[1]
+                          .trim(),
+                      ],
                     },
                   },
                 ],
@@ -154,7 +159,12 @@ const createAccessFilter = (
                   },
                   {
                     terms: {
-                      'fields.seriesName.value.keyword': [volume.split('>')[2]],
+                      'fields.seriesName.value.keyword': [
+                        volume
+                          .split('>')[2]
+                          .split(/ - (.*)/s)[1]
+                          .trim(),
+                      ],
                     },
                   },
                   {

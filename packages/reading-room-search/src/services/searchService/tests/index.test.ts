@@ -526,8 +526,8 @@ describe('searchService', () => {
           depositors: [],
           archiveInitiators: [],
           series: [
-            'My Company>Main Company Archive>My First Serie',
-            'My Company>Main Company Archive>My Second Serie',
+            'My Company>Main Company Archive>1 A - My First Serie',
+            'My Company>Main Company Archive>1 B - My Second Serie',
           ],
         },
         'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
@@ -635,8 +635,8 @@ describe('searchService', () => {
           archiveInitiators: [],
           series: [],
           volumes: [
-            'My Company>Main Company Archive>My First Serie>Volume 1',
-            'My Company>Main Company Archive>My First Serie>2',
+            'My Company>Main Company Archive>1 A - My First Serie>Volume 1',
+            'My Company>Main Company Archive>1 A - My First Serie>2',
           ],
         },
         'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
