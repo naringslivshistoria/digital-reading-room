@@ -58,6 +58,7 @@ export const routes = (router: KoaRouter) => {
       ctx.body = { results: ocrText }
     } catch (err) {
       ctx.status = 500
+      console.error(err)
       ctx.body = { results: 'error: ' + err }
     }
   })

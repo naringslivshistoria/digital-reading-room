@@ -2,7 +2,7 @@ FROM node:18.14.1 AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm install --omit=dev
+RUN npm install
 
 FROM node:18.14.1-alpine AS runner
 WORKDIR /app
