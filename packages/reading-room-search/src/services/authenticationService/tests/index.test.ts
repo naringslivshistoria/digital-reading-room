@@ -196,8 +196,7 @@ describe('authenticationService', () => {
         username: 'foo',
         firstName: 'bar',
         lastName: 'barsson',
-        depositors:
-          'Centrum för Näringslivshistoria;Föreningen Stockholms Företagsminnen',
+        depositors: 'Föreningen Stockholms Företagsminnen',
         organization: 'FooBar AB',
         role: 'User',
         password_hash: mockHash.password,
