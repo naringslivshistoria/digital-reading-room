@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -15,6 +16,9 @@ import DownloadIcon from '@mui/icons-material/Download'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { useEffect, useState } from 'react'
+import { Document as PdfDocument, Page as PdfPage, pdfjs } from 'react-pdf'
+import 'react-pdf/dist/Page/AnnotationLayer.css'
+import 'react-pdf/dist/Page/TextLayer.css'
 
 import { SiteHeader } from '../../components/siteHeader'
 import { Document } from '../../common/types'
@@ -28,8 +32,15 @@ import {
 } from './metaDataFieldConfigs'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 import { useSearch } from '../search'
+import Lightbox from 'yet-another-react-lightbox'
+import Zoom from 'yet-another-react-lightbox/plugins/zoom'
+import 'yet-another-react-lightbox/styles.css'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
+
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?worker'
+
+pdfjs.GlobalWorkerOptions.workerPort = new pdfWorker()
 
 export const DocumentPage = () => {
   const { id } = useParams()
@@ -43,6 +54,21 @@ export const DocumentPage = () => {
   const sort = searchParams.get('sort') ?? undefined
   const sortOrder = searchParams.get('sortOrder') ?? undefined
   const position = searchParams.get('position') ?? undefined
+  const [openLightbox, setOpenLightbox] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [lightboxImageLoading, setLightboxImageLoading] = useState(true)
+
+  const [maxZoomPixelRatio, setMaxZoomPixelRatio] = useState(1)
+  const [zoomInMultiplier, setZoomInMultiplier] = useState(2)
+  const [doubleTapDelay, setDoubleTapDelay] = useState(300)
+  const [doubleClickDelay, setDoubleClickDelay] = useState(300)
+  const [doubleClickMaxStops, setDoubleClickMaxStops] = useState(2)
+  const [keyboardMoveDistance, setKeyboardMoveDistance] = useState(50)
+  const [wheelZoomDistanceFactor, setWheelZoomDistanceFactor] = useState(100)
+  const [pinchZoomDistanceFactor, setPinchZoomDistanceFactor] = useState(100)
+  const [scrollToZoom, setScrollToZoom] = useState(true)
+
+  const [showPdf, setShowPdf] = useState(false)
 
   const navigate = useNavigate()
   const [showDownload, setShowDownload] = useState<boolean>(false)
@@ -140,6 +166,12 @@ export const DocumentPage = () => {
       metaDataFieldConfigurations['default']
     )
   }
+
+  const breakpoints = [3840, 1920, 1080, 640, 384, 256, 128]
+
+  const documentAttachment = `${searchUrl}/document/${
+    document?.id
+  }/attachment/${document?.fields.filename?.value ?? 'bilaga'}`
 
   return (
     <>
@@ -273,7 +305,9 @@ export const DocumentPage = () => {
               <Box sx={{ marginTop: 1, marginBottom: 5 }}>
                 <Button
                   onClick={() => {
-                    setShowDownload(true)
+                    document.pages.find((page) => page.pageType === 'Pdf')
+                      ? setShowPdf(true)
+                      : setOpenLightbox(true)
                   }}
                 >
                   <img
@@ -282,13 +316,123 @@ export const DocumentPage = () => {
                         ? searchUrl + '/document/' + document.id + '/thumbnail'
                         : noImage
                     }
-                    alt="Liten bild för dokumentet"
+                    alt="Tumnagelbild för dokumentet"
                     onError={({ currentTarget }) => {
-                      currentTarget.onerror = null // prevents looping
+                      currentTarget.onerror = null
                       currentTarget.src = noImage
                     }}
                   />
                 </Button>
+                {showPdf ? (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: '100vh',
+                      position: 'fixed',
+                      top: 0,
+                      left: 0,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'flex-start',
+                      alignItems: 'center',
+                      backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                      zIndex: 1300,
+                      overflow: 'auto',
+                      padding: '2rem',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 16,
+                        right: 16,
+                        zIndex: 1301,
+                      }}
+                    >
+                      <Button
+                        onClick={() => setShowPdf(false)}
+                        variant="contained"
+                        sx={{
+                          backgroundColor: 'white',
+                          color: 'black',
+                          '&:hover': {
+                            backgroundColor: 'grey.100',
+                          },
+                        }}
+                      >
+                        Stäng PDF
+                      </Button>
+                    </Box>
+                    <PdfDocument
+                      file={{
+                        url: `${searchUrl}/document/${
+                          document?.id
+                        }/attachment/${
+                          document?.fields.filename?.value ?? 'bilaga'
+                        }`,
+                        withCredentials: true,
+                      }}
+                      onLoadError={(error) =>
+                        console.error('PDF-laddningsfel:', error)
+                      }
+                      onSourceError={(error) =>
+                        console.error('PDF-källfel:', error)
+                      }
+                      loading={
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: '100vh',
+                          }}
+                        >
+                          <CircularProgress />
+                        </Box>
+                      }
+                      error={<p>Kunde inte ladda PDF...</p>}
+                    >
+                      <Box sx={{ marginTop: '20px' }}>
+                        <PdfPage
+                          pageNumber={1}
+                          width={Math.min(window.innerWidth * 0.9, 1000)}
+                          renderTextLayer={false}
+                          renderAnnotationLayer={false}
+                        />
+                      </Box>
+                    </PdfDocument>
+                  </Box>
+                ) : (
+                  <Lightbox
+                    open={openLightbox}
+                    close={() => setOpenLightbox(false)}
+                    slides={[
+                      {
+                        src: documentAttachment,
+                        width: 1920,
+                        height: 1080,
+                        srcSet: breakpoints.map((breakpoint) => ({
+                          src: documentAttachment,
+                          width: breakpoint,
+                          height: Math.round((1080 / 1920) * breakpoint),
+                        })),
+                      },
+                    ]}
+                    plugins={[Zoom]}
+                    animation={{ zoom: 1000 }}
+                    zoom={{
+                      maxZoomPixelRatio,
+                      zoomInMultiplier,
+                      doubleTapDelay,
+                      doubleClickDelay,
+                      doubleClickMaxStops,
+                      keyboardMoveDistance,
+                      wheelZoomDistanceFactor,
+                      pinchZoomDistanceFactor,
+                      scrollToZoom,
+                    }}
+                  />
+                )}
               </Box>
               <Stack direction="column" width="100%" rowGap={2}>
                 <Grid
