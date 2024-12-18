@@ -1,7 +1,7 @@
+import { useEffect, useState, useMemo } from 'react'
 import {
   Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -15,10 +15,12 @@ import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import DownloadIcon from '@mui/icons-material/Download'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import { useEffect, useState } from 'react'
-import { Document as PdfDocument, Page as PdfPage, pdfjs } from 'react-pdf'
-import 'react-pdf/dist/Page/AnnotationLayer.css'
-import 'react-pdf/dist/Page/TextLayer.css'
+// eslint-disable-next-line import/no-named-as-default
+import Lightbox from 'yet-another-react-lightbox'
+// eslint-disable-next-line import/no-unresolved
+import Zoom from 'yet-another-react-lightbox/plugins/zoom'
+// eslint-disable-next-line import/no-unresolved
+import 'yet-another-react-lightbox/styles.css'
 
 import { SiteHeader } from '../../components/siteHeader'
 import { Document } from '../../common/types'
@@ -32,15 +34,9 @@ import {
 } from './metaDataFieldConfigs'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 import { useSearch } from '../search'
-import Lightbox from 'yet-another-react-lightbox'
-import Zoom from 'yet-another-react-lightbox/plugins/zoom'
-import 'yet-another-react-lightbox/styles.css'
+import PdfViewer from '../search/components/pdfViewer'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
-
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?worker'
-
-pdfjs.GlobalWorkerOptions.workerPort = new pdfWorker()
 
 export const DocumentPage = () => {
   const { id } = useParams()
@@ -55,23 +51,9 @@ export const DocumentPage = () => {
   const sortOrder = searchParams.get('sortOrder') ?? undefined
   const position = searchParams.get('position') ?? undefined
   const [openLightbox, setOpenLightbox] = useState(false)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [lightboxImageLoading, setLightboxImageLoading] = useState(true)
-
-  const [maxZoomPixelRatio, setMaxZoomPixelRatio] = useState(1)
-  const [zoomInMultiplier, setZoomInMultiplier] = useState(2)
-  const [doubleTapDelay, setDoubleTapDelay] = useState(300)
-  const [doubleClickDelay, setDoubleClickDelay] = useState(300)
-  const [doubleClickMaxStops, setDoubleClickMaxStops] = useState(2)
-  const [keyboardMoveDistance, setKeyboardMoveDistance] = useState(50)
-  const [wheelZoomDistanceFactor, setWheelZoomDistanceFactor] = useState(100)
-  const [pinchZoomDistanceFactor, setPinchZoomDistanceFactor] = useState(100)
-  const [scrollToZoom, setScrollToZoom] = useState(true)
-
   const [showPdf, setShowPdf] = useState(false)
-
-  const navigate = useNavigate()
   const [showDownload, setShowDownload] = useState<boolean>(false)
+  const navigate = useNavigate()
 
   useIsLoggedIn(true)
 
@@ -172,6 +154,16 @@ export const DocumentPage = () => {
   const documentAttachment = `${searchUrl}/document/${
     document?.id
   }/attachment/${document?.fields.filename?.value ?? 'bilaga'}`
+
+  const pdfFile = useMemo(
+    () =>
+      document?.id
+        ? `${searchUrl}/document/${document.id}/attachment/${
+            document.fields.filename?.value ?? 'bilaga'
+          }`
+        : null,
+    [document?.id, document?.fields.filename?.value]
+  )
 
   return (
     <>
@@ -323,85 +315,11 @@ export const DocumentPage = () => {
                     }}
                   />
                 </Button>
-                {showPdf ? (
-                  <Box
-                    sx={{
-                      width: '100%',
-                      height: '100vh',
-                      position: 'fixed',
-                      top: 0,
-                      left: 0,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'flex-start',
-                      alignItems: 'center',
-                      backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                      zIndex: 1300,
-                      overflow: 'auto',
-                      padding: '2rem',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 16,
-                        right: 16,
-                        zIndex: 1301,
-                      }}
-                    >
-                      <Button
-                        onClick={() => setShowPdf(false)}
-                        variant="contained"
-                        sx={{
-                          backgroundColor: 'white',
-                          color: 'black',
-                          '&:hover': {
-                            backgroundColor: 'grey.100',
-                          },
-                        }}
-                      >
-                        Stäng PDF
-                      </Button>
-                    </Box>
-                    <PdfDocument
-                      file={{
-                        url: `${searchUrl}/document/${
-                          document?.id
-                        }/attachment/${
-                          document?.fields.filename?.value ?? 'bilaga'
-                        }`,
-                        withCredentials: true,
-                      }}
-                      onLoadError={(error) =>
-                        console.error('PDF-laddningsfel:', error)
-                      }
-                      onSourceError={(error) =>
-                        console.error('PDF-källfel:', error)
-                      }
-                      loading={
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: '100vh',
-                          }}
-                        >
-                          <CircularProgress />
-                        </Box>
-                      }
-                      error={<p>Kunde inte ladda PDF...</p>}
-                    >
-                      <Box sx={{ marginTop: '20px' }}>
-                        <PdfPage
-                          pageNumber={1}
-                          width={Math.min(window.innerWidth * 0.9, 1000)}
-                          renderTextLayer={false}
-                          renderAnnotationLayer={false}
-                        />
-                      </Box>
-                    </PdfDocument>
-                  </Box>
+                {showPdf && pdfFile ? (
+                  <PdfViewer
+                    pdfFile={pdfFile}
+                    onClose={() => setShowPdf(false)}
+                  />
                 ) : (
                   <Lightbox
                     open={openLightbox}
@@ -421,15 +339,20 @@ export const DocumentPage = () => {
                     plugins={[Zoom]}
                     animation={{ zoom: 1000 }}
                     zoom={{
-                      maxZoomPixelRatio,
-                      zoomInMultiplier,
-                      doubleTapDelay,
-                      doubleClickDelay,
-                      doubleClickMaxStops,
-                      keyboardMoveDistance,
-                      wheelZoomDistanceFactor,
-                      pinchZoomDistanceFactor,
-                      scrollToZoom,
+                      maxZoomPixelRatio: 1,
+                      zoomInMultiplier: 2,
+                      doubleTapDelay: 300,
+                      doubleClickDelay: 300,
+                      doubleClickMaxStops: 2,
+                      keyboardMoveDistance: 50,
+                      wheelZoomDistanceFactor: 100,
+                      pinchZoomDistanceFactor: 100,
+                      scrollToZoom: true,
+                    }}
+                    carousel={{ finite: true }}
+                    render={{
+                      buttonPrev: () => null,
+                      buttonNext: () => null,
                     }}
                   />
                 )}
@@ -441,7 +364,10 @@ export const DocumentPage = () => {
                   columnSpacing={{ xs: 1, sm: 2 }}
                 >
                   {getMetaDataFieldConfiguration(document).map(
-                    (fieldConfig: MetaDataFieldConfiguration) => {
+                    (
+                      fieldConfig: MetaDataFieldConfiguration,
+                      index: number
+                    ) => {
                       let showItem: boolean =
                         fieldConfig.hasFields === undefined ||
                         hasFields(...fieldConfig.hasFields)
@@ -460,7 +386,7 @@ export const DocumentPage = () => {
                             item
                             xs={fieldConfig.xs}
                             sm={fieldConfig.sm}
-                            key={fieldConfig.heading}
+                            key={`${fieldConfig.heading}-${index}`}
                           >
                             {fieldConfig.type ===
                               MetaDataFieldType.TextField && (
@@ -495,6 +421,7 @@ export const DocumentPage = () => {
                           </Grid>
                         )
                       }
+                      return null
                     }
                   )}
                 </Grid>

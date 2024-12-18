@@ -44,4 +44,9 @@ export interface CreateAccountFormErrors {
   retypePassword: string
 }
 
-export type { Document, Dictionary, Field, Fields }
+interface PdfViewerProps {
+  pdfFile: string
+  onClose: () => void
+}
+
+export type { Document, Dictionary, Field, Fields, PdfViewerProps }
