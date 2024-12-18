@@ -15,12 +15,6 @@ import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import DownloadIcon from '@mui/icons-material/Download'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-// eslint-disable-next-line import/no-named-as-default
-import Lightbox from 'yet-another-react-lightbox'
-// eslint-disable-next-line import/no-unresolved
-import Zoom from 'yet-another-react-lightbox/plugins/zoom'
-// eslint-disable-next-line import/no-unresolved
-import 'yet-another-react-lightbox/styles.css'
 
 import { SiteHeader } from '../../components/siteHeader'
 import { Document } from '../../common/types'
@@ -34,7 +28,7 @@ import {
 } from './metaDataFieldConfigs'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 import { useSearch } from '../search'
-import PdfViewer from '../search/components/pdfViewer'
+import DocumentViewer from '../search/components/documentViewer'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
@@ -50,10 +44,9 @@ export const DocumentPage = () => {
   const sort = searchParams.get('sort') ?? undefined
   const sortOrder = searchParams.get('sortOrder') ?? undefined
   const position = searchParams.get('position') ?? undefined
-  const [openLightbox, setOpenLightbox] = useState(false)
-  const [showPdf, setShowPdf] = useState(false)
-  const [showDownload, setShowDownload] = useState<boolean>(false)
+  const [showViewer, setShowViewer] = useState(false)
   const navigate = useNavigate()
+  const [showDocumentViewer, setShowDocumentViewer] = useState(false)
 
   useIsLoggedIn(true)
 
@@ -149,8 +142,6 @@ export const DocumentPage = () => {
     )
   }
 
-  const breakpoints = [3840, 1920, 1080, 640, 384, 256, 128]
-
   const documentAttachment = `${searchUrl}/document/${
     document?.id
   }/attachment/${document?.fields.filename?.value ?? 'bilaga'}`
@@ -164,6 +155,14 @@ export const DocumentPage = () => {
         : null,
     [document?.id, document?.fields.filename?.value]
   )
+
+  const breakpoints = [3840, 1920, 1080, 640, 384, 256, 128]
+
+  useEffect(() => {
+    return () => {
+      setShowDocumentViewer(false)
+    }
+  }, [])
 
   return (
     <>
@@ -248,12 +247,12 @@ export const DocumentPage = () => {
                     },
                   }}
                   onClick={() => {
-                    setShowDownload(true)
+                    setShowViewer(true)
                   }}
                 >
                   Ladda ner <DownloadIcon />
                 </Button>
-                <Dialog open={showDownload}>
+                <Dialog open={showViewer}>
                   <DialogTitle>
                     <Typography variant="h2">Ladda ner media</Typography>
                   </DialogTitle>
@@ -270,7 +269,7 @@ export const DocumentPage = () => {
                   <DialogActions>
                     <Button
                       onClick={() => {
-                        setShowDownload(false)
+                        setShowViewer(false)
                       }}
                       sx={{ marginRight: 2 }}
                     >
@@ -285,7 +284,7 @@ export const DocumentPage = () => {
                     >
                       <Button
                         onClick={() => {
-                          setShowDownload(false)
+                          setShowViewer(false)
                         }}
                       >
                         Ladda ner
@@ -297,9 +296,7 @@ export const DocumentPage = () => {
               <Box sx={{ marginTop: 1, marginBottom: 5 }}>
                 <Button
                   onClick={() => {
-                    document.pages.find((page) => page.pageType === 'Pdf')
-                      ? setShowPdf(true)
-                      : setOpenLightbox(true)
+                    setShowDocumentViewer(true)
                   }}
                 >
                   <img
@@ -315,45 +312,19 @@ export const DocumentPage = () => {
                     }}
                   />
                 </Button>
-                {showPdf && pdfFile ? (
-                  <PdfViewer
-                    pdfFile={pdfFile}
-                    onClose={() => setShowPdf(false)}
-                  />
-                ) : (
-                  <Lightbox
-                    open={openLightbox}
-                    close={() => setOpenLightbox(false)}
-                    slides={[
-                      {
-                        src: documentAttachment,
-                        width: 1920,
-                        height: 1080,
-                        srcSet: breakpoints.map((breakpoint) => ({
-                          src: documentAttachment,
-                          width: breakpoint,
-                          height: Math.round((1080 / 1920) * breakpoint),
-                        })),
-                      },
-                    ]}
-                    plugins={[Zoom]}
-                    animation={{ zoom: 1000 }}
-                    zoom={{
-                      maxZoomPixelRatio: 1,
-                      zoomInMultiplier: 2,
-                      doubleTapDelay: 300,
-                      doubleClickDelay: 300,
-                      doubleClickMaxStops: 2,
-                      keyboardMoveDistance: 50,
-                      wheelZoomDistanceFactor: 100,
-                      pinchZoomDistanceFactor: 100,
-                      scrollToZoom: true,
-                    }}
-                    carousel={{ finite: true }}
-                    render={{
-                      buttonPrev: () => null,
-                      buttonNext: () => null,
-                    }}
+                {showDocumentViewer && document && (
+                  <DocumentViewer
+                    file={pdfFile ?? documentAttachment}
+                    isPdf={Boolean(
+                      document.pages.find((page) => page.pageType === 'Pdf')
+                    )}
+                    onClose={() => setShowDocumentViewer(false)}
+                    onPrevious={() =>
+                      prevDocumentUrl && navigate(prevDocumentUrl)
+                    }
+                    onNext={() => nextDocumentUrl && navigate(nextDocumentUrl)}
+                    hasPrevious={Boolean(prevDocumentUrl)}
+                    hasNext={Boolean(nextDocumentUrl)}
                   />
                 )}
               </Box>
