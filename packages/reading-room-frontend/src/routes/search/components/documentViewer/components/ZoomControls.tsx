@@ -3,6 +3,7 @@ import ZoomInIcon from '@mui/icons-material/ZoomIn'
 import ZoomOutIcon from '@mui/icons-material/ZoomOut'
 import RestartAltIcon from '@mui/icons-material/RestartAlt'
 import Rotate90DegreesCwIcon from '@mui/icons-material/Rotate90DegreesCw'
+
 import { ZoomControlsProps } from '../../../../../common/types'
 
 export const ZoomControls = ({

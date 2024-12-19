@@ -156,8 +156,6 @@ export const DocumentPage = () => {
     [document?.id, document?.fields.filename?.value]
   )
 
-  const breakpoints = [3840, 1920, 1080, 640, 384, 256, 128]
-
   useEffect(() => {
     return () => {
       setShowDocumentViewer(false)

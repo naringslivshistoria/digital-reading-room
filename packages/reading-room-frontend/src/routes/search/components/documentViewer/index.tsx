@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { Box, IconButton, Typography } from '@mui/material'
+import { Box, IconButton, Typography, CircularProgress } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import { CircularProgress } from '@mui/material'
 import { pdfjs } from 'react-pdf'
+
 import { ZoomControls } from './components/ZoomControls'
 import { NavigationButtons } from './components/NavigationButtons'
 import { ViewerContent } from './components/ViewerContent'
