@@ -115,7 +115,7 @@ export default function DocumentViewer({
   useEffect(() => {
     return () => pdfInstance?.destroy().catch(console.error)
   }, [pdfInstance])
-  console.log(file)
+
   return (
     <Box
       sx={{
