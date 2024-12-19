@@ -57,6 +57,7 @@ interface DocumentViewerProps {
   onNext?: () => void
   hasPrevious?: boolean
   hasNext?: boolean
+  name: string
 }
 
 interface NavigationButtonsProps {
@@ -69,6 +70,15 @@ interface NavigationButtonsProps {
   onNext: () => void
 }
 
+interface ZoomControlsProps {
+  scale: number
+  position: { x: number; y: number }
+  onZoomIn: () => void
+  onZoomOut: () => void
+  onReset: () => void
+  onRotate: () => void
+}
+
 export type {
   Document,
   Dictionary,
@@ -79,4 +89,5 @@ export type {
   NavigationButtonsProps,
   CreateAccountFormData,
   CreateAccountFormErrors,
+  ZoomControlsProps,
 }

@@ -325,6 +325,7 @@ export const DocumentPage = () => {
                     onNext={() => nextDocumentUrl && navigate(nextDocumentUrl)}
                     hasPrevious={Boolean(prevDocumentUrl)}
                     hasNext={Boolean(nextDocumentUrl)}
+                    name={document.fields.title?.value}
                   />
                 )}
               </Box>

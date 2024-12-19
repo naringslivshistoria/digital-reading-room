@@ -18,6 +18,7 @@ export default function DocumentViewer({
   onNext,
   hasPrevious = false,
   hasNext = false,
+  name,
 }: DocumentViewerProps) {
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -27,6 +28,7 @@ export default function DocumentViewer({
   const [numPages, setNumPages] = useState(0)
   const [pdfInstance, setPdfInstance] = useState<any>(null)
   const [isImageLoading, setIsImageLoading] = useState(true)
+  const [rotation, setRotation] = useState(0)
 
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -78,13 +80,11 @@ export default function DocumentViewer({
   }
 
   const handleZoomIn = () => {
-    const newScale = Math.min(scale + 0.5, 5)
-    setScale(newScale)
+    setScale(Math.min(scale + 0.5, 5))
   }
 
   const handleZoomOut = () => {
-    const newScale = Math.max(scale - 0.5, 1)
-    setScale(newScale)
+    setScale(Math.max(scale - 0.5, 1))
   }
 
   const handleReset = () => {
@@ -93,46 +93,29 @@ export default function DocumentViewer({
   }
 
   const handlePrevious = () => {
-    if (isPdf) {
-      if (currentPdfPage <= 1 && onPrevious) {
-        handleReset()
-        onPrevious()
-      } else {
-        handleReset()
-        setCurrentPdfPage((prev) => Math.max(prev - 1, 1))
-      }
+    if (currentPdfPage > 1) {
+      setCurrentPdfPage((prev) => prev - 1)
     } else {
-      handleReset()
       onPrevious?.()
     }
   }
 
   const handleNext = () => {
-    if (isPdf) {
-      if (currentPdfPage >= numPages && onNext) {
-        handleReset()
-        setCurrentPdfPage(1)
-        onNext()
-      } else {
-        handleReset()
-        setCurrentPdfPage((prev) => Math.min(prev + 1, numPages))
-      }
+    if (currentPdfPage < numPages) {
+      setCurrentPdfPage((prev) => prev + 1)
     } else {
-      handleReset()
       onNext?.()
     }
   }
 
-  useEffect(() => {
-    return () => {
-      if (pdfInstance) {
-        pdfInstance.destroy().catch((error: Error) => {
-          console.error('Error destroying PDF instance:', error)
-        })
-      }
-    }
-  }, [pdfInstance])
+  const handleRotate = () => {
+    setRotation((prev) => (prev + 90) % 360)
+  }
 
+  useEffect(() => {
+    return () => pdfInstance?.destroy().catch(console.error)
+  }, [pdfInstance])
+  console.log(file)
   return (
     <Box
       sx={{
@@ -143,50 +126,69 @@ export default function DocumentViewer({
         left: 0,
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'flex-start',
         alignItems: 'center',
         backgroundColor: 'black',
+        padding: '2rem',
         zIndex: 1300,
         overflow: 'hidden',
-        padding: '2rem',
       }}
     >
       <Box
         sx={{
-          position: 'absolute',
-          top: 16,
-          right: 16,
-          zIndex: 1301,
+          width: '100%',
           display: 'flex',
-          gap: 2,
+          alignItems: 'center',
+          position: 'relative',
+          padding: '1rem 0',
         }}
       >
-        <ZoomControls
-          scale={scale}
-          position={position}
-          onZoomIn={handleZoomIn}
-          onZoomOut={handleZoomOut}
-          onReset={handleReset}
-        />
-        <IconButton onClick={onClose} sx={{ color: 'white' }}>
-          <CloseIcon sx={{ fontSize: 30 }} />
-        </IconButton>
-      </Box>
+        <Typography variant="h6" sx={{ color: 'white' }}>
+          {name}
+        </Typography>
 
-      {isPdf && numPages > 0 && (
-        <Typography
-          variant="h6"
+        {isPdf && numPages > 0 && (
+          <Box
+            sx={{
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              alignItems: 'center',
+              height: '100%',
+            }}
+          >
+            <Typography variant="h6" sx={{ color: 'white' }}>
+              Sida {currentPdfPage} av {numPages}
+            </Typography>
+          </Box>
+        )}
+
+        <Box
           sx={{
-            color: 'white',
-            position: 'absolute',
-            top: 20,
-            left: '50%',
-            transform: 'translateX(-50%)',
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            marginLeft: 'auto',
           }}
         >
-          Sida {currentPdfPage} av {numPages}
-        </Typography>
-      )}
+          <ZoomControls
+            scale={scale}
+            position={position}
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            onReset={handleReset}
+            onRotate={handleRotate}
+          />
+          <IconButton onClick={onClose} sx={{ color: 'white' }}>
+            <CloseIcon
+              sx={{
+                fontSize: 30,
+                '&:hover': { color: 'rgba(255, 255, 255, 0.3)' },
+              }}
+            />
+          </IconButton>
+        </Box>
+      </Box>
 
       <Box
         ref={containerRef}
@@ -204,11 +206,10 @@ export default function DocumentViewer({
           justifyContent: 'center',
           gap: 2,
           overflow: 'hidden',
-          position: 'relative',
           cursor: isDragging ? 'grabbing' : scale > 1 ? 'grab' : 'default',
         }}
       >
-        {!isPdf && isImageLoading && (
+        {isImageLoading && !isPdf && (
           <Box
             sx={{
               position: 'absolute',
@@ -234,10 +235,8 @@ export default function DocumentViewer({
 
         <Box
           sx={{
-            transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-            transition: isDragging
-              ? 'none'
-              : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: `scale(${scale}) translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
+            transition: isDragging ? 'none' : 'transform 0.3s ease-in-out',
             transformOrigin: 'center center',
             padding: '50px',
           }}
