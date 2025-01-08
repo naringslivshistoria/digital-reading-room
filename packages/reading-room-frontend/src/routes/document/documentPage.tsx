@@ -17,7 +17,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 
 import { SiteHeader } from '../../components/siteHeader'
-import { Document } from '../../common/types'
+import { Document, ViewerType } from '../../common/types'
 import noImage from '../../../assets/no-image.png'
 import { MetaDataField } from '../../components/metaDataField'
 import termsPdf from '../../../assets/cfn-nedladdning-villkor.pdf'
@@ -29,7 +29,6 @@ import {
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 import { useSearch } from '../search'
 import DocumentViewer from '../search/components/documentViewer'
-
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
 export const DocumentPage = () => {
@@ -313,9 +312,13 @@ export const DocumentPage = () => {
                 {showDocumentViewer && document && (
                   <DocumentViewer
                     file={pdfFile ?? documentAttachment}
-                    isPdf={Boolean(
+                    type={
                       document.pages.find((page) => page.pageType === 'Pdf')
-                    )}
+                        ? ViewerType.PDF
+                        : document.fields.attachmentType?.value === 'Film'
+                        ? ViewerType.VIDEO
+                        : ViewerType.IMAGE
+                    }
                     onClose={() => setShowDocumentViewer(false)}
                     onPrevious={() =>
                       prevDocumentUrl && navigate(prevDocumentUrl)
@@ -324,6 +327,7 @@ export const DocumentPage = () => {
                     hasPrevious={Boolean(prevDocumentUrl)}
                     hasNext={Boolean(nextDocumentUrl)}
                     name={document.fields.title?.value}
+                    download={() => setShowViewer(true)}
                   />
                 )}
               </Box>

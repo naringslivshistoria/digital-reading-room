@@ -1,18 +1,9 @@
 import { CircularProgress } from '@mui/material'
 import { Document as PdfDocument, Page as PdfPage } from 'react-pdf'
-
-interface ViewerContentProps {
-  isPdf: boolean
-  file: any
-  currentPdfPage: number
-  isImageLoading: boolean
-  onPdfLoad: (pdf: any) => void
-  onImageLoad: () => void
-  onImageError: () => void
-}
+import { ViewerContentProps, ViewerType } from '../../../../../common/types'
 
 export const ViewerContent = ({
-  isPdf,
+  type,
   file,
   currentPdfPage,
   isImageLoading,
@@ -20,7 +11,7 @@ export const ViewerContent = ({
   onImageLoad,
   onImageError,
 }: ViewerContentProps) => {
-  if (isPdf) {
+  if (type === ViewerType.PDF) {
     return (
       <PdfDocument
         file={file}

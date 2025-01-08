@@ -2,10 +2,10 @@ import { Button, Box } from '@mui/material'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 
-import { NavigationButtonsProps } from '../../../../../common/types'
+import { NavigationButtonsProps, ViewerType } from '../../../../../common/types'
 
 export const NavigationButtons = ({
-  isPdf,
+  type,
   currentPdfPage,
   numPages,
   hasPrevious,
@@ -16,7 +16,11 @@ export const NavigationButtons = ({
   <Box sx={{ zIndex: 1301 }}>
     <Button
       onClick={onPrevious}
-      disabled={isPdf ? currentPdfPage <= 1 && !hasPrevious : !hasPrevious}
+      disabled={
+        type === ViewerType.PDF
+          ? currentPdfPage <= 1 && !hasPrevious
+          : !hasPrevious
+      }
       sx={{
         color: 'white',
         position: 'fixed',
@@ -35,7 +39,11 @@ export const NavigationButtons = ({
     </Button>
     <Button
       onClick={onNext}
-      disabled={isPdf ? currentPdfPage >= numPages && !hasNext : !hasNext}
+      disabled={
+        type === ViewerType.PDF
+          ? currentPdfPage >= numPages && !hasNext
+          : !hasNext
+      }
       sx={{
         color: 'white',
         position: 'fixed',

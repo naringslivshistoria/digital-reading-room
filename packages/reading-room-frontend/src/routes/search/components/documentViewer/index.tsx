@@ -1,24 +1,26 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { Box, IconButton, Typography, CircularProgress } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
+import DownloadIcon from '@mui/icons-material/Download'
 import { pdfjs } from 'react-pdf'
 
 import { ZoomControls } from './components/ZoomControls'
 import { NavigationButtons } from './components/NavigationButtons'
 import { ViewerContent } from './components/ViewerContent'
-import { DocumentViewerProps } from '../../../../common/types'
+import { DocumentViewerProps, ViewerType } from '../../../../common/types'
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
 
 export default function DocumentViewer({
   file,
-  isPdf,
+  type,
   onClose,
   onPrevious,
   onNext,
   hasPrevious = false,
   hasNext = false,
   name,
+  download,
 }: DocumentViewerProps) {
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -44,10 +46,10 @@ export default function DocumentViewer({
     setCurrentPdfPage(1)
     setNumPages(0)
     setPdfInstance(null)
-    if (!isPdf) {
+    if (type !== 'pdf') {
       setIsImageLoading(true)
     }
-  }, [file, isPdf])
+  }, [file, type])
 
   const handleWheel = (e: React.WheelEvent) => {
     if (e.ctrlKey) {
@@ -116,6 +118,12 @@ export default function DocumentViewer({
     return () => pdfInstance?.destroy().catch(console.error)
   }, [pdfInstance])
 
+  const attachmentTypes = {
+    [ViewerType.PDF]: 'Dokument',
+    [ViewerType.VIDEO]: 'Film',
+    [ViewerType.IMAGE]: 'Bild',
+  }
+
   return (
     <Box
       sx={{
@@ -142,11 +150,24 @@ export default function DocumentViewer({
           padding: '1rem 0',
         }}
       >
-        <Typography variant="h6" sx={{ color: 'white' }}>
-          {name}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Typography
+            variant="h6"
+            sx={{
+              color: 'black',
+              backgroundColor: 'white',
+              padding: '0.1rem 0.5rem',
+              borderRadius: '0.5rem',
+            }}
+          >
+            {attachmentTypes[type]}
+          </Typography>
+          <Typography variant="h6" sx={{ color: 'white' }}>
+            {name}
+          </Typography>
+        </Box>
 
-        {isPdf && numPages > 0 && (
+        {type === ViewerType.PDF && numPages > 0 && (
           <Box
             sx={{
               position: 'absolute',
@@ -179,6 +200,14 @@ export default function DocumentViewer({
             onReset={handleReset}
             onRotate={handleRotate}
           />
+          <IconButton onClick={download} sx={{ color: 'white' }}>
+            <DownloadIcon
+              sx={{
+                fontSize: 30,
+                '&:hover': { color: 'rgba(255, 255, 255, 0.3)' },
+              }}
+            />
+          </IconButton>
           <IconButton onClick={onClose} sx={{ color: 'white' }}>
             <CloseIcon
               sx={{
@@ -209,7 +238,7 @@ export default function DocumentViewer({
           cursor: isDragging ? 'grabbing' : scale > 1 ? 'grab' : 'default',
         }}
       >
-        {isImageLoading && !isPdf && (
+        {isImageLoading && type !== 'pdf' && (
           <Box
             sx={{
               position: 'absolute',
@@ -224,7 +253,7 @@ export default function DocumentViewer({
         )}
 
         <NavigationButtons
-          isPdf={isPdf}
+          type={type}
           currentPdfPage={currentPdfPage}
           numPages={numPages}
           hasPrevious={hasPrevious}
@@ -242,7 +271,7 @@ export default function DocumentViewer({
           }}
         >
           <ViewerContent
-            isPdf={isPdf}
+            type={type}
             file={fileConfig}
             currentPdfPage={currentPdfPage}
             isImageLoading={isImageLoading}

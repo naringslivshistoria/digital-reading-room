@@ -49,19 +49,36 @@ interface Position {
   y: number
 }
 
+enum ViewerType {
+  VIDEO = 'video',
+  IMAGE = 'image',
+  PDF = 'pdf',
+}
+
 interface DocumentViewerProps {
   file: string
-  isPdf: boolean
+  type: ViewerType
   onClose: () => void
   onPrevious?: () => void
   onNext?: () => void
   hasPrevious?: boolean
   hasNext?: boolean
   name: string
+  download: () => void
+}
+
+interface ViewerContentProps {
+  file: any
+  type: ViewerType
+  currentPdfPage: number
+  isImageLoading: boolean
+  onPdfLoad: (pdf: any) => void
+  onImageLoad: () => void
+  onImageError: () => void
 }
 
 interface NavigationButtonsProps {
-  isPdf: boolean
+  type: ViewerType
   currentPdfPage: number
   numPages: number
   hasPrevious: boolean
@@ -86,8 +103,11 @@ export type {
   Fields,
   Position,
   DocumentViewerProps,
+  ViewerContentProps,
   NavigationButtonsProps,
   CreateAccountFormData,
   CreateAccountFormErrors,
   ZoomControlsProps,
 }
+
+export { ViewerType }
