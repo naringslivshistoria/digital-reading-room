@@ -328,6 +328,11 @@ export const DocumentPage = () => {
                     hasNext={Boolean(nextDocumentUrl)}
                     name={document.fields.title?.value}
                     download={() => setShowViewer(true)}
+                    thumbnailUrl={
+                      document.pages[0].thumbnailUrl
+                        ? `${searchUrl}/document/${document.id}/thumbnail`
+                        : undefined
+                    }
                   />
                 )}
               </Box>

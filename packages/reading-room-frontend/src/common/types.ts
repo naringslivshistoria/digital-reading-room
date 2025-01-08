@@ -65,16 +65,17 @@ interface DocumentViewerProps {
   hasNext?: boolean
   name: string
   download: () => void
+  thumbnailUrl?: string
 }
 
 interface ViewerContentProps {
   file: any
   type: ViewerType
   currentPdfPage: number
-  isImageLoading: boolean
   onPdfLoad: (pdf: any) => void
   onImageLoad: () => void
   onImageError: () => void
+  thumbnailUrl?: string
 }
 
 interface NavigationButtonsProps {

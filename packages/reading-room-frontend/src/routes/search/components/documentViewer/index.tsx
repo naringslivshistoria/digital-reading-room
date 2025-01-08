@@ -21,6 +21,7 @@ export default function DocumentViewer({
   hasNext = false,
   name,
   download,
+  thumbnailUrl,
 }: DocumentViewerProps) {
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -274,13 +275,13 @@ export default function DocumentViewer({
             type={type}
             file={fileConfig}
             currentPdfPage={currentPdfPage}
-            isImageLoading={isImageLoading}
             onPdfLoad={(pdf) => {
               setNumPages(pdf.numPages)
               setPdfInstance(pdf)
             }}
             onImageLoad={() => setIsImageLoading(false)}
             onImageError={() => setIsImageLoading(false)}
+            thumbnailUrl={thumbnailUrl}
           />
         </Box>
       </Box>

@@ -1,4 +1,5 @@
 import { Box } from '@mui/material'
+
 import { VideoPlayerProps } from '../../../../../common/types'
 
 export const VideoPlayer = ({ file }: VideoPlayerProps) => {
@@ -21,6 +22,7 @@ export const VideoPlayer = ({ file }: VideoPlayerProps) => {
         }}
       >
         <source src={file.url} type="video/mp4" />
+        <track kind="captions" src={file.url} srcLang="en" label="English" />
         Din webbläsare stödjer inte videouppspelning.
       </video>
     </Box>
