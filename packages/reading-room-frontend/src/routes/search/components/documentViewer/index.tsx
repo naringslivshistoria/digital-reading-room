@@ -238,7 +238,7 @@ export default function DocumentViewer({
           cursor: isDragging ? 'grabbing' : scale > 1 ? 'grab' : 'default',
         }}
       >
-        {isImageLoading && type !== 'pdf' && (
+        {isImageLoading && type !== ViewerType.IMAGE && (
           <Box
             sx={{
               position: 'absolute',

@@ -1,6 +1,7 @@
 import { CircularProgress } from '@mui/material'
 import { Document as PdfDocument, Page as PdfPage } from 'react-pdf'
 import { ViewerContentProps, ViewerType } from '../../../../../common/types'
+import { VideoPlayer } from './VideoPlayer'
 
 export const ViewerContent = ({
   type,
@@ -30,6 +31,10 @@ export const ViewerContent = ({
         />
       </PdfDocument>
     )
+  }
+
+  if (type === ViewerType.VIDEO) {
+    return <VideoPlayer file={file} />
   }
 
   return (

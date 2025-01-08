@@ -96,6 +96,12 @@ interface ZoomControlsProps {
   onRotate: () => void
 }
 
+interface VideoPlayerProps {
+  file: {
+    url: string
+  }
+}
+
 export type {
   Document,
   Dictionary,
@@ -108,6 +114,7 @@ export type {
   CreateAccountFormData,
   CreateAccountFormErrors,
   ZoomControlsProps,
+  VideoPlayerProps,
 }
 
 export { ViewerType }
