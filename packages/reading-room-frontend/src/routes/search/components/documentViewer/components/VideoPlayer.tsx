@@ -15,11 +15,13 @@ export const VideoPlayer = ({ file }: VideoPlayerProps) => {
     >
       <video
         controls
+        playsInline
         style={{
           maxWidth: '100%',
           maxHeight: '100%',
           objectFit: 'contain',
         }}
+        controlsList="nodownload"
       >
         <source src={file.url} type="video/mp4" />
         <track kind="captions" src={file.url} srcLang="en" label="English" />

@@ -161,6 +161,19 @@ export const DocumentPage = () => {
     }
   }, [])
 
+  console.log(document)
+
+  const getAttachmentType = () => {
+    if (document?.attachmentType?.toLowerCase()?.includes('video')) {
+      return ViewerType.VIDEO
+    }
+    if (document?.attachmentType?.toLowerCase()?.includes('pdf')) {
+      return ViewerType.PDF
+    }
+    return ViewerType.IMAGE
+  }
+  console.log(getAttachmentType())
+
   return (
     <>
       <SiteHeader />
@@ -312,13 +325,7 @@ export const DocumentPage = () => {
                 {showDocumentViewer && document && (
                   <DocumentViewer
                     file={pdfFile ?? documentAttachment}
-                    type={
-                      document.pages.find((page) => page.pageType === 'Pdf')
-                        ? ViewerType.PDF
-                        : document.fields.attachmentType?.value === 'Film'
-                        ? ViewerType.VIDEO
-                        : ViewerType.IMAGE
-                    }
+                    type={getAttachmentType()}
                     onClose={() => setShowDocumentViewer(false)}
                     onPrevious={() =>
                       prevDocumentUrl && navigate(prevDocumentUrl)

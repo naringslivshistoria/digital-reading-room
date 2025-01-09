@@ -52,6 +52,7 @@ export const ViewerContent = ({
         onLoadSuccess={onPdfLoad}
         loading={<CircularProgress />}
         error={<p>Kunde inte ladda PDF...</p>}
+        key={file.url}
       >
         <PdfPage
           pageNumber={currentPdfPage}
@@ -65,7 +66,7 @@ export const ViewerContent = ({
   }
 
   if (type === ViewerType.VIDEO) {
-    return <VideoPlayer file={file} />
+    return <VideoPlayer file={file} key={file.url} />
   }
 
   return (
@@ -89,7 +90,7 @@ export const ViewerContent = ({
         />
       )}
       <img
-        src={typeof file === 'string' ? file : file.url}
+        src={file.url}
         alt="Dokument"
         style={{
           width: '100%',
@@ -100,6 +101,7 @@ export const ViewerContent = ({
         }}
         onLoad={handleImageLoad}
         onError={onImageError}
+        key={file.url}
       />
     </Box>
   )
