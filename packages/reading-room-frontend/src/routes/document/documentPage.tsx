@@ -164,10 +164,14 @@ export const DocumentPage = () => {
   console.log(document)
 
   const getAttachmentType = () => {
+    console.log('document', document)
+    if (document?.pages[0]?.pageType === 'Image') {
+      return ViewerType.IMAGE
+    }
     if (document?.attachmentType?.toLowerCase()?.includes('video')) {
       return ViewerType.VIDEO
     }
-    if (document?.attachmentType?.toLowerCase()?.includes('pdf')) {
+    if (document?.pages[0]?.pageType === 'Pdf') {
       return ViewerType.PDF
     }
     return ViewerType.IMAGE
