@@ -1,8 +1,17 @@
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 
 import { VideoPlayerProps } from '../../../../../common/types'
 
 export const VideoPlayer = ({ file }: VideoPlayerProps) => {
+  if (file.url.endsWith('.flv')) {
+    return (
+      <Typography variant="h6" sx={{ color: 'white' }}>
+        Denna filtyp stöds inte för uppspelning i webbläsaren. Ladda ner filen
+        för att se den.
+      </Typography>
+    )
+  }
+
   return (
     <Box
       sx={{

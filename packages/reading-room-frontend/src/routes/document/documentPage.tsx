@@ -161,10 +161,7 @@ export const DocumentPage = () => {
     }
   }, [])
 
-  console.log(document)
-
   const getAttachmentType = () => {
-    console.log('document', document)
     if (document?.pages[0]?.pageType === 'Image') {
       return ViewerType.IMAGE
     }
@@ -176,7 +173,6 @@ export const DocumentPage = () => {
     }
     return ViewerType.IMAGE
   }
-  console.log(getAttachmentType())
 
   return (
     <>

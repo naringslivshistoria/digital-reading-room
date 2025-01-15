@@ -19,6 +19,7 @@ interface Document {
   documentState: string
   fields: Fields
   pages: [Page]
+  attachmentType: string
 }
 
 interface Dictionary<Type> {
