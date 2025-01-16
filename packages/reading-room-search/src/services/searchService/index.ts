@@ -8,18 +8,6 @@ export const routes = (router: KoaRouter) => {
 
     const fieldFilterConfigs: FieldFilterConfig[] = [
       {
-        fieldName: 'location',
-        displayName: 'Geografi',
-        filterType: FilterType.freeText,
-        visualSize: 3,
-      },
-      {
-        fieldName: 'time',
-        displayName: 'Årtal',
-        filterType: FilterType.freeText,
-        visualSize: 3,
-      },
-      {
         fieldName: 'attachmentType',
         displayName: 'Mediatyp',
         filterType: FilterType.values,
@@ -29,7 +17,7 @@ export const routes = (router: KoaRouter) => {
         fieldName: 'depositor',
         displayName: 'Deponent',
         filterType: FilterType.values,
-        visualSize: 3,
+        visualSize: 4,
       },
       {
         fieldName: 'archiveInitiator',
@@ -50,7 +38,7 @@ export const routes = (router: KoaRouter) => {
         parentField: 'seriesName',
         displayName: 'Volym',
         filterType: FilterType.values,
-        visualSize: 1,
+        visualSize: 2,
       },
     ]
 
