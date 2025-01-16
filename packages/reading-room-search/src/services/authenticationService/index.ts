@@ -234,8 +234,7 @@ export const routes = (router: KoaRouter) => {
         lastName: ctx.request.body.lastName as string,
         password_hash: password,
         salt,
-        depositors:
-          'Centrum för Näringslivshistoria;Föreningen Stockholms Företagsminnen',
+        depositors: 'Föreningen Stockholms Företagsminnen',
         organization: ctx.request.body.organization as string,
         role: 'User',
       }
