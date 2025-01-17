@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { CircularProgress, Box } from '@mui/material'
+import { CircularProgress, Box, Typography } from '@mui/material'
 import { Document as PdfDocument, Page as PdfPage } from 'react-pdf'
 
 import { ViewerContentProps, ViewerType } from '../../../../../common/types'
@@ -67,6 +67,16 @@ export const ViewerContent = ({
 
   if (type === ViewerType.VIDEO) {
     return <VideoPlayer file={file} key={file.url} />
+  }
+
+  if (file.url.endsWith('.tif')) {
+    onImageError?.()
+    return (
+      <Typography variant="h6" sx={{ color: 'white' }}>
+        Denna filtyp stöds inte för visning i webbläsaren. Ladda ner filen för
+        att se den.
+      </Typography>
+    )
   }
 
   return (
