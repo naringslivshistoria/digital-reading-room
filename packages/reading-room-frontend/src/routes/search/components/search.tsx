@@ -360,7 +360,28 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
           <Grid item sm={1}></Grid>
           <Grid item sm={1}></Grid>
           <Grid item xs={8} sm={10}>
-            <Box bgcolor={'white'}>
+            <Box>
+              <Typography
+                variant="body1"
+                sx={{
+                  marginTop: 1,
+                  '& .MuiGrid-item': {
+                    paddingTop: '4px',
+                    paddingBottom: '4px',
+                    paddingRight: '8px',
+                    '&:last-child': {
+                      paddingRight: 0,
+                    },
+                  },
+                }}
+              >
+                <b>
+                  Se vilka arkiv du kan söka i på{' '}
+                  <Link to="/min-sida">Min sida</Link>{' '}
+                </b>
+              </Typography>
+            </Box>
+            <Box>
               <Grid
                 container
                 sx={{
