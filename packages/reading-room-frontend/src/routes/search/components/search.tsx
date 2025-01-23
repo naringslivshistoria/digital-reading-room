@@ -254,40 +254,33 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                 {fieldFilterConfigs?.find(
                   (f) => f.fieldName === 'attachmentType'
                 ) && (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      flex: 1,
-                    }}
-                  >
+                  <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
                     <FormControl size="small" sx={{ width: '100%' }}>
                       <Select
+                        displayEmpty
                         renderValue={(selected) => {
-                          if (!selected || selected.length === 0) {
-                            return <em>Placeholder</em>
+                          if (
+                            !selected ||
+                            (Array.isArray(selected) && selected.length === 0)
+                          ) {
+                            return 'Mediatyp'
                           }
-                          return selected.join(', ')
+                          return Array.isArray(selected)
+                            ? selected.join(', ')
+                            : selected
                         }}
-                        defaultValue={
-                          Array.isArray(filters['mediaType']?.values)
-                            ? filters['mediaType']?.values
-                            : []
-                        }
-                        value={filters['mediaType']?.values ?? ['Mediatyp']}
+                        value={filters['attachmentType']?.values ?? []}
+                        size="small"
                         onChange={(e) => {
-                          const val =
-                            e.target.value === 'string'
+                          const values =
+                            typeof e.target.value === 'string'
                               ? e.target.value.split(';')
                               : (e.target.value as string[])
 
-                          if (val.length > 1 && !val[0]) {
-                            val.splice(0, 1)
-                          }
-
-                          updateFilter('mediaType', val)
+                          updateFilter('attachmentType', values)
                           search()
                         }}
+                        disabled={filtersLoading}
                         multiple
                         sx={{
                           width: '100%',
@@ -299,11 +292,12 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                           },
                         }}
                         style={{
+                          width: '150px',
                           height: '46px',
                         }}
                       >
                         {fieldFilterConfigs
-                          ?.find((f) => f.fieldName === 'mediaType')
+                          .find((f) => f.fieldName === 'attachmentType')
                           ?.allValues?.map((value: string) => (
                             <MenuItem
                               key={value}
@@ -312,13 +306,14 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                             >
                               <Checkbox
                                 checked={
-                                  filters['mediaType']?.values.indexOf(value) >
-                                  -1
+                                  filters['attachmentType']?.values.indexOf(
+                                    value
+                                  ) > -1
                                 }
                                 disabled={filtersLoading}
                               />
                               {fieldFilterConfigs
-                                ?.find((f) => f.fieldName === 'mediaType')
+                                .find((f) => f.fieldName === 'attachmentType')
                                 ?.values?.includes(value) ? (
                                 <b>{value}</b>
                               ) : (
