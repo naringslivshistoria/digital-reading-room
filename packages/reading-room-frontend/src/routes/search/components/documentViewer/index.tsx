@@ -47,6 +47,12 @@ export default function DocumentViewer({
     setCurrentPdfPage(1)
     setNumPages(0)
     setPdfInstance(null)
+
+    return () => {
+      if (pdfInstance) {
+        pdfInstance.destroy().catch(console.error)
+      }
+    }
   }, [file, type])
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -111,10 +117,6 @@ export default function DocumentViewer({
   const handleRotate = () => {
     setRotation((prev) => (prev + 90) % 360)
   }
-
-  useEffect(() => {
-    return () => pdfInstance?.destroy().catch(console.error)
-  }, [pdfInstance])
 
   const attachmentTypes = {
     [ViewerType.PDF]: 'Dokument',

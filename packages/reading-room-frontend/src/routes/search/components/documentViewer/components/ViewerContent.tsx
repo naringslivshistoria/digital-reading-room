@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { CircularProgress, Box, Typography } from '@mui/material'
+import { useState, useEffect, useCallback } from 'react'
+import { Box, Typography } from '@mui/material'
 import { Document as PdfDocument, Page as PdfPage } from 'react-pdf'
 
 import { ViewerContentProps, ViewerType } from '../../../../../common/types'
@@ -20,14 +20,21 @@ export const ViewerContent = ({
   useEffect(() => {
     setShowThumbnail(true)
     setIsLoading(true)
+
+    return () => {
+      setIsLoading(false)
+      setShowThumbnail(false)
+    }
   }, [file])
 
-  const handleDocumentLoad = () => {
+  const handleDocumentLoad = useCallback(() => {
     setIsLoading(false)
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setShowThumbnail(false)
     }, 300)
-  }
+
+    return () => clearTimeout(timeoutId)
+  }, [setIsLoading])
 
   if (file.url.endsWith('.tif')) {
     setIsLoading(false)
@@ -57,8 +64,9 @@ export const ViewerContent = ({
             zIndex: 1,
           }}
           onError={(e) => {
+            e.currentTarget.onerror = null
+            e.currentTarget.src = noImage
             setIsLoading(false)
-            e.currentTarget.style.display = 'none'
           }}
         />
       )}
@@ -110,7 +118,11 @@ export const ViewerContent = ({
             top: 0,
           }}
           onLoad={handleDocumentLoad}
-          onError={() => setIsLoading(false)}
+          onError={(e) => {
+            e.currentTarget.onerror = null
+            e.currentTarget.src = noImage
+            setIsLoading(false)
+          }}
           key={file.url}
         />
       )}
