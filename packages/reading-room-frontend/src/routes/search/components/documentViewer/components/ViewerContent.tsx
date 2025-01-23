@@ -11,66 +11,26 @@ export const ViewerContent = ({
   file,
   currentPdfPage,
   onPdfLoad,
-  onImageLoad,
-  onImageError,
   thumbnailUrl,
+  isLoading,
+  setIsLoading,
 }: ViewerContentProps) => {
   const [showThumbnail, setShowThumbnail] = useState(true)
-  const [thumbnailError, setThumbnailError] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
 
   useEffect(() => {
     setShowThumbnail(true)
-    setThumbnailError(false)
-    setImageLoaded(false)
+    setIsLoading(true)
   }, [file])
 
-  const handleImageLoad = () => {
-    setImageLoaded(true)
+  const handleDocumentLoad = () => {
+    setIsLoading(false)
     setTimeout(() => {
       setShowThumbnail(false)
     }, 300)
-    onImageLoad?.()
-  }
-
-  const handleThumbnailError = ({
-    currentTarget,
-  }: {
-    currentTarget: HTMLImageElement
-  }) => {
-    currentTarget.onerror = null
-    currentTarget.src = noImage
-    setThumbnailError(true)
-  }
-
-  if (type === ViewerType.PDF) {
-    return (
-      <PdfDocument
-        file={file}
-        onLoadError={(error) => console.error('PDF-laddningsfel:', error)}
-        onSourceError={(error) => console.error('PDF-källfel:', error)}
-        onLoadSuccess={onPdfLoad}
-        loading={<CircularProgress />}
-        error={<p>Kunde inte ladda PDF...</p>}
-        key={file.url}
-      >
-        <PdfPage
-          pageNumber={currentPdfPage}
-          renderTextLayer={false}
-          renderAnnotationLayer={false}
-          loading={<CircularProgress />}
-          canvasBackground="black"
-        />
-      </PdfDocument>
-    )
-  }
-
-  if (type === ViewerType.VIDEO) {
-    return <VideoPlayer file={file} key={file.url} />
   }
 
   if (file.url.endsWith('.tif')) {
-    onImageError?.()
+    setIsLoading(false)
     return (
       <Typography variant="h6" sx={{ color: 'white' }}>
         Denna filtyp stöds inte för visning i webbläsaren. Ladda ner filen för
@@ -81,7 +41,7 @@ export const ViewerContent = ({
 
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-      {showThumbnail && thumbnailUrl && !thumbnailError && (
+      {showThumbnail && thumbnailUrl && (
         <img
           src={thumbnailUrl}
           alt="Dokument (thumbnail)"
@@ -92,27 +52,68 @@ export const ViewerContent = ({
             width: '100%',
             height: '100%',
             objectFit: 'contain',
-            opacity: imageLoaded ? 0 : 1,
+            opacity: !isLoading ? 0 : 1,
             transition: 'opacity 0.3s ease-in-out',
             zIndex: 1,
           }}
-          onError={handleThumbnailError}
+          onError={(e) => {
+            setIsLoading(false)
+            e.currentTarget.style.display = 'none'
+          }}
         />
       )}
-      <img
-        src={file.url}
-        alt="Dokument"
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'contain',
-          opacity: imageLoaded ? 1 : 0,
-          transition: 'opacity 0.3s ease-in-out',
-        }}
-        onLoad={handleImageLoad}
-        onError={onImageError}
-        key={file.url}
-      />
+      {type === ViewerType.PDF ? (
+        <Box
+          sx={{
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <PdfDocument
+            file={file}
+            onLoadError={(error) => console.error('PDF-laddningsfel:', error)}
+            onSourceError={(error) => console.error('PDF-källfel:', error)}
+            onLoadSuccess={(pdf) => {
+              setIsLoading(false)
+              onPdfLoad?.(pdf)
+            }}
+            loading={null}
+            error={<p>Kunde inte ladda PDF...</p>}
+            key={file.url}
+          >
+            <PdfPage
+              pageNumber={currentPdfPage}
+              renderTextLayer={false}
+              renderAnnotationLayer={false}
+              loading={null}
+              canvasBackground="black"
+            />
+          </PdfDocument>
+        </Box>
+      ) : type === ViewerType.VIDEO ? (
+        <VideoPlayer file={file} key={file.url} />
+      ) : (
+        <img
+          src={file.url}
+          alt="Dokument"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            opacity: isLoading ? 0 : 1,
+            transition: 'opacity 0.3s ease-in-out',
+            position: 'absolute',
+            top: 0,
+          }}
+          onLoad={handleDocumentLoad}
+          onError={() => setIsLoading(false)}
+          key={file.url}
+        />
+      )}
     </Box>
   )
 }

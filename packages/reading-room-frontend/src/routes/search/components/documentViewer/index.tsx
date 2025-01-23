@@ -30,8 +30,8 @@ export default function DocumentViewer({
   const [currentPdfPage, setCurrentPdfPage] = useState(1)
   const [numPages, setNumPages] = useState(0)
   const [pdfInstance, setPdfInstance] = useState<any>(null)
-  const [isImageLoading, setIsImageLoading] = useState(true)
   const [rotation, setRotation] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
 
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -47,9 +47,6 @@ export default function DocumentViewer({
     setCurrentPdfPage(1)
     setNumPages(0)
     setPdfInstance(null)
-    if (type !== 'pdf') {
-      setIsImageLoading(true)
-    }
   }, [file, type])
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -239,7 +236,7 @@ export default function DocumentViewer({
           cursor: isDragging ? 'grabbing' : scale > 1 ? 'grab' : 'default',
         }}
       >
-        {isImageLoading && type === ViewerType.IMAGE && (
+        {isLoading && (
           <Box
             sx={{
               position: 'absolute',
@@ -269,6 +266,11 @@ export default function DocumentViewer({
             transition: isDragging ? 'none' : 'transform 0.3s ease-in-out',
             transformOrigin: 'center center',
             padding: '50px',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
           <ViewerContent
@@ -279,9 +281,9 @@ export default function DocumentViewer({
               setNumPages(pdf.numPages)
               setPdfInstance(pdf)
             }}
-            onImageLoad={() => setIsImageLoading(false)}
-            onImageError={() => setIsImageLoading(false)}
             thumbnailUrl={thumbnailUrl}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
           />
         </Box>
       </Box>

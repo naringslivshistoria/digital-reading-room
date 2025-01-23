@@ -74,9 +74,9 @@ interface ViewerContentProps {
   type: ViewerType
   currentPdfPage: number
   onPdfLoad: (pdf: any) => void
-  onImageLoad: () => void
-  onImageError: () => void
   thumbnailUrl?: string
+  isLoading: boolean
+  setIsLoading: (isLoading: boolean) => void
 }
 
 interface NavigationButtonsProps {
