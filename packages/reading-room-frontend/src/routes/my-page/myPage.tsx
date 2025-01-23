@@ -3,8 +3,27 @@ import { Grid, List, ListItem, Typography } from '@mui/material'
 import { SiteHeader } from '../../components/siteHeader'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 
+import { useFieldValues } from '../search/hooks/useSearch'
+
 export const MyPage = () => {
   const { data: user } = useIsLoggedIn(true)
+  const { data: fieldValues } = useFieldValues({ filter: null })
+
+  const depositors =
+    fieldValues?.find((config) => config.fieldName === 'depositor')
+      ?.allValues || []
+
+  const archiveInitiators =
+    fieldValues?.find((config) => config.fieldName === 'archiveInitiator')
+      ?.allValues || []
+
+  const seriesName =
+    fieldValues?.find((config) => config.fieldName === 'seriesName')
+      ?.allValues || []
+
+  const volumes =
+    fieldValues?.find((config) => config.fieldName === 'volume')?.allValues ||
+    []
 
   return (
     <>
@@ -43,10 +62,23 @@ export const MyPage = () => {
             sx={{ listStyleType: 'disc', paddingTop: 0, marginLeft: '20px' }}
           >
             {user?.depositors
-              ?.concat(user?.archiveInitiators || [])
+              ?.filter((dep) => depositors.includes(dep))
+              .concat(
+                user?.archiveInitiators?.filter((ai) =>
+                  archiveInitiators.includes(ai.split('>').pop() || '')
+                ) || []
+              )
+              .concat(
+                user?.series?.filter((s) =>
+                  seriesName.includes(s.split('>').pop() || '')
+                ) || []
+              )
+              .concat(
+                user?.volumes?.filter((v) =>
+                  volumes.includes(v.split('>').pop() || '')
+                ) || []
+              )
               .concat(user?.documentIds || [])
-              .concat(user?.series || [])
-              .concat(user?.volumes || [])
               .filter((a) => a != '')
               .sort()
               .map((archive) => (
