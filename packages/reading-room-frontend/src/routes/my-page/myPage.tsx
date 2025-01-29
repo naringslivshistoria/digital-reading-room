@@ -2,29 +2,22 @@ import { Grid, List, ListItem, Typography } from '@mui/material'
 
 import { SiteHeader } from '../../components/siteHeader'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
-
 import { useFieldValues } from '../search/hooks/useSearch'
 
 export const MyPage = () => {
   const { data: user } = useIsLoggedIn(true)
   const { data: fieldValues } = useFieldValues({ filter: null })
 
-  const depositors =
-    fieldValues?.find((config) => config.fieldName === 'depositor')
-      ?.allValues || []
-
-  const archiveInitiators =
-    fieldValues?.find((config) => config.fieldName === 'archiveInitiator')
-      ?.allValues || []
-
-  const seriesName =
-    fieldValues?.find((config) => config.fieldName === 'seriesName')
-      ?.allValues || []
-
-  const volumes =
-    fieldValues?.find((config) => config.fieldName === 'volume')?.allValues ||
+  const getFieldValues = (fieldName: string) =>
+    fieldValues?.find((config) => config.fieldName === fieldName)?.allValues ||
     []
 
+  const depositors = getFieldValues('depositor')
+  const archiveInitiators = getFieldValues('archiveInitiator')
+  const seriesName = getFieldValues('seriesName')
+  const volumes = getFieldValues('volume')
+
+  console.log(user)
   return (
     <>
       <SiteHeader />
@@ -69,9 +62,17 @@ export const MyPage = () => {
                 ) || []
               )
               .concat(
-                user?.series?.filter((s) =>
-                  seriesName.includes(s.split('>').pop() || '')
-                ) || []
+                user?.series?.filter((s) => {
+                  const parts = s.split('>')
+                  const seriesDepositor = parts[0]
+                  const seriesArchiveInitiator = parts[1]
+                  const seriesNamePart = parts.slice(2).join('>')
+                  return (
+                    depositors.includes(seriesDepositor) &&
+                    archiveInitiators.includes(seriesArchiveInitiator) &&
+                    seriesName.includes(seriesNamePart)
+                  )
+                }) || []
               )
               .concat(
                 user?.volumes?.filter((v) =>
