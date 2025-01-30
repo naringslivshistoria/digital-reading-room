@@ -1,5 +1,4 @@
 import { Grid, List, ListItem, Typography } from '@mui/material'
-
 import { SiteHeader } from '../../components/siteHeader'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 import { useFieldValues } from '../search/hooks/useSearch'
@@ -9,15 +8,49 @@ export const MyPage = () => {
   const { data: fieldValues } = useFieldValues({ filter: null })
 
   const getFieldValues = (fieldName: string) =>
-    fieldValues?.find((config) => config.fieldName === fieldName)?.allValues ||
-    []
+    fieldValues?.find((c) => c.fieldName === fieldName)?.allValues || []
 
-  const depositors = getFieldValues('depositor')
-  const archiveInitiators = getFieldValues('archiveInitiator')
-  const seriesName = getFieldValues('seriesName')
-  const volumes = getFieldValues('volume')
+  const currentValues = {
+    depositor: getFieldValues('depositor'),
+    archiveInitiator: getFieldValues('archiveInitiator'),
+    seriesName: getFieldValues('seriesName'),
+    volume: getFieldValues('volume'),
+  }
 
-  console.log(user)
+  const validateHierarchy = (path: string, levels: string[][]) => {
+    const parts = path.split('>')
+    return parts.every((part, index) => levels[index]?.includes(part) ?? false)
+  }
+
+  const accessList = [
+    ...(user?.depositors?.filter((d) => currentValues.depositor.includes(d)) ||
+      []),
+    ...(user?.archiveInitiators?.filter((a) =>
+      validateHierarchy(a, [
+        currentValues.depositor,
+        currentValues.archiveInitiator,
+      ])
+    ) || []),
+    ...(user?.series?.filter((s) =>
+      validateHierarchy(s, [
+        currentValues.depositor,
+        currentValues.archiveInitiator,
+        currentValues.seriesName,
+      ])
+    ) || []),
+    ...(user?.volumes?.filter((v) =>
+      validateHierarchy(v, [
+        currentValues.depositor,
+        currentValues.archiveInitiator,
+        currentValues.seriesName,
+        currentValues.volume,
+      ])
+    ) || []),
+    ...(user?.documentIds?.filter((id) => id) || []),
+  ]
+    .filter(Boolean)
+    .sort()
+
   return (
     <>
       <SiteHeader />
@@ -54,39 +87,11 @@ export const MyPage = () => {
           <List
             sx={{ listStyleType: 'disc', paddingTop: 0, marginLeft: '20px' }}
           >
-            {user?.depositors
-              ?.filter((dep) => depositors.includes(dep))
-              .concat(
-                user?.archiveInitiators?.filter((ai) =>
-                  archiveInitiators.includes(ai.split('>').pop() || '')
-                ) || []
-              )
-              .concat(
-                user?.series?.filter((s) => {
-                  const parts = s.split('>')
-                  const seriesDepositor = parts[0]
-                  const seriesArchiveInitiator = parts[1]
-                  const seriesNamePart = parts.slice(2).join('>')
-                  return (
-                    depositors.includes(seriesDepositor) &&
-                    archiveInitiators.includes(seriesArchiveInitiator) &&
-                    seriesName.includes(seriesNamePart)
-                  )
-                }) || []
-              )
-              .concat(
-                user?.volumes?.filter((v) =>
-                  volumes.includes(v.split('>').pop() || '')
-                ) || []
-              )
-              .concat(user?.documentIds || [])
-              .filter((a) => a != '')
-              .sort()
-              .map((archive) => (
-                <ListItem sx={{ display: 'list-item' }} key={archive}>
-                  {archive}
-                </ListItem>
-              ))}
+            {accessList.map((archive) => (
+              <ListItem sx={{ display: 'list-item' }} key={archive}>
+                {archive}
+              </ListItem>
+            ))}
           </List>
         </Grid>
         <Grid item xs={0.5} sm={1} />
