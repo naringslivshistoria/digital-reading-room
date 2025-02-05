@@ -187,7 +187,23 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
               spacing={2}
               alignItems={{ xs: 'flex-start', sm: 'center' }}
             >
-              <Box sx={{ flex: 1, width: '100%' }}>
+              <Box
+                sx={{
+                  flex: 1,
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <Grid
+                  item
+                  xs={1}
+                  sx={{
+                    display: { xs: 'none', md: 'block' },
+                  }}
+                >
+                  <Typography>Sök</Typography>
+                </Grid>
                 <TextField
                   variant="outlined"
                   sx={{ width: '100%', bgcolor: 'white' }}
@@ -335,7 +351,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
           </Grid>
           <Grid item sm={1}></Grid>
           <Grid item sm={1}></Grid>
-          <Grid item xs={8} sm={10}>
+          <Grid item xs={12} sm={8}>
             <Box>
               <Grid
                 container
@@ -349,8 +365,18 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                       paddingRight: 0,
                     },
                   },
+                  alignItems: 'center',
                 }}
               >
+                <Grid
+                  item
+                  xs={1}
+                  sx={{
+                    display: { xs: 'none', md: 'block' },
+                  }}
+                >
+                  <Typography>Filtrera</Typography>
+                </Grid>
                 {fieldFilterConfigs &&
                   fieldFilterConfigs
                     .filter((config) => config.fieldName !== 'mediaType')
