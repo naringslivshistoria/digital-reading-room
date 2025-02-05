@@ -4,12 +4,10 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  FormControl,
   Grid,
   IconButton,
   InputAdornment,
   MenuItem,
-  Select,
   Stack,
   TextField,
 } from '@mui/material'
@@ -18,7 +16,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Typography from '@mui/material/Typography'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import {
   FieldFilter,
@@ -194,12 +192,11 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                   variant="outlined"
                   sx={{ width: '100%', bgcolor: 'white' }}
                   placeholder="Sök efter dokument"
+                  size="small"
                   defaultValue={query}
                   onKeyUp={onSubmit}
                   inputProps={{
                     style: {
-                      height: '12px',
-                      padding: '19px 10px 15px 10px',
                       color: 'black',
                       backgroundColor: 'white',
                     },
@@ -216,8 +213,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                               onClick={() => clearQuery()}
                               sx={{
                                 bgcolor: 'white',
-                                height: '44px',
-                                width: '44px',
+                                width: '52px',
                                 borderRadius: 0,
                                 '&:hover': { bgcolor: 'white ' },
                               }}
@@ -233,9 +229,9 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                               color: 'white',
                               bgcolor: '#53565a',
                               borderRadius: 0,
-                              height: '46px',
-                              width: '46px',
-                              marginRight: '-13px',
+                              width: '50px',
+                              borderTopRightRadius: '4px',
+                              borderBottomRightRadius: '4px',
                             }}
                           >
                             <SearchIcon />
@@ -254,76 +250,61 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                 {fieldFilterConfigs?.find(
                   (f) => f.fieldName === 'attachmentType'
                 ) && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-                    <FormControl size="small" sx={{ width: '100%' }}>
-                      <Select
-                        displayEmpty
-                        renderValue={(selected) => {
-                          if (
-                            !selected ||
-                            (Array.isArray(selected) && selected.length === 0)
-                          ) {
-                            return 'Mediatyp'
-                          }
-                          return Array.isArray(selected)
-                            ? selected.join(', ')
-                            : selected
-                        }}
-                        value={filters['attachmentType']?.values ?? []}
-                        size="small"
-                        onChange={(e) => {
-                          const values =
-                            typeof e.target.value === 'string'
-                              ? e.target.value.split(';')
-                              : (e.target.value as string[])
+                  <TextField
+                    select
+                    label="Mediatyp"
+                    SelectProps={{
+                      multiple: true,
+                      renderValue: (selected) => {
+                        if (!selected || (selected as string[]).length === 0) {
+                          return ''
+                        }
+                        return (selected as string[]).join(', ')
+                      },
+                    }}
+                    value={filters['attachmentType']?.values ?? []}
+                    size="small"
+                    onChange={(e) => {
+                      const values = e.target.value as unknown as string[]
 
-                          updateFilter('attachmentType', values)
-                          search()
-                        }}
-                        disabled={filtersLoading}
-                        multiple
-                        sx={{
-                          width: '100%',
-                          transition: 'opacity 0.2s',
-                        }}
-                        inputProps={{
-                          style: {
-                            padding: '6px 4px',
-                          },
-                        }}
-                        style={{
-                          width: '150px',
-                          height: '46px',
-                        }}
-                      >
-                        {fieldFilterConfigs
-                          .find((f) => f.fieldName === 'attachmentType')
-                          ?.allValues?.map((value: string) => (
-                            <MenuItem
-                              key={value}
-                              value={value}
-                              disabled={filtersLoading}
-                            >
-                              <Checkbox
-                                checked={
-                                  filters['attachmentType']?.values.indexOf(
-                                    value
-                                  ) > -1
-                                }
-                                disabled={filtersLoading}
-                              />
-                              {fieldFilterConfigs
-                                .find((f) => f.fieldName === 'attachmentType')
-                                ?.values?.includes(value) ? (
-                                <b>{value}</b>
-                              ) : (
-                                value
-                              )}
-                            </MenuItem>
-                          ))}
-                      </Select>
-                    </FormControl>
-                  </Box>
+                      if (values.length > 1 && !values[0]) {
+                        values.splice(0, 1)
+                      }
+
+                      updateFilter('attachmentType', values)
+                      search()
+                    }}
+                    disabled={filtersLoading}
+                    sx={{
+                      width: '150px',
+                      transition: 'opacity 0.2s',
+                    }}
+                  >
+                    {fieldFilterConfigs
+                      .find((f) => f.fieldName === 'attachmentType')
+                      ?.allValues?.map((value: string) => (
+                        <MenuItem
+                          key={value}
+                          value={value}
+                          disabled={filtersLoading}
+                        >
+                          <Checkbox
+                            checked={
+                              filters['attachmentType']?.values.indexOf(value) >
+                              -1
+                            }
+                            disabled={filtersLoading}
+                          />
+                          {fieldFilterConfigs
+                            .find((f) => f.fieldName === 'attachmentType')
+                            ?.values?.includes(value) ? (
+                            <b>{value}</b>
+                          ) : (
+                            value
+                          )}
+                        </MenuItem>
+                      ))}
+                  </TextField>
                 )}
                 <Box
                   sx={{
@@ -355,27 +336,6 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
           <Grid item sm={1}></Grid>
           <Grid item sm={1}></Grid>
           <Grid item xs={8} sm={10}>
-            <Box>
-              <Typography
-                variant="body1"
-                sx={{
-                  marginTop: 1,
-                  '& .MuiGrid-item': {
-                    paddingTop: '4px',
-                    paddingBottom: '4px',
-                    paddingRight: '8px',
-                    '&:last-child': {
-                      paddingRight: 0,
-                    },
-                  },
-                }}
-              >
-                <b>
-                  Se vilka arkiv du kan söka i på{' '}
-                  <Link to="/min-sida">Min sida</Link>{' '}
-                </b>
-              </Typography>
-            </Box>
             <Box>
               <Grid
                 container
@@ -441,29 +401,21 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                               xs={12}
                               md={filterConfig.visualSize}
                             >
-                              <Typography
-                                sx={{
-                                  color: isDisabled
-                                    ? 'text.disabled'
-                                    : 'text.primary',
+                              <TextField
+                                select
+                                label={filterConfig.displayName}
+                                SelectProps={{
+                                  multiple: true,
+                                  renderValue: (selected) => {
+                                    if (
+                                      !selected ||
+                                      (selected as string[]).length === 0
+                                    ) {
+                                      return ''
+                                    }
+                                    return (selected as string[]).join(', ')
+                                  },
                                 }}
-                              >
-                                {filterConfig.displayName}
-                              </Typography>
-                              <Select
-                                renderValue={(selected) => {
-                                  if (!selected || selected.length === 0) {
-                                    return <em>Placeholder</em>
-                                  }
-                                  return selected.join(', ')
-                                }}
-                                defaultValue={
-                                  Array.isArray(
-                                    filters[filterConfig.fieldName]?.values
-                                  )
-                                    ? filters[filterConfig.fieldName]?.values
-                                    : []
-                                }
                                 value={
                                   filters[filterConfig.fieldName]?.values ?? []
                                 }
@@ -472,7 +424,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                   const val =
                                     e.target.value === 'string'
                                       ? e.target.value.split(';')
-                                      : (e.target.value as string[])
+                                      : (e.target.value as unknown as string[])
 
                                   if (val.length > 1 && !val[0]) {
                                     val.splice(0, 1)
@@ -482,16 +434,10 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                   search()
                                 }}
                                 disabled={isDisabled || filtersLoading}
-                                multiple
                                 sx={{
                                   width: '100%',
                                   opacity: isDisabled ? 0.7 : 1,
                                   transition: 'opacity 0.2s',
-                                }}
-                                inputProps={{
-                                  style: {
-                                    padding: '6px 4px',
-                                  },
                                 }}
                               >
                                 {filterConfig.allValues?.map(
@@ -517,7 +463,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                     </MenuItem>
                                   )
                                 )}
-                              </Select>
+                              </TextField>
                             </Grid>
                           )
                       }
