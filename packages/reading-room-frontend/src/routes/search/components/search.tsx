@@ -184,12 +184,14 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
           <Grid item xs={0} sm={1} />
           <Grid item xs={12} sm={10}>
             <Stack spacing={2}>
-              <Stack direction="row">
+              <Stack direction="row" alignItems="center" position="relative">
                 <Typography
                   sx={{
                     width: '100px',
-                    alignItems: 'center',
-                    display: { xs: 'none', sm: 'flex' },
+                    display: { xs: 'none', xl: 'flex' },
+                    position: 'absolute',
+                    left: '-130px',
+                    justifyContent: 'flex-end',
                   }}
                 >
                   Sök:
@@ -202,13 +204,14 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                 >
                   <TextField
                     variant="outlined"
-                    sx={{ width: '100%', bgcolor: 'white' }}
+                    sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
                     placeholder="Sök efter dokument"
-                    size="small"
                     defaultValue={query}
                     onKeyUp={onSubmit}
                     inputProps={{
                       style: {
+                        height: '12px',
+                        padding: '19px 10px 15px 10px',
                         color: 'black',
                         backgroundColor: 'white',
                       },
@@ -225,7 +228,8 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                 onClick={() => clearQuery()}
                                 sx={{
                                   bgcolor: 'white',
-                                  width: '52px',
+                                  height: '44px',
+                                  width: '44px',
                                   borderRadius: 0,
                                   '&:hover': { bgcolor: 'white ' },
                                 }}
@@ -241,9 +245,9 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                 color: 'white',
                                 bgcolor: '#53565a',
                                 borderRadius: 0,
-                                width: '50px',
-                                borderTopRightRadius: '4px',
-                                borderBottomRightRadius: '4px',
+                                height: '46px',
+                                width: '46px',
+                                marginRight: '-13px',
                               }}
                             >
                               <SearchIcon />
@@ -271,6 +275,9 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                               return ''
                             }
                             return (selected as string[]).join(', ')
+                          },
+                          sx: {
+                            lineHeight: 1.8,
                           },
                         }}
                         value={filters['attachmentType']?.values ?? []}
@@ -349,153 +356,160 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                 </Stack>
               </Stack>
 
-              <Stack direction="row">
-                <Typography
-                  sx={{
-                    width: '100px',
-                    alignItems: 'center',
-                    display: { xs: 'none', sm: 'flex' },
-                  }}
-                >
-                  Filtrera:
-                </Typography>
-
-                <Stack
-                  direction={{ xs: 'column', sm: 'row' }}
-                  spacing={2}
-                  sx={{ width: '100%' }}
-                >
-                  {fieldFilterConfigs &&
-                    fieldFilterConfigs
-                      .filter((config) => config.fieldName !== 'mediaType')
-                      .map((filterConfig: FieldFilterConfig) => {
-                        const isDisabled = isFieldDisabled(
-                          filterConfig,
-                          filters
-                        )
-                        switch (filterConfig.filterType) {
-                          case FilterType.freeText:
-                            return (
-                              <Box
-                                key={filterConfig.fieldName}
-                                sx={{
-                                  width: {
-                                    xs: '100%',
-                                    sm: `${filterConfig.visualSize * 25}%`,
-                                  },
-                                }}
-                              >
-                                <Typography
+              <Stack direction="row" alignItems="center" position="relative">
+                {fieldFilterConfigs && (
+                  <>
+                    <Typography
+                      sx={{
+                        width: '100px',
+                        display: { xs: 'none', xl: 'flex' },
+                        position: 'absolute',
+                        left: '-130px',
+                        justifyContent: 'flex-end',
+                      }}
+                    >
+                      Filtrera:
+                    </Typography>
+                    <Stack
+                      direction={{ xs: 'column', sm: 'row' }}
+                      spacing={2}
+                      sx={{ width: '100%' }}
+                    >
+                      {fieldFilterConfigs
+                        .filter((config) => config.fieldName !== 'mediaType')
+                        .map((filterConfig: FieldFilterConfig) => {
+                          const isDisabled = isFieldDisabled(
+                            filterConfig,
+                            filters
+                          )
+                          switch (filterConfig.filterType) {
+                            case FilterType.freeText:
+                              return (
+                                <Box
+                                  key={filterConfig.fieldName}
                                   sx={{
-                                    color: isDisabled
-                                      ? 'text.disabled'
-                                      : 'text.primary',
-                                  }}
-                                >
-                                  {filterConfig.displayName}
-                                </Typography>
-                                <TextField
-                                  onKeyUp={filterKeyUp}
-                                  defaultValue={
-                                    filters[filterConfig.fieldName]?.values[0]
-                                  }
-                                  size="small"
-                                  disabled={isDisabled}
-                                  onChange={(e) =>
-                                    updateFilter(filterConfig.fieldName, [
-                                      e.target.value,
-                                    ])
-                                  }
-                                  sx={{ width: '100%' }}
-                                />
-                              </Box>
-                            )
-                          case FilterType.values:
-                            if (filterConfig.fieldName === 'attachmentType') {
-                              return null
-                            }
-                            return (
-                              <Box
-                                key={filterConfig.fieldName}
-                                sx={{
-                                  width: {
-                                    xs: '100%',
-                                    sm: `${filterConfig.visualSize * 25}%`,
-                                  },
-                                }}
-                              >
-                                <TextField
-                                  select
-                                  label={filterConfig.displayName}
-                                  SelectProps={{
-                                    multiple: true,
-                                    renderValue: (selected) => {
-                                      if (
-                                        !selected ||
-                                        (selected as string[]).length === 0
-                                      ) {
-                                        return ''
-                                      }
-                                      return (selected as string[]).join(', ')
+                                    width: {
+                                      xs: '100%',
+                                      sm: `${filterConfig.visualSize * 25}%`,
                                     },
                                   }}
-                                  value={
-                                    filters[filterConfig.fieldName]?.values ??
-                                    []
-                                  }
-                                  size="small"
-                                  onChange={(e) => {
-                                    const val =
-                                      e.target.value === 'string'
-                                        ? e.target.value.split(';')
-                                        : (e.target
-                                            .value as unknown as string[])
-
-                                    if (val.length > 1 && !val[0]) {
-                                      val.splice(0, 1)
+                                >
+                                  <Typography
+                                    sx={{
+                                      color: isDisabled
+                                        ? 'text.disabled'
+                                        : 'text.primary',
+                                    }}
+                                  >
+                                    {filterConfig.displayName}
+                                  </Typography>
+                                  <TextField
+                                    onKeyUp={filterKeyUp}
+                                    defaultValue={
+                                      filters[filterConfig.fieldName]?.values[0]
                                     }
-
-                                    updateFilter(filterConfig.fieldName, val)
-                                    search()
-                                  }}
-                                  disabled={isDisabled || filtersLoading}
+                                    size="small"
+                                    disabled={isDisabled}
+                                    onChange={(e) =>
+                                      updateFilter(filterConfig.fieldName, [
+                                        e.target.value,
+                                      ])
+                                    }
+                                    sx={{ width: '100%' }}
+                                  />
+                                </Box>
+                              )
+                            case FilterType.values:
+                              if (filterConfig.fieldName === 'attachmentType') {
+                                return null
+                              }
+                              return (
+                                <Box
+                                  key={filterConfig.fieldName}
                                   sx={{
-                                    width: '100%',
-                                    opacity: isDisabled ? 0.7 : 1,
-                                    transition: 'opacity 0.2s',
+                                    width: {
+                                      xs: '100%',
+                                      sm: `${filterConfig.visualSize * 25}%`,
+                                    },
                                   }}
                                 >
-                                  {filterConfig.allValues?.map(
-                                    (value: string) => (
-                                      <MenuItem
-                                        key={value}
-                                        value={value}
-                                        disabled={filtersLoading}
-                                      >
-                                        <Checkbox
-                                          checked={
-                                            filters[
-                                              filterConfig.fieldName
-                                            ]?.values.indexOf(value) > -1
-                                          }
+                                  <TextField
+                                    select
+                                    label={filterConfig.displayName}
+                                    SelectProps={{
+                                      multiple: true,
+                                      renderValue: (selected) => {
+                                        if (
+                                          !selected ||
+                                          (selected as string[]).length === 0
+                                        ) {
+                                          return ''
+                                        }
+                                        return (selected as string[]).join(', ')
+                                      },
+                                      sx: {
+                                        lineHeight: 1.8,
+                                      },
+                                    }}
+                                    value={
+                                      filters[filterConfig.fieldName]?.values ??
+                                      []
+                                    }
+                                    size="small"
+                                    onChange={(e) => {
+                                      const val =
+                                        e.target.value === 'string'
+                                          ? e.target.value.split(';')
+                                          : (e.target
+                                              .value as unknown as string[])
+
+                                      if (val.length > 1 && !val[0]) {
+                                        val.splice(0, 1)
+                                      }
+
+                                      updateFilter(filterConfig.fieldName, val)
+                                      search()
+                                    }}
+                                    disabled={isDisabled || filtersLoading}
+                                    sx={{
+                                      width: '100%',
+                                      opacity: isDisabled ? 0.7 : 1,
+                                      transition: 'opacity 0.2s',
+                                    }}
+                                  >
+                                    {filterConfig.allValues?.map(
+                                      (value: string) => (
+                                        <MenuItem
+                                          key={value}
+                                          value={value}
                                           disabled={filtersLoading}
-                                        />
-                                        {filterConfig.values?.includes(
-                                          value
-                                        ) ? (
-                                          <b>{value}</b>
-                                        ) : (
-                                          value
-                                        )}
-                                      </MenuItem>
-                                    )
-                                  )}
-                                </TextField>
-                              </Box>
-                            )
-                        }
-                      })}
-                </Stack>
+                                        >
+                                          <Checkbox
+                                            checked={
+                                              filters[
+                                                filterConfig.fieldName
+                                              ]?.values.indexOf(value) > -1
+                                            }
+                                            disabled={filtersLoading}
+                                          />
+                                          {filterConfig.values?.includes(
+                                            value
+                                          ) ? (
+                                            <b>{value}</b>
+                                          ) : (
+                                            value
+                                          )}
+                                        </MenuItem>
+                                      )
+                                    )}
+                                  </TextField>
+                                </Box>
+                              )
+                          }
+                        })}
+                    </Stack>
+                  </>
+                )}
               </Stack>
             </Stack>
           </Grid>
