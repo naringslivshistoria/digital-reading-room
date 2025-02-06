@@ -19,7 +19,6 @@ export const MetaDataField = ({
       return '-'
     }
     if (fieldName === 'volume') {
-      const query = searchParams.get('query') || ''
       const newFilter = [
         `depositor::${document.fields.depositor.value}`,
         `archiveInitiator::${document.fields.archiveInitiator.value}`,
@@ -29,7 +28,7 @@ export const MetaDataField = ({
         .filter((f) => f)
         .join('||')
 
-      const searchString = `/search?query=${query}${
+      const searchString = `/search?query=${
         newFilter ? `&filter=${encodeURIComponent(newFilter)}` : ''
       }`
 
