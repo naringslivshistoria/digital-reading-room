@@ -146,7 +146,8 @@ const mdTheme = createTheme({
     MuiFormLabel: {
       styleOverrides: {
         root: {
-          padding: 5,
+          paddingTop: 5,
+          paddingBottom: 5,
         },
       },
     },
