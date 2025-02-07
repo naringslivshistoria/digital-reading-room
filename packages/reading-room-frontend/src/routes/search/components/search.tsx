@@ -190,7 +190,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                     width: '100px',
                     display: { xs: 'none', xl: 'flex' },
                     position: 'absolute',
-                    left: '-130px',
+                    left: '-120px',
                     justifyContent: 'flex-end',
                   }}
                 >
@@ -211,7 +211,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                     inputProps={{
                       style: {
                         height: '12px',
-                        padding: '19px 10px 15px 10px',
+                        padding: '19px 10px 15px 16px',
                         color: 'black',
                         backgroundColor: 'white',
                       },
@@ -364,7 +364,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                         width: '100px',
                         display: { xs: 'none', xl: 'flex' },
                         position: 'absolute',
-                        left: '-130px',
+                        left: '-120px',
                         justifyContent: 'flex-end',
                       }}
                     >
