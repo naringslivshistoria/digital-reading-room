@@ -211,7 +211,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                     inputProps={{
                       style: {
                         height: '12px',
-                        padding: '19px 10px 15px 16px',
+                        padding: '19px 10px 15px 12px',
                         color: 'black',
                         backgroundColor: 'white',
                       },
