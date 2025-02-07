@@ -18,13 +18,14 @@ export const MetaDataField = ({
     if (!document.fields[fieldName]?.value) {
       return '-'
     }
-
     if (fieldName === 'volume') {
-      const existingFilter = searchParams.get('filter') || ''
-      const newFilter = existingFilter
-        .split('||')
-        .filter((f) => !f.startsWith('volume::'))
-        .concat(`volume::${document.fields.volume.value}`)
+      const newFilter = [
+        `depositor::${document.fields.depositor.value}`,
+        `archiveInitiator::${document.fields.archiveInitiator.value}`,
+        `seriesName::${document.fields.seriesName.value}`,
+        `volume::${document.fields.volume.value}`,
+      ]
+        .filter((f) => f)
         .join('||')
 
       const searchString = `/search?query=${
