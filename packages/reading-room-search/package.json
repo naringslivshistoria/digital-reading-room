@@ -52,7 +52,7 @@
     "http-errors": "^2.0.0",
     "jsonwebtoken": "^9.0.0",
     "knex": "^2.5.1",
-    "koa": "^2.13.4",
+    "koa": "^2.15.4",
     "koa-bodyparser": "^4.3.0",
     "koa-jwt": "^4.0.4",
     "koa-pino-logger": "^4.0.0",
