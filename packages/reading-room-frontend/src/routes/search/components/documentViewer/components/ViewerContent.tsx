@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Box, Typography } from '@mui/material'
 import { Document as PdfDocument, Page as PdfPage } from 'react-pdf'
-
 import { ViewerContentProps, ViewerType } from '../../../../../common/types'
 import { VideoPlayer } from './VideoPlayer'
 import noImage from '../../../../../../assets/no-image.png'
@@ -16,24 +15,35 @@ export const ViewerContent = ({
   setIsLoading,
 }: ViewerContentProps) => {
   const [showThumbnail, setShowThumbnail] = useState(true)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
     setShowThumbnail(true)
     setIsLoading(true)
-
-    return () => {
-      setIsLoading(false)
-      setShowThumbnail(false)
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
     }
-  }, [file])
+    if (
+      type !== ViewerType.PDF &&
+      type !== ViewerType.VIDEO &&
+      imgRef.current?.complete
+    ) {
+      handleDocumentLoad()
+    }
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [file, setIsLoading])
 
   const handleDocumentLoad = useCallback(() => {
     setIsLoading(false)
-    const timeoutId = setTimeout(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    timeoutRef.current = setTimeout(() => {
       setShowThumbnail(false)
     }, 300)
-
-    return () => clearTimeout(timeoutId)
   }, [setIsLoading])
 
   if (file.url.endsWith('.tif')) {
@@ -46,31 +56,9 @@ export const ViewerContent = ({
     )
   }
 
-  return (
-    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-      {showThumbnail && thumbnailUrl && (
-        <img
-          src={thumbnailUrl}
-          alt="Dokument (thumbnail)"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            opacity: !isLoading ? 0 : 1,
-            transition: 'opacity 0.3s ease-in-out',
-            zIndex: 1,
-          }}
-          onError={(e) => {
-            e.currentTarget.onerror = null
-            e.currentTarget.src = noImage
-            setIsLoading(false)
-          }}
-        />
-      )}
-      {type === ViewerType.PDF ? (
+  const renderContent = () => {
+    if (type === ViewerType.PDF) {
+      return (
         <Box
           sx={{
             position: 'relative',
@@ -83,8 +71,14 @@ export const ViewerContent = ({
         >
           <PdfDocument
             file={file}
-            onLoadError={(error) => console.error('PDF-laddningsfel:', error)}
-            onSourceError={(error) => console.error('PDF-källfel:', error)}
+            onLoadError={(error) => {
+              console.error('PDF-laddningsfel:', error)
+              setIsLoading(false)
+            }}
+            onSourceError={(error) => {
+              console.error('PDF-källfel:', error)
+              setIsLoading(false)
+            }}
             onLoadSuccess={(pdf) => {
               setIsLoading(false)
               onPdfLoad?.(pdf)
@@ -102,10 +96,13 @@ export const ViewerContent = ({
             />
           </PdfDocument>
         </Box>
-      ) : type === ViewerType.VIDEO ? (
-        <VideoPlayer file={file} key={file.url} />
-      ) : (
+      )
+    } else if (type === ViewerType.VIDEO) {
+      return <VideoPlayer file={file} key={file.url} />
+    } else {
+      return (
         <img
+          ref={imgRef}
           src={file.url}
           alt="Dokument"
           style={{
@@ -125,7 +122,36 @@ export const ViewerContent = ({
           }}
           key={file.url}
         />
+      )
+    }
+  }
+
+  return (
+    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+      {showThumbnail && thumbnailUrl && (
+        <img
+          src={thumbnailUrl}
+          alt="Dokument (thumbnail)"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            opacity: isLoading ? 1 : 0,
+            transition: 'opacity 0.3s ease-in-out',
+            zIndex: 1,
+          }}
+          onError={(e) => {
+            e.currentTarget.onerror = null
+            e.currentTarget.src = noImage
+            setIsLoading(false)
+            setShowThumbnail(false)
+          }}
+        />
       )}
+      {renderContent()}
     </Box>
   )
 }

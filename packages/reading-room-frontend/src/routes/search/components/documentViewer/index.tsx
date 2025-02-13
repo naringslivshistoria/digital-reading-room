@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { Box, IconButton, Typography, CircularProgress } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import DownloadIcon from '@mui/icons-material/Download'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { pdfjs } from 'react-pdf'
 
 import { ZoomControls } from './components/ZoomControls'
@@ -29,10 +31,9 @@ export default function DocumentViewer({
   const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 })
   const [currentPdfPage, setCurrentPdfPage] = useState(1)
   const [numPages, setNumPages] = useState(0)
-  const [pdfInstance, setPdfInstance] = useState<any>(null)
   const [rotation, setRotation] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-
+  const pdfInstanceRef = useRef<any>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const fileConfig = useMemo(
@@ -46,12 +47,9 @@ export default function DocumentViewer({
   useEffect(() => {
     setCurrentPdfPage(1)
     setNumPages(0)
-    setPdfInstance(null)
-
-    return () => {
-      if (pdfInstance) {
-        pdfInstance.destroy().catch(console.error)
-      }
+    if (pdfInstanceRef.current) {
+      pdfInstanceRef.current.destroy().catch(console.error)
+      pdfInstanceRef.current = null
     }
   }, [file, type])
 
@@ -86,11 +84,11 @@ export default function DocumentViewer({
   }
 
   const handleZoomIn = () => {
-    setScale(Math.min(scale + 0.5, 5))
+    setScale((prev) => Math.min(prev + 0.5, 5))
   }
 
   const handleZoomOut = () => {
-    setScale(Math.max(scale - 0.5, 1))
+    setScale((prev) => Math.max(prev - 0.5, 1))
   }
 
   const handleReset = () => {
@@ -99,18 +97,22 @@ export default function DocumentViewer({
   }
 
   const handlePrevious = () => {
-    if (currentPdfPage > 1) {
-      setCurrentPdfPage((prev) => prev - 1)
-    } else {
-      onPrevious?.()
-    }
+    onPrevious?.()
   }
 
   const handleNext = () => {
+    onNext?.()
+  }
+
+  const handlePreviousPDFPage = () => {
+    if (currentPdfPage > 1) {
+      setCurrentPdfPage((prev) => prev - 1)
+    }
+  }
+
+  const handleNextPDFPage = () => {
     if (currentPdfPage < numPages) {
       setCurrentPdfPage((prev) => prev + 1)
-    } else {
-      onNext?.()
     }
   }
 
@@ -128,14 +130,13 @@ export default function DocumentViewer({
     <Box
       sx={{
         width: '100%',
-        height: '100vh',
+        height: '100%',
         position: 'fixed',
         top: 0,
         left: 0,
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        backgroundColor: 'black',
+        backgroundColor: '#000000',
         padding: '2rem',
         zIndex: 1300,
         overflow: 'hidden',
@@ -147,10 +148,17 @@ export default function DocumentViewer({
           display: 'flex',
           alignItems: 'center',
           position: 'relative',
-          padding: '1rem 0',
+          padding: { xs: '0 0 1rem 0', sm: '1rem 0' },
+          flexDirection: { xs: 'column', sm: 'row' },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+          }}
+        >
           <Typography
             variant="h6"
             sx={{
@@ -167,47 +175,35 @@ export default function DocumentViewer({
           </Typography>
         </Box>
 
-        {type === ViewerType.PDF && numPages > 0 && (
-          <Box
-            sx={{
-              position: 'absolute',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              display: 'flex',
-              alignItems: 'center',
-              height: '100%',
-            }}
-          >
-            <Typography variant="h6" sx={{ color: 'white' }}>
-              Sida {currentPdfPage} av {numPages}
-            </Typography>
-          </Box>
-        )}
-
         <Box
           sx={{
             display: 'flex',
-            gap: 2,
+            gap: { xs: 0, sm: 5 },
             alignItems: 'center',
-            marginLeft: 'auto',
+            marginLeft: { xs: '0', sm: 'auto' },
+            marginTop: { xs: '1rem', sm: 0 },
+            width: { xs: '100%', sm: 'auto' },
+            justifyContent: { xs: 'space-between', sm: 'flex-start' },
           }}
         >
-          <ZoomControls
-            scale={scale}
-            position={position}
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            onReset={handleReset}
-            onRotate={handleRotate}
-          />
-          <IconButton onClick={download} sx={{ color: 'white' }}>
-            <DownloadIcon
-              sx={{
-                fontSize: 30,
-                '&:hover': { color: 'rgba(255, 255, 255, 0.3)' },
-              }}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <ZoomControls
+              scale={scale}
+              position={position}
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
+              onReset={handleReset}
+              onRotate={handleRotate}
             />
-          </IconButton>
+            <IconButton onClick={download} sx={{ color: 'white' }}>
+              <DownloadIcon
+                sx={{
+                  fontSize: 30,
+                  '&:hover': { color: 'rgba(255, 255, 255, 0.3)' },
+                }}
+              />
+            </IconButton>
+          </Box>
           <IconButton onClick={onClose} sx={{ color: 'white' }}>
             <CloseIcon
               sx={{
@@ -220,74 +216,130 @@ export default function DocumentViewer({
       </Box>
 
       <Box
-        ref={containerRef}
-        onWheel={handleWheel}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
         sx={{
-          marginTop: '20px',
+          flex: 1,
           display: 'flex',
-          alignItems: 'center',
-          width: '100%',
-          height: 'calc(100vh - 100px)',
-          justifyContent: 'center',
-          gap: 2,
-          overflow: 'hidden',
-          cursor: isDragging ? 'grabbing' : scale > 1 ? 'grab' : 'default',
+          flexDirection: 'column',
+          minHeight: 0,
+          position: 'relative',
         }}
       >
-        {isLoading && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 1,
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        )}
-
-        <NavigationButtons
-          type={type}
-          currentPdfPage={currentPdfPage}
-          numPages={numPages}
-          hasPrevious={hasPrevious}
-          hasNext={hasNext}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-        />
-
         <Box
+          ref={containerRef}
+          onWheel={handleWheel}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
           sx={{
-            transform: `scale(${scale}) translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
-            transition: isDragging ? 'none' : 'transform 0.3s ease-in-out',
-            transformOrigin: 'center center',
-            padding: '50px',
-            width: '100%',
-            height: '100%',
+            flex: 1,
             display: 'flex',
-            justifyContent: 'center',
             alignItems: 'center',
+            width: '100%',
+            justifyContent: 'center',
+            gap: 2,
+            overflow: 'hidden',
+            cursor: isDragging ? 'grabbing' : scale > 1 ? 'grab' : 'default',
+            position: 'relative',
           }}
         >
-          <ViewerContent
+          {isLoading && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                zIndex: 1,
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          )}
+
+          <NavigationButtons
             type={type}
-            file={fileConfig}
             currentPdfPage={currentPdfPage}
-            onPdfLoad={(pdf) => {
-              setNumPages(pdf.numPages)
-              setPdfInstance(pdf)
-            }}
-            thumbnailUrl={thumbnailUrl}
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
+            numPages={numPages}
+            hasPrevious={hasPrevious}
+            hasNext={hasNext}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
           />
+
+          <Box
+            sx={{
+              transform: `scale(${scale}) translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
+              transition: isDragging ? 'none' : 'transform 0.3s ease-in-out',
+              transformOrigin: 'center center',
+              padding: '50px',
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <ViewerContent
+              type={type}
+              file={fileConfig}
+              currentPdfPage={currentPdfPage}
+              onPdfLoad={(pdf) => {
+                setNumPages(pdf.numPages)
+                pdfInstanceRef.current = pdf
+              }}
+              thumbnailUrl={thumbnailUrl}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+            />
+          </Box>
         </Box>
+
+        {type === ViewerType.PDF && numPages > 0 && (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+              padding: '1rem 0',
+            }}
+          >
+            <IconButton
+              onClick={handlePreviousPDFPage}
+              disabled={currentPdfPage === 1}
+              sx={{
+                color: 'white',
+                '&.Mui-disabled': {
+                  color: 'rgba(255, 255, 255, 0.3)',
+                },
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="body1" sx={{ color: 'white' }}>
+              Sida {currentPdfPage} av {numPages}
+            </Typography>
+            <IconButton
+              onClick={handleNextPDFPage}
+              disabled={currentPdfPage === numPages}
+              sx={{
+                color: 'white',
+                '&.Mui-disabled': {
+                  color: 'rgba(255, 255, 255, 0.3)',
+                },
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+              }}
+            >
+              <ArrowForwardIcon />
+            </IconButton>
+          </Box>
+        )}
       </Box>
     </Box>
   )
