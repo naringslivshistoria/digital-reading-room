@@ -186,7 +186,7 @@ export default function DocumentViewer({
             justifyContent: { xs: 'space-between', sm: 'flex-start' },
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <ZoomControls
               scale={scale}
               position={position}
