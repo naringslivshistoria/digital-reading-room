@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Box, Typography } from '@mui/material'
 import { Document as PdfDocument, Page as PdfPage } from 'react-pdf'
+
 import { ViewerContentProps, ViewerType } from '../../../../../common/types'
 import { VideoPlayer } from './VideoPlayer'
 import noImage from '../../../../../../assets/no-image.png'
@@ -17,8 +18,37 @@ export const ViewerContent = ({
   const [showThumbnail, setShowThumbnail] = useState(true)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const imgRef = useRef<HTMLImageElement>(null)
+  const mountedRef = useRef(true)
 
   useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
+
+  const handleDocumentLoad = useCallback(() => {
+    if (!mountedRef.current) return
+
+    setIsLoading(false)
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    timeoutRef.current = setTimeout(() => {
+      if (mountedRef.current) {
+        setShowThumbnail(false)
+      }
+    }, 300)
+  }, [setIsLoading])
+
+  const isTif = file.url.endsWith('.tif')
+
+  useEffect(() => {
+    if (isTif) {
+      setIsLoading(false)
+      return
+    }
     setShowThumbnail(true)
     setIsLoading(true)
     if (timeoutRef.current) {
@@ -36,18 +66,9 @@ export const ViewerContent = ({
         clearTimeout(timeoutRef.current)
       }
     }
-  }, [file, setIsLoading])
+  }, [file, setIsLoading, handleDocumentLoad, type, isTif])
 
-  const handleDocumentLoad = useCallback(() => {
-    setIsLoading(false)
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => {
-      setShowThumbnail(false)
-    }, 300)
-  }, [setIsLoading])
-
-  if (file.url.endsWith('.tif')) {
-    setIsLoading(false)
+  if (isTif) {
     return (
       <Typography variant="h6" sx={{ color: 'white' }}>
         Denna filtyp stöds inte för visning i webbläsaren. Ladda ner filen för
@@ -72,16 +93,22 @@ export const ViewerContent = ({
           <PdfDocument
             file={file}
             onLoadError={(error) => {
-              console.error('PDF-laddningsfel:', error)
-              setIsLoading(false)
+              if (mountedRef.current) {
+                console.error('PDF-laddningsfel:', error)
+                setIsLoading(false)
+              }
             }}
             onSourceError={(error) => {
-              console.error('PDF-källfel:', error)
-              setIsLoading(false)
+              if (mountedRef.current) {
+                console.error('PDF-källfel:', error)
+                setIsLoading(false)
+              }
             }}
             onLoadSuccess={(pdf) => {
-              setIsLoading(false)
-              onPdfLoad?.(pdf)
+              if (mountedRef.current) {
+                setIsLoading(false)
+                onPdfLoad?.(pdf)
+              }
             }}
             loading={null}
             error={<p>Kunde inte ladda PDF...</p>}
@@ -118,7 +145,9 @@ export const ViewerContent = ({
           onError={(e) => {
             e.currentTarget.onerror = null
             e.currentTarget.src = noImage
-            setIsLoading(false)
+            if (mountedRef.current) {
+              setIsLoading(false)
+            }
           }}
           key={file.url}
         />
@@ -146,8 +175,10 @@ export const ViewerContent = ({
           onError={(e) => {
             e.currentTarget.onerror = null
             e.currentTarget.src = noImage
-            setIsLoading(false)
-            setShowThumbnail(false)
+            if (mountedRef.current) {
+              setIsLoading(false)
+              setShowThumbnail(false)
+            }
           }}
         />
       )}
