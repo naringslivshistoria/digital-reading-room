@@ -175,10 +175,6 @@ export const ViewerContent = ({
           onError={(e) => {
             e.currentTarget.onerror = null
             e.currentTarget.src = noImage
-            if (mountedRef.current) {
-              setIsLoading(false)
-              setShowThumbnail(false)
-            }
           }}
         />
       )}
