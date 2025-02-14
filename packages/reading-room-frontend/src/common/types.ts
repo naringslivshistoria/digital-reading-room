@@ -25,7 +25,7 @@ interface Dictionary<Type> {
   [key: string]: Type
 }
 
-export interface CreateAccountFormData {
+interface CreateAccountFormData {
   username: string
   secondUsername: string
   firstName: string
@@ -35,7 +35,7 @@ export interface CreateAccountFormData {
   retypePassword: string
 }
 
-export interface CreateAccountFormErrors {
+interface CreateAccountFormErrors {
   username: string
   secondUsername: string
   firstName: string
@@ -44,4 +44,17 @@ export interface CreateAccountFormErrors {
   retypePassword: string
 }
 
-export type { Document, Dictionary, Field, Fields }
+interface ThumbnailImageProps {
+  document: Document
+  searchUrl: string
+}
+
+export type {
+  Document,
+  Dictionary,
+  Field,
+  Fields,
+  CreateAccountFormData,
+  CreateAccountFormErrors,
+  ThumbnailImageProps,
+}
