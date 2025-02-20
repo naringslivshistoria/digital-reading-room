@@ -1,3 +1,4 @@
+import { useEffect, useState, useMemo } from 'react'
 import {
   Box,
   Button,
@@ -14,10 +15,9 @@ import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import DownloadIcon from '@mui/icons-material/Download'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import { useEffect, useState } from 'react'
 
 import { SiteHeader } from '../../components/siteHeader'
-import { Document } from '../../common/types'
+import { Document, ViewerType } from '../../common/types'
 import noImage from '../../../assets/no-image.png'
 import { MetaDataField } from '../../components/metaDataField'
 import termsPdf from '../../../assets/cfn-nedladdning-villkor.pdf'
@@ -28,7 +28,7 @@ import {
 } from './metaDataFieldConfigs'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 import { useSearch } from '../search'
-
+import DocumentViewer from '../search/components/documentViewer'
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
 export const DocumentPage = () => {
@@ -43,9 +43,9 @@ export const DocumentPage = () => {
   const sort = searchParams.get('sort') ?? undefined
   const sortOrder = searchParams.get('sortOrder') ?? undefined
   const position = searchParams.get('position') ?? undefined
-
+  const [showViewer, setShowViewer] = useState(false)
   const navigate = useNavigate()
-  const [showDownload, setShowDownload] = useState<boolean>(false)
+  const [showDocumentViewer, setShowDocumentViewer] = useState(false)
 
   useIsLoggedIn(true)
 
@@ -141,6 +141,39 @@ export const DocumentPage = () => {
     )
   }
 
+  const documentAttachment = `${searchUrl}/document/${
+    document?.id
+  }/attachment/${document?.fields.filename?.value ?? 'bilaga'}`
+
+  const pdfFile = useMemo(
+    () =>
+      document?.id
+        ? `${searchUrl}/document/${document.id}/attachment/${
+            document.fields.filename?.value ?? 'bilaga'
+          }`
+        : null,
+    [document?.id, document?.fields.filename?.value]
+  )
+
+  useEffect(() => {
+    return () => {
+      setShowDocumentViewer(false)
+    }
+  }, [])
+
+  const getAttachmentType = () => {
+    if (document?.pages[0]?.pageType === 'Image') {
+      return ViewerType.IMAGE
+    }
+    if (document?.attachmentType?.toLowerCase()?.includes('video')) {
+      return ViewerType.VIDEO
+    }
+    if (document?.pages[0]?.pageType === 'Pdf') {
+      return ViewerType.PDF
+    }
+    return ViewerType.IMAGE
+  }
+
   return (
     <>
       <SiteHeader />
@@ -224,12 +257,12 @@ export const DocumentPage = () => {
                     },
                   }}
                   onClick={() => {
-                    setShowDownload(true)
+                    setShowViewer(true)
                   }}
                 >
                   Ladda ner <DownloadIcon />
                 </Button>
-                <Dialog open={showDownload}>
+                <Dialog open={showViewer}>
                   <DialogTitle>
                     <Typography variant="h2">Ladda ner media</Typography>
                   </DialogTitle>
@@ -246,7 +279,7 @@ export const DocumentPage = () => {
                   <DialogActions>
                     <Button
                       onClick={() => {
-                        setShowDownload(false)
+                        setShowViewer(false)
                       }}
                       sx={{ marginRight: 2 }}
                     >
@@ -261,7 +294,7 @@ export const DocumentPage = () => {
                     >
                       <Button
                         onClick={() => {
-                          setShowDownload(false)
+                          setShowViewer(false)
                         }}
                       >
                         Ladda ner
@@ -273,7 +306,7 @@ export const DocumentPage = () => {
               <Box sx={{ marginTop: 1, marginBottom: 5 }}>
                 <Button
                   onClick={() => {
-                    setShowDownload(true)
+                    setShowDocumentViewer(true)
                   }}
                 >
                   <img
@@ -282,13 +315,33 @@ export const DocumentPage = () => {
                         ? searchUrl + '/document/' + document.id + '/thumbnail'
                         : noImage
                     }
-                    alt="Liten bild för dokumentet"
+                    alt="Tumnagelbild för dokumentet"
                     onError={({ currentTarget }) => {
-                      currentTarget.onerror = null // prevents looping
+                      currentTarget.onerror = null
                       currentTarget.src = noImage
                     }}
                   />
                 </Button>
+                {showDocumentViewer && document && (
+                  <DocumentViewer
+                    file={pdfFile ?? documentAttachment}
+                    type={getAttachmentType()}
+                    onClose={() => setShowDocumentViewer(false)}
+                    onPrevious={() =>
+                      prevDocumentUrl && navigate(prevDocumentUrl)
+                    }
+                    onNext={() => nextDocumentUrl && navigate(nextDocumentUrl)}
+                    hasPrevious={Boolean(prevDocumentUrl)}
+                    hasNext={Boolean(nextDocumentUrl)}
+                    name={document.fields.title?.value}
+                    download={() => setShowViewer(true)}
+                    thumbnailUrl={
+                      document.pages[0].thumbnailUrl
+                        ? `${searchUrl}/document/${document.id}/thumbnail`
+                        : undefined
+                    }
+                  />
+                )}
               </Box>
               <Stack direction="column" width="100%" rowGap={2}>
                 <Grid
@@ -297,7 +350,10 @@ export const DocumentPage = () => {
                   columnSpacing={{ xs: 1, sm: 2 }}
                 >
                   {getMetaDataFieldConfiguration(document).map(
-                    (fieldConfig: MetaDataFieldConfiguration) => {
+                    (
+                      fieldConfig: MetaDataFieldConfiguration,
+                      index: number
+                    ) => {
                       let showItem: boolean =
                         fieldConfig.hasFields === undefined ||
                         hasFields(...fieldConfig.hasFields)
@@ -316,7 +372,7 @@ export const DocumentPage = () => {
                             item
                             xs={fieldConfig.xs}
                             sm={fieldConfig.sm}
-                            key={fieldConfig.heading}
+                            key={`${fieldConfig.heading}-${index}`}
                           >
                             {fieldConfig.type ===
                               MetaDataFieldType.TextField && (
@@ -351,6 +407,7 @@ export const DocumentPage = () => {
                           </Grid>
                         )
                       }
+                      return null
                     }
                   )}
                 </Grid>
