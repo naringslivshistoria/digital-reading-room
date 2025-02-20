@@ -45,7 +45,8 @@ export const ViewerContent = ({
   const isTif = file.url.endsWith('.tif')
 
   useEffect(() => {
-    if (isTif) {
+    if (isTif || type === ViewerType.VIDEO) {
+      setShowThumbnail(false)
       setIsLoading(false)
       return
     }
@@ -54,11 +55,7 @@ export const ViewerContent = ({
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
     }
-    if (
-      type !== ViewerType.PDF &&
-      type !== ViewerType.VIDEO &&
-      imgRef.current?.complete
-    ) {
+    if (type !== ViewerType.PDF && imgRef.current?.complete) {
       handleDocumentLoad()
     }
     return () => {
