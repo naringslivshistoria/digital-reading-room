@@ -18,7 +18,6 @@ import { useEffect, useState } from 'react'
 
 import { SiteHeader } from '../../components/siteHeader'
 import { Document } from '../../common/types'
-import noImage from '../../../assets/no-image.png'
 import { MetaDataField } from '../../components/metaDataField'
 import termsPdf from '../../../assets/cfn-nedladdning-villkor.pdf'
 import {
@@ -28,6 +27,7 @@ import {
 } from './metaDataFieldConfigs'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 import { useSearch } from '../search'
+import { ThumbnailImage } from '../search/components/thumbnailImage'
 
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
@@ -276,18 +276,7 @@ export const DocumentPage = () => {
                     setShowDownload(true)
                   }}
                 >
-                  <img
-                    src={
-                      document.pages[0].thumbnailUrl
-                        ? searchUrl + '/document/' + document.id + '/thumbnail'
-                        : noImage
-                    }
-                    alt="Liten bild för dokumentet"
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null // prevents looping
-                      currentTarget.src = noImage
-                    }}
-                  />
+                  <ThumbnailImage document={document} searchUrl={searchUrl} />
                 </Button>
               </Box>
               <Stack direction="column" width="100%" rowGap={2}>
@@ -297,7 +286,10 @@ export const DocumentPage = () => {
                   columnSpacing={{ xs: 1, sm: 2 }}
                 >
                   {getMetaDataFieldConfiguration(document).map(
-                    (fieldConfig: MetaDataFieldConfiguration) => {
+                    (
+                      fieldConfig: MetaDataFieldConfiguration,
+                      index: number
+                    ) => {
                       let showItem: boolean =
                         fieldConfig.hasFields === undefined ||
                         hasFields(...fieldConfig.hasFields)
@@ -316,7 +308,7 @@ export const DocumentPage = () => {
                             item
                             xs={fieldConfig.xs}
                             sm={fieldConfig.sm}
-                            key={fieldConfig.heading}
+                            key={`${fieldConfig.heading}-${fieldConfig.fieldName}-${index}`}
                           >
                             {fieldConfig.type ===
                               MetaDataFieldType.TextField && (

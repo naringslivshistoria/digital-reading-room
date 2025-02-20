@@ -72,8 +72,12 @@ export const ThumbnailImage = ({
     <Box position="relative">
       <img
         src={src}
-        style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }}
-        alt="Tumnagelbild"
+        style={{
+          width: '100%',
+          aspectRatio: '1/1',
+          objectFit: 'cover',
+        }}
+        alt="Liten bild för dokumentet"
         onError={() => setHasError(true)}
       />
       <Box
