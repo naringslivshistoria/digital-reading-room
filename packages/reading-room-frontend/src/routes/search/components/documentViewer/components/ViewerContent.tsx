@@ -92,15 +92,13 @@ export const ViewerContent = ({
         >
           <PdfDocument
             file={file}
-            onLoadError={(error) => {
+            onLoadError={() => {
               if (mountedRef.current) {
-                console.error('PDF-laddningsfel:', error)
                 setIsLoading(false)
               }
             }}
-            onSourceError={(error) => {
+            onSourceError={() => {
               if (mountedRef.current) {
-                console.error('PDF-källfel:', error)
                 setIsLoading(false)
               }
             }}
@@ -111,7 +109,11 @@ export const ViewerContent = ({
               }
             }}
             loading={null}
-            error={<p>Kunde inte ladda PDF...</p>}
+            error={
+              <Typography variant="h6" sx={{ color: 'white' }}>
+                Kunde inte ladda PDF.
+              </Typography>
+            }
             key={file.url}
           >
             <PdfPage
