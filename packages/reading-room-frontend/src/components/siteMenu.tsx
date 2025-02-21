@@ -20,7 +20,9 @@ export const SiteMenu = () => {
   const isPublicPage =
     location.pathname.startsWith('/login') ||
     location.pathname == '/om-oss' ||
-    location.pathname == '/skapa-konto'
+    location.pathname == '/skapa-konto' ||
+    location.pathname == '/verifiera-konto'
+
   const { data: user } = useIsLoggedIn(!isPublicPage)
 
   const isLoggedIn = !!user?.username

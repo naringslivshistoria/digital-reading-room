@@ -51,7 +51,9 @@ export const getUser = async (username: string) => {
       'reset_token_expires',
       'firstName',
       'lastName',
-      'organization'
+      'organization',
+      'verification_token',
+      'verification_token_expires'
     )
     .from<User>('users')
     .where('username', username)
