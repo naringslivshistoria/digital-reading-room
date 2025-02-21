@@ -104,6 +104,11 @@ interface VideoPlayerProps {
   }
 }
 
+interface ThumbnailImageProps {
+  document: Document
+  searchUrl: string
+}
+
 export type {
   Document,
   Dictionary,
@@ -117,6 +122,7 @@ export type {
   CreateAccountFormErrors,
   ZoomControlsProps,
   VideoPlayerProps,
+  ThumbnailImageProps,
 }
 
 export { ViewerType }

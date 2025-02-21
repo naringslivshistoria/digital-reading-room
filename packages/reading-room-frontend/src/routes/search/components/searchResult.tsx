@@ -17,8 +17,8 @@ import { useState } from 'react'
 import { MoonLoader } from 'react-spinners'
 
 import { Document } from '../../../common/types'
-import noImage from '../../../../assets/no-image.png'
 import ArchiveInitiatorFields from './archiveInitatorFields'
+import { ThumbnailImage } from './thumbnailImage'
 
 interface Props {
   documents: Document[] | undefined
@@ -236,23 +236,7 @@ export function SearchResult({
           >
             <Grid item xs={4} sm={2}>
               <Link to={documentUrl(document)} style={{ minWidth: '100%' }}>
-                <img
-                  src={
-                    document.pages[0].thumbnailUrl
-                      ? searchUrl + '/document/' + document.id + '/thumbnail'
-                      : noImage
-                  }
-                  style={{
-                    width: '100%',
-                    aspectRatio: '1/1',
-                    objectFit: 'cover',
-                  }}
-                  alt="Tumnagelbild"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null // prevents looping
-                    currentTarget.src = noImage
-                  }}
-                ></img>
+                <ThumbnailImage document={document} searchUrl={searchUrl} />
               </Link>
             </Grid>
             <Grid item xs={8} sm={10}>
@@ -291,23 +275,7 @@ export function SearchResult({
           {documents.map((document) => (
             <Grid item xs={6} md={3} xl={12 / 5} key={`${document.id}-gallery`}>
               <Link to={documentUrl(document)}>
-                <img
-                  src={
-                    document.pages[0].thumbnailUrl
-                      ? searchUrl + '/document/' + document.id + '/thumbnail'
-                      : noImage
-                  }
-                  style={{
-                    width: '100%',
-                    aspectRatio: '1/1',
-                    objectFit: 'cover',
-                  }}
-                  alt=""
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null // prevents looping
-                    currentTarget.src = noImage
-                  }}
-                ></img>
+                <ThumbnailImage document={document} searchUrl={searchUrl} />
               </Link>
               <Box
                 sx={{

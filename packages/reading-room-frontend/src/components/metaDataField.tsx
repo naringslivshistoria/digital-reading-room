@@ -1,5 +1,5 @@
 import { Typography } from '@mui/material'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { Document } from '../common/types'
 
@@ -12,8 +12,6 @@ export const MetaDataField = ({
   fieldName?: string
   heading: string
 }) => {
-  const [searchParams] = useSearchParams()
-
   const getFieldValueString = (fieldName: string) => {
     if (!document.fields[fieldName]?.value) {
       return '-'
