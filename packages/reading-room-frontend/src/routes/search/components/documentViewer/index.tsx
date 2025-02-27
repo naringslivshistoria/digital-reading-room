@@ -121,12 +121,6 @@ export default function DocumentViewer({
     setRotation((prev) => prev + 90)
   }
 
-  const attachmentTypes = {
-    [ViewerType.PDF]: 'Dokument',
-    [ViewerType.VIDEO]: 'Film',
-    [ViewerType.IMAGE]: 'Bild',
-  }
-
   return (
     <Box
       sx={{
