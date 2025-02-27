@@ -18,7 +18,6 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 
 import { SiteHeader } from '../../components/siteHeader'
 import { Document, ViewerType } from '../../common/types'
-import noImage from '../../../assets/no-image.png'
 import { MetaDataField } from '../../components/metaDataField'
 import termsPdf from '../../../assets/cfn-nedladdning-villkor.pdf'
 import {
@@ -28,7 +27,9 @@ import {
 } from './metaDataFieldConfigs'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 import { useSearch } from '../search'
+import { ThumbnailImage } from '../search/components/thumbnailImage'
 import DocumentViewer from '../search/components/documentViewer'
+
 const searchUrl = import.meta.env.VITE_SEARCH_URL || 'http://localhost:4001'
 
 export const DocumentPage = () => {
@@ -309,16 +310,17 @@ export const DocumentPage = () => {
                     setShowDocumentViewer(true)
                   }}
                 >
-                  <img
-                    src={
+                  <ThumbnailImage
+                    thumbnailUrl={
                       document.pages[0].thumbnailUrl
-                        ? searchUrl + '/document/' + document.id + '/thumbnail'
-                        : noImage
+                        ? `${searchUrl}/document/${document.id}/thumbnail`
+                        : null
                     }
-                    alt="Tumnagelbild för dokumentet"
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null
-                      currentTarget.src = noImage
+                    pageType={document.pages[0].pageType}
+                    style={{
+                      width: '100%',
+                      aspectRatio: '1/1',
+                      objectFit: 'cover',
                     }}
                   />
                 </Button>

@@ -104,6 +104,13 @@ interface VideoPlayerProps {
   }
 }
 
+interface ThumbnailImageProps {
+  thumbnailUrl: string | null
+  pageType: string
+  showIcon?: boolean
+  style?: React.CSSProperties
+}
+
 export type {
   Document,
   Dictionary,
@@ -117,6 +124,7 @@ export type {
   CreateAccountFormErrors,
   ZoomControlsProps,
   VideoPlayerProps,
+  ThumbnailImageProps,
 }
 
 export { ViewerType }
