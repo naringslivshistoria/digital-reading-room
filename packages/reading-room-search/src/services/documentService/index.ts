@@ -60,7 +60,10 @@ const checkDocumentAccess = (
       if (
         document.fields.depositor?.value == serie.split('>')[0] &&
         document.fields.archiveInitiator?.value == serie.split('>')[1] &&
-        document.fields.seriesName?.value == serie.split('>')[2]
+        document.fields.seriesSignature?.value +
+          ' - ' +
+          document.fields.seriesName?.value ==
+          serie.split('>')[2]
       )
         hasAccess = true
     })
@@ -73,7 +76,10 @@ const checkDocumentAccess = (
       if (
         document.fields.depositor?.value == volume.split('>')[0] &&
         document.fields.archiveInitiator?.value == volume.split('>')[1] &&
-        document.fields.seriesName?.value == volume.split('>')[2] &&
+        document.fields.seriesSignature?.value +
+          ' - ' +
+          document.fields.seriesName?.value ==
+          volume.split('>')[2] &&
         document.fields.volume?.value == volume.split('>')[3]
       )
         hasAccess = true

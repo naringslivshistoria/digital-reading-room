@@ -94,7 +94,7 @@ describe('documentService', () => {
           depositors: ['My Company'],
           archiveInitiators: [],
           series: [
-            'Svenskt Näringsliv>Svenska Arbetsgivareföreningen (SAF)>SAF-tidningen',
+            'Svenskt Näringsliv>Svenska Arbetsgivareföreningen (SAF)>B 8 A - SAF-tidningen',
           ],
           volumes: [],
         },
@@ -124,7 +124,7 @@ describe('documentService', () => {
           archiveInitiators: [],
           series: [],
           volumes: [
-            'Svenskt Näringsliv>Svenska Arbetsgivareföreningen (SAF)>SAF-tidningen>13',
+            'Svenskt Näringsliv>Svenska Arbetsgivareföreningen (SAF)>B 8 A - SAF-tidningen>13',
           ],
         },
         config.auth.secret,
