@@ -13,31 +13,35 @@ export const ThumbnailImage = ({
   const [hasError, setHasError] = useState(false)
   const src = thumbnailUrl
 
-  if (!src || hasError) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        sx={{
-          backgroundColor: '#F5F5F5',
-          aspectRatio: '1/1',
-          width: '100%',
-        }}
-      >
-        {(
-          DocumentIcon[pageType.toLowerCase() as keyof typeof DocumentIcon] ||
-          DocumentIcon['unknown']
-        )({
-          width: '50%',
-          color: '#CCCCCC',
-        })}
-      </Box>
-    )
-  }
+  const Thumbnail = () => {
+    if (!src || hasError) {
+      return (
+        <Box
+          sx={{
+            backgroundColor: '#F5F5F5',
+            aspectRatio: '1/1',
+            width: 'auto',
+            height: 'auto',
+            maxWidth: '100%',
+            maxHeight: '100%',
+            margin: 'auto',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {(
+            DocumentIcon[pageType.toLowerCase() as keyof typeof DocumentIcon] ||
+            DocumentIcon['unknown']
+          )({
+            width: '50%',
+            color: '#CCCCCC',
+          })}
+        </Box>
+      )
+    }
 
-  return (
-    <Box position="relative" sx={{ width: '100%', height: '100%' }}>
+    return (
       <img
         src={src}
         style={style}
@@ -46,6 +50,12 @@ export const ThumbnailImage = ({
           setHasError(true)
         }}
       />
+    )
+  }
+
+  return (
+    <Box position="relative" sx={{ width: '100%', height: '100%' }}>
+      <Thumbnail />
       {showIcon && (
         <Box
           sx={{
