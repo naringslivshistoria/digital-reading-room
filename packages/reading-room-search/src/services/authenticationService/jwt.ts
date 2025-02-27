@@ -117,7 +117,7 @@ export const createVerificationToken = async (email: string) => {
     },
     config.auth.secret,
     {
-      expiresIn: '3d',
+      expiresIn: '1d',
     }
   )
 

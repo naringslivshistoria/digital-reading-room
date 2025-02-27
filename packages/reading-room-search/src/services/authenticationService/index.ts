@@ -13,7 +13,7 @@ import { sendEmail } from '../../common/adapters/smtpAdapter'
 import {
   createUser,
   getUser,
-  updateUserLocked,
+  updateUserDisabled,
 } from '../../common/adapters/userAdapter'
 import { User } from '../../common/types'
 import config from '../../common/config'
@@ -247,7 +247,7 @@ export const routes = (router: KoaRouter) => {
         depositors: 'Föreningen Stockholms Företagsminnen',
         organization: ctx.request.body.organization as string,
         role: 'User',
-        locked: true,
+        disabled: true,
       }
 
       await createUser(newUser as unknown as User)
@@ -281,7 +281,7 @@ export const routes = (router: KoaRouter) => {
         ctx.request.body.username as string
       )}&token=${verificationToken}
    
-      Länken är giltig i 3 dagar. Om du inte begärde detta, vänligen ignorera meddelandet.
+      Länken är giltig i 1 dag. Om du inte begärde detta, vänligen ignorera meddelandet.
       
       Med vänliga hälsningar,
       Ditt team`
@@ -301,7 +301,12 @@ export const routes = (router: KoaRouter) => {
       await sendEmail(
         config.createAccount.notificationEmailRecipient,
         'Nytt konto har skapats i den digitala läsesalen',
-        `Kontot ${ctx.request.body.username} har skapats i den Digitala läsesalen. Om du vill lägga till deponenter görs det genom administrationsgränssnittet`
+        `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
+        Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n
+        Har du några andra frågor, hör av dig till info@naringslivshistoria.se.\n
+        Välkommen att börja söka!\n
+        Centrum för Näringslivshistoria
+        www.naringslivshistoria.se`
       )
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -319,7 +324,7 @@ export const routes = (router: KoaRouter) => {
   router.post('(.*)/auth/verify-account', async (ctx) => {
     if (!ctx.request.body) {
       ctx.status = 400
-      ctx.body = { errorMessage: 'Missing parameter' }
+      ctx.body = { errorMessage: 'Något gick fel' }
       return
     }
 
@@ -330,18 +335,18 @@ export const routes = (router: KoaRouter) => {
 
       if (email !== ctx.request.body.username) {
         ctx.status = 400
-        ctx.body = { errorMessage: 'Invalid verification token' }
+        ctx.body = { errorMessage: 'Ogiltig verifieringskod' }
         return
       }
 
       const user = await getUser(email)
       if (!user) {
         ctx.status = 400
-        ctx.body = { errorMessage: 'User not found' }
+        ctx.body = { errorMessage: 'Användaren hittades inte' }
         return
       }
 
-      await updateUserLocked(user.id, false)
+      await updateUserDisabled(user.id, false)
 
       const subject = 'Välkommen till digitala läsesalen'
       const body = `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
@@ -362,6 +367,6 @@ export const routes = (router: KoaRouter) => {
       return
     }
 
-    ctx.body = { message: 'Account verified' }
+    ctx.body = { message: 'Konto verifierat' }
   })
 }
