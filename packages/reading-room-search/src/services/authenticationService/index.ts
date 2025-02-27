@@ -1,7 +1,13 @@
 import KoaRouter from '@koa/router'
 
 import hash from './hash'
-import { createToken, createResetToken, setPassword } from './jwt'
+import {
+  createToken,
+  createResetToken,
+  setPassword,
+  createVerificationToken,
+  verifyVerificationToken,
+} from './jwt'
 import createHttpError from 'http-errors'
 import { sendEmail } from '../../common/adapters/smtpAdapter'
 import {
@@ -227,19 +233,6 @@ export const routes = (router: KoaRouter) => {
       return
     }
 
-    const verificationToken = await hash.createVerificationToken()
-    const verificationTokenExpires = new Date(
-      Date.now() + 3 * 24 * 60 * 60 * 1000
-    )
-    console.log(
-      'Link',
-      `https://${
-        config.createAccount.verifyAccountUrl
-      }?email=${encodeURIComponent(
-        ctx.request.body.username as string
-      )}&token=${verificationToken}`
-    )
-
     try {
       const { password, salt } = await hash.createSaltAndHash(
         ctx.request.body.password as string
@@ -255,8 +248,6 @@ export const routes = (router: KoaRouter) => {
         organization: ctx.request.body.organization as string,
         role: 'User',
         locked: true,
-        verification_token: verificationToken,
-        verification_token_expires: verificationTokenExpires,
       }
 
       await createUser(newUser as unknown as User)
@@ -271,17 +262,26 @@ export const routes = (router: KoaRouter) => {
     }
 
     try {
+      const verificationToken = await createVerificationToken(
+        ctx.request.body.username as string
+      )
+
+      console.log(
+        'Link',
+        `${config.createAccount.verifyAccountUrl}?email=${encodeURIComponent(
+          ctx.request.body.username as string
+        )}&token=${verificationToken}`
+      )
+
       const subject = 'Verifiera ditt konto'
       const body = `Hej,
    
       Klicka på länken nedan för att verifiera ditt konto:
-      https://${
-        config.createAccount.verifyAccountUrl
-      }?email=${encodeURIComponent(
+      ${config.createAccount.verifyAccountUrl}?email=${encodeURIComponent(
         ctx.request.body.username as string
       )}&token=${verificationToken}
    
-      Länken är giltig i 24 timmar. Om du inte begärde detta, vänligen ignorera meddelandet.
+      Länken är giltig i 3 dagar. Om du inte begärde detta, vänligen ignorera meddelandet.
       
       Med vänliga hälsningar,
       Ditt team`
@@ -323,34 +323,26 @@ export const routes = (router: KoaRouter) => {
       return
     }
 
-    const user = await getUser(ctx.request.body.username as string)
-    if (!user) {
-      ctx.status = 400
-      ctx.body = { errorMessage: 'User not found' }
-      return
-    }
-
-    if (user.verification_token !== ctx.request.body.verificationToken) {
-      console.log('Invalid verification token')
-      console.log(user)
-      console.log(ctx.request.body.verificationToken)
-      ctx.status = 400
-      ctx.body = { errorMessage: 'Invalid verification token' }
-      return
-    }
-
-    if (
-      user.verification_token_expires &&
-      user.verification_token_expires < new Date()
-    ) {
-      ctx.status = 400
-      ctx.body = { errorMessage: 'Verification token has expired' }
-      return
-    }
-
-    await updateUserLocked(user.id, false)
-
     try {
+      const { userId, email } = await verifyVerificationToken(
+        ctx.request.body.verificationToken as string
+      )
+
+      if (email !== ctx.request.body.username) {
+        ctx.status = 400
+        ctx.body = { errorMessage: 'Invalid verification token' }
+        return
+      }
+
+      const user = await getUser(email)
+      if (!user) {
+        ctx.status = 400
+        ctx.body = { errorMessage: 'User not found' }
+        return
+      }
+
+      await updateUserLocked(user.id, false)
+
       const subject = 'Välkommen till digitala läsesalen'
       const body = `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
                     Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n

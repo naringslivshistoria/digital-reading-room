@@ -38,8 +38,6 @@ interface User {
   firstName: string | null
   lastName: string | null
   organization: string | null
-  verificationToken: string | null
-  verificationTokenExpires: string | null
 }
 
 enum FilterType {
