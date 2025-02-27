@@ -236,7 +236,19 @@ export function SearchResult({
           >
             <Grid item xs={4} sm={2}>
               <Link to={documentUrl(document)} style={{ minWidth: '100%' }}>
-                <ThumbnailImage document={document} searchUrl={searchUrl} />
+                <ThumbnailImage
+                  thumbnailUrl={
+                    document.pages[0].thumbnailUrl
+                      ? `${searchUrl}/document/${document.id}/thumbnail`
+                      : null
+                  }
+                  pageType={document.pages[0].pageType}
+                  style={{
+                    width: '100%',
+                    aspectRatio: '1/1',
+                    objectFit: 'cover',
+                  }}
+                />
               </Link>
             </Grid>
             <Grid item xs={8} sm={10}>
@@ -275,7 +287,19 @@ export function SearchResult({
           {documents.map((document) => (
             <Grid item xs={6} md={3} xl={12 / 5} key={`${document.id}-gallery`}>
               <Link to={documentUrl(document)}>
-                <ThumbnailImage document={document} searchUrl={searchUrl} />
+                <ThumbnailImage
+                  thumbnailUrl={
+                    document.pages[0].thumbnailUrl
+                      ? `${searchUrl}/document/${document.id}/thumbnail`
+                      : null
+                  }
+                  pageType={document.pages[0].pageType}
+                  style={{
+                    width: '100%',
+                    aspectRatio: '1/1',
+                    objectFit: 'cover',
+                  }}
+                />
               </Link>
               <Box
                 sx={{

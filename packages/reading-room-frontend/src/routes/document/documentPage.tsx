@@ -310,7 +310,19 @@ export const DocumentPage = () => {
                     setShowDocumentViewer(true)
                   }}
                 >
-                  <ThumbnailImage document={document} searchUrl={searchUrl} />
+                  <ThumbnailImage
+                    thumbnailUrl={
+                      document.pages[0].thumbnailUrl
+                        ? `${searchUrl}/document/${document.id}/thumbnail`
+                        : null
+                    }
+                    pageType={document.pages[0].pageType}
+                    style={{
+                      width: '100%',
+                      aspectRatio: '1/1',
+                      objectFit: 'cover',
+                    }}
+                  />
                 </Button>
                 {showDocumentViewer && document && (
                   <DocumentViewer

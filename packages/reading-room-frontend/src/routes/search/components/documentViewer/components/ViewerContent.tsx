@@ -5,6 +5,7 @@ import { Document as PdfDocument, Page as PdfPage } from 'react-pdf'
 import { ViewerContentProps, ViewerType } from '../../../../../common/types'
 import { VideoPlayer } from './VideoPlayer'
 import noImage from '../../../../../../assets/no-image.png'
+import { ThumbnailImage } from '../../thumbnailImage'
 
 export const ViewerContent = ({
   type,
@@ -157,27 +158,42 @@ export const ViewerContent = ({
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
       {showThumbnail && thumbnailUrl && (
-        <img
-          src={thumbnailUrl}
-          alt="Dokument (thumbnail)"
-          style={{
+        <Box
+          sx={{
             position: 'absolute',
             top: 0,
             left: 0,
             width: '100%',
             height: '100%',
-            objectFit: 'contain',
+            zIndex: isLoading ? 2 : 0,
             opacity: isLoading ? 1 : 0,
-            transition: 'opacity 0.3s ease-in-out',
-            zIndex: 1,
+            transition: 'opacity 0.3s ease-in-out, z-index 0s 0.3s',
           }}
-          onError={(e) => {
-            e.currentTarget.onerror = null
-            e.currentTarget.src = noImage
-          }}
-        />
+        >
+          <ThumbnailImage
+            thumbnailUrl={thumbnailUrl}
+            pageType={type}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+            }}
+            showIcon={false}
+          />
+        </Box>
       )}
-      {renderContent()}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 1,
+        }}
+      >
+        {renderContent()}
+      </Box>
     </Box>
   )
 }

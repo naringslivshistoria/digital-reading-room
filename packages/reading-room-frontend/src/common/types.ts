@@ -105,8 +105,10 @@ interface VideoPlayerProps {
 }
 
 interface ThumbnailImageProps {
-  document: Document
-  searchUrl: string
+  thumbnailUrl: string | null
+  pageType: string
+  showIcon?: boolean
+  style?: React.CSSProperties
 }
 
 export type {

@@ -10,6 +10,7 @@ import { ZoomControls } from './components/ZoomControls'
 import { NavigationButtons } from './components/NavigationButtons'
 import { ViewerContent } from './components/ViewerContent'
 import { DocumentViewerProps, ViewerType } from '../../../../common/types'
+import { DocumentIcon } from '../documentIcon'
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
 
@@ -159,17 +160,25 @@ export default function DocumentViewer({
             gap: '1rem',
           }}
         >
-          <Typography
-            variant="h6"
+          <Box
             sx={{
-              color: 'black',
-              backgroundColor: 'white',
-              padding: '0.1rem 0.5rem',
-              borderRadius: '0.5rem',
+              borderRadius: '8px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              padding: '5px',
+              width: '45px',
+              height: '45px',
+              backgroundColor: 'rgba(255, 255, 255)',
+              aspectRatio: '1/1',
             }}
           >
-            {attachmentTypes[type]}
-          </Typography>
+            {(
+              DocumentIcon[type.toLowerCase() as keyof typeof DocumentIcon] ||
+              DocumentIcon['unknown']
+            )({
+              width: '100%',
+              color: 'primary.main',
+            })}
+          </Box>
           <Typography variant="h6" sx={{ color: 'white' }}>
             {name}
           </Typography>
