@@ -324,7 +324,7 @@ www.naringslivshistoria.se`
     }
 
     try {
-      const { userId, email } = await verifyVerificationToken(
+      const { email } = await verifyVerificationToken(
         ctx.request.body.verificationToken as string
       )
 
