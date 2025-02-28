@@ -266,13 +266,6 @@ export const routes = (router: KoaRouter) => {
         ctx.request.body.username as string
       )
 
-      console.log(
-        'Link',
-        `${config.createAccount.verifyAccountUrl}?email=${encodeURIComponent(
-          ctx.request.body.username as string
-        )}&token=${verificationToken}`
-      )
-
       const subject = 'Verifiera ditt konto'
       const body = `Hej,
    
