@@ -33,6 +33,7 @@ export interface Config {
   createAccount: {
     notificationEmailRecipient: 'string'
     resetPasswordUrl: 'string'
+    verifyAccountUrl: 'string'
   }
 }
 
@@ -67,6 +68,7 @@ const config = configPackage({
     createAccount: {
       notificationEmailRecipient: '',
       resetPasswordUrl: 'http://localhost:4002/login/nollstall',
+      verifyAccountUrl: 'http://localhost:4002/verifiera-konto',
     },
   },
 })

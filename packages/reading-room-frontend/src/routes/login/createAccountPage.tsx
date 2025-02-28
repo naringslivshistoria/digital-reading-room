@@ -171,7 +171,10 @@ export const CreateAccountPage = () => {
 
           {accountCreated ? (
             <Typography>
-              Ditt nya konto i den digitala läsesalen är nu redo att användas!
+              Tack för din registrering! Vi har skickat ett verifieringsmail
+              till din e-postadress. Vänligen klicka på länken i mailet för att
+              aktivera ditt konto. Om du inte ser mailet inom några minuter,
+              kontrollera din skräppost.
             </Typography>
           ) : (
             <Box component="form" onSubmit={handleSubmit} noValidate>

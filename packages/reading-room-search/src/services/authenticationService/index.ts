@@ -1,10 +1,20 @@
 import KoaRouter from '@koa/router'
 
 import hash from './hash'
-import { createToken, createResetToken, setPassword } from './jwt'
+import {
+  createToken,
+  createResetToken,
+  setPassword,
+  createVerificationToken,
+  verifyVerificationToken,
+} from './jwt'
 import createHttpError from 'http-errors'
 import { sendEmail } from '../../common/adapters/smtpAdapter'
-import { createUser } from '../../common/adapters/userAdapter'
+import {
+  createUser,
+  getUser,
+  updateUserDisabled,
+} from '../../common/adapters/userAdapter'
 import { User } from '../../common/types'
 import config from '../../common/config'
 import { fetchUserData } from '../userService'
@@ -237,6 +247,7 @@ export const routes = (router: KoaRouter) => {
         depositors: 'Föreningen Stockholms Företagsminnen',
         organization: ctx.request.body.organization as string,
         role: 'User',
+        disabled: true,
       }
 
       await createUser(newUser as unknown as User)
@@ -251,11 +262,20 @@ export const routes = (router: KoaRouter) => {
     }
 
     try {
-      const subject = 'Välkommen till digitala läsesalen'
-      const body = `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
-Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n
-Har du några andra frågor, hör av dig till info@naringslivshistoria.se.\n
-Välkommen att börja söka!\n
+      const verificationToken = await createVerificationToken(
+        ctx.request.body.username as string
+      )
+
+      const subject = 'Verifiera ditt konto'
+      const body = `Hej,
+   
+Klicka på länken nedan för att verifiera ditt konto:
+${config.createAccount.verifyAccountUrl}?email=${encodeURIComponent(
+        ctx.request.body.username as string
+      )}&token=${verificationToken}
+   
+Länken är giltig i 1 dag. Om du inte begärde detta, vänligen ignorera meddelandet.
+      
 Centrum för Näringslivshistoria
 www.naringslivshistoria.se`
 
@@ -287,5 +307,54 @@ www.naringslivshistoria.se`
     ctx.body = {
       message: 'A new account has been created',
     }
+  })
+
+  router.post('(.*)/auth/verify-account', async (ctx) => {
+    if (!ctx.request.body) {
+      ctx.status = 400
+      ctx.body = { errorMessage: 'Något gick fel' }
+      return
+    }
+
+    try {
+      const { email } = await verifyVerificationToken(
+        ctx.request.body.verificationToken as string
+      )
+
+      if (email !== ctx.request.body.username) {
+        ctx.status = 400
+        ctx.body = { errorMessage: 'Ogiltig verifieringskod' }
+        return
+      }
+
+      const user = await getUser(email)
+      if (!user) {
+        ctx.status = 400
+        ctx.body = { errorMessage: 'Användaren hittades inte' }
+        return
+      }
+
+      await updateUserDisabled(user.id, false)
+
+      const subject = 'Välkommen till digitala läsesalen'
+      const body = `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
+Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n
+Har du några andra frågor, hör av dig till info@naringslivshistoria.se.\n
+Välkommen att börja söka!\n
+Centrum för Näringslivshistoria
+www.naringslivshistoria.se`
+
+      await sendEmail(ctx.request.body.username as string, subject, body)
+    } catch (error: unknown) {
+      ctx.status = 400
+      const errorMessage = error instanceof Error ? error.message : ''
+
+      ctx.body = {
+        error: `Epost för nytt konto kunde inte skickas. ${errorMessage}`,
+      }
+      return
+    }
+
+    ctx.body = { message: 'Konto verifierat' }
   })
 }

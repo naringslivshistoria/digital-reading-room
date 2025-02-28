@@ -101,3 +101,45 @@ export const setPassword = async (
 
   updatePassword(user, salt, hash)
 }
+
+export const createVerificationToken = async (email: string) => {
+  const user = await getUser(email)
+
+  if (!user) {
+    throw new Error('User not found')
+  }
+
+  const token = jwt.sign(
+    {
+      sub: user.id,
+      email: user.username,
+      purpose: 'email_verification',
+    },
+    config.auth.secret,
+    {
+      expiresIn: '1d',
+    }
+  )
+
+  return token
+}
+
+export const verifyVerificationToken = async (token: string) => {
+  try {
+    const decoded = jwt.verify(token, config.auth.secret) as jwt.JwtPayload
+
+    if (decoded.purpose !== 'email_verification') {
+      throw new Error('Invalid token purpose')
+    }
+
+    return {
+      userId: decoded.sub,
+      email: decoded.email,
+    }
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      throw new Error('Verification token has expired')
+    }
+    throw new Error('Invalid verification token')
+  }
+}

@@ -47,8 +47,18 @@ const createSaltAndHash = async (
   }
 }
 
+const createVerificationToken = async (): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    crypto.randomBytes(32, (err, buf) => {
+      if (err) reject(err)
+      resolve(buf.toString('base64'))
+    })
+  })
+}
+
 export default {
   createSalt,
   createSaltAndHash,
   hashPassword,
+  createVerificationToken,
 }
