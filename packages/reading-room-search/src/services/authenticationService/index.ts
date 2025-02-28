@@ -276,15 +276,15 @@ export const routes = (router: KoaRouter) => {
       const subject = 'Verifiera ditt konto'
       const body = `Hej,
    
-      Klicka på länken nedan för att verifiera ditt konto:
-      ${config.createAccount.verifyAccountUrl}?email=${encodeURIComponent(
+Klicka på länken nedan för att verifiera ditt konto:
+${config.createAccount.verifyAccountUrl}?email=${encodeURIComponent(
         ctx.request.body.username as string
       )}&token=${verificationToken}
    
-      Länken är giltig i 1 dag. Om du inte begärde detta, vänligen ignorera meddelandet.
+Länken är giltig i 1 dag. Om du inte begärde detta, vänligen ignorera meddelandet.
       
-      Med vänliga hälsningar,
-      Ditt team`
+Centrum för Näringslivshistoria
+www.naringslivshistoria.se`
 
       await sendEmail(ctx.request.body.username as string, subject, body)
     } catch (error: unknown) {
@@ -301,12 +301,7 @@ export const routes = (router: KoaRouter) => {
       await sendEmail(
         config.createAccount.notificationEmailRecipient,
         'Nytt konto har skapats i den digitala läsesalen',
-        `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
-        Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n
-        Har du några andra frågor, hör av dig till info@naringslivshistoria.se.\n
-        Välkommen att börja söka!\n
-        Centrum för Näringslivshistoria
-        www.naringslivshistoria.se`
+        `Kontot ${ctx.request.body.username} har skapats i den Digitala läsesalen. Om du vill lägga till deponenter görs det genom administrationsgränssnittet`
       )
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -350,11 +345,11 @@ export const routes = (router: KoaRouter) => {
 
       const subject = 'Välkommen till digitala läsesalen'
       const body = `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
-                    Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n
-                    Har du några andra frågor, hör av dig till info@naringslivshistoria.se.\n
-                    Välkommen att börja söka!\n
-                    Centrum för Näringslivshistoria
-                    www.naringslivshistoria.se`
+Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n
+Har du några andra frågor, hör av dig till info@naringslivshistoria.se.\n
+Välkommen att börja söka!\n
+Centrum för Näringslivshistoria
+www.naringslivshistoria.se`
 
       await sendEmail(ctx.request.body.username as string, subject, body)
     } catch (error: unknown) {
