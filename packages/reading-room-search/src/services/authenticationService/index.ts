@@ -149,7 +149,9 @@ export const routes = (router: KoaRouter) => {
       `Nollställ ditt lösenord här: ${referer}/nollstall?email=${encodeURIComponent(
         ctx.request.body.email as string
       )}&token=${token}\n\n` +
-      `Om du inte har begärt att ditt lösenord ska återställas kan du bortse från detta mail. Lämna aldrig ut länken till någon annan.`
+      `Om du inte har begärt att ditt lösenord ska återställas kan du bortse från detta mail. Lämna aldrig ut länken till någon annan.\n\n` +
+      `Centrum för Näringslivshistoria\n` +
+      `https://naringslivshistoria.se`
 
     let htmlBody =
       `<html><body>` +
@@ -158,15 +160,20 @@ export const routes = (router: KoaRouter) => {
         ctx.request.body.email as string
       )}&token=${token}">Nollställ ditt lösenord här</a></p>` +
       `<p>Om du inte har begärt att ditt lösenord ska återställas kan du bortse från detta mail. Lämna aldrig ut länken till någon annan.</p>` +
+      `<p>Centrum för Näringslivshistoria<br/>` +
+      `<a href="https://naringslivshistoria.se">naringslivshistoria.se</a></p>` +
       `</body></html>`
 
     if (ctx.query.new) {
       subject = 'Välkommen till den Digitala läsesalen'
-      body = `Kontot ${
-        ctx.request.body.email
-      } har skapats för dig i den Digitala läsesalen.\n\nAnvänd denna länk för att välja ett lösenord: ${referer}/nollstall?email=${encodeURIComponent(
-        ctx.request.body.email as string
-      )}&token=${token}`
+      body =
+        `Kontot ${
+          ctx.request.body.email
+        } har skapats för dig i den Digitala läsesalen.\n\nAnvänd denna länk för att välja ett lösenord: ${referer}/nollstall?email=${encodeURIComponent(
+          ctx.request.body.email as string
+        )}&token=${token}\n\n` +
+        `Centrum för Näringslivshistoria\n` +
+        `https://naringslivshistoria.se`
 
       htmlBody =
         `<html><body>` +
@@ -174,6 +181,8 @@ export const routes = (router: KoaRouter) => {
         `<p><a href="${referer}/nollstall?email=${encodeURIComponent(
           ctx.request.body.email as string
         )}&token=${token}">Klicka här för att välja ett lösenord</a></p>` +
+        `<p>Centrum för Näringslivshistoria<br/>` +
+        `<a href="https://naringslivshistoria.se">naringslivshistoria.se</a></p>` +
         `</body></html>`
     }
 
