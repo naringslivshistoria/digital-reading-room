@@ -18,7 +18,7 @@ export const ZoomControls = ({
     <IconButton
       onClick={onZoomIn}
       sx={{
-        color: scale >= 5 ? 'rgba(255, 255, 255, 0.3)' : 'white',
+        color: scale >= 20 ? 'rgba(255, 255, 255, 0.3)' : 'white',
         '&:hover': {
           color: 'rgba(255, 255, 255, 0.3)',
         },

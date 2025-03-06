@@ -86,6 +86,11 @@ export const ViewerContent = ({
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            '& canvas': {
+              maxWidth: '100%',
+              maxHeight: '100%',
+              objectFit: 'contain',
+            },
           }}
         >
           <PdfDocument
@@ -120,6 +125,8 @@ export const ViewerContent = ({
               renderAnnotationLayer={false}
               loading={null}
               canvasBackground="black"
+              width={800}
+              scale={1}
             />
           </PdfDocument>
         </Box>
@@ -140,6 +147,7 @@ export const ViewerContent = ({
             transition: 'opacity 0.3s ease-in-out',
             position: 'absolute',
             top: 0,
+            pointerEvents: 'none',
           }}
           onLoad={handleDocumentLoad}
           onError={(e) => {
