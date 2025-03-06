@@ -58,7 +58,13 @@ export default function DocumentViewer({
     if (e.ctrlKey) {
       e.preventDefault()
       const newScale = scale + (e.deltaY > 0 ? -0.1 : 0.1)
-      setScale(Math.min(Math.max(1, newScale), 5))
+      const clampedScale = Math.min(Math.max(1, newScale), 20)
+
+      if (clampedScale === 1) {
+        setPosition({ x: 0, y: 0 })
+      }
+
+      setScale(clampedScale)
     }
   }
 
@@ -85,11 +91,17 @@ export default function DocumentViewer({
   }
 
   const handleZoomIn = () => {
-    setScale((prev) => Math.min(prev + 0.5, 5))
+    setScale((prev) => Math.min(prev + 0.5, 20))
   }
 
   const handleZoomOut = () => {
-    setScale((prev) => Math.max(prev - 0.5, 1))
+    setScale((prev) => {
+      const newScale = Math.max(prev - 0.5, 1)
+      if (newScale === 1) {
+        setPosition({ x: 0, y: 0 })
+      }
+      return newScale
+    })
   }
 
   const handleReset = () => {
