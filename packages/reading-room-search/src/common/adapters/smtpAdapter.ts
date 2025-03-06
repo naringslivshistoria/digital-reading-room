@@ -13,11 +13,25 @@ const transport = nodemailer.createTransport(
   })
 )
 
-export const sendEmail = async (to: string, subject: string, body: string) => {
-  await transport.sendMail({
+export const sendEmail = async (
+  to: string,
+  subject: string,
+  body: string,
+  htmlBody?: string
+) => {
+  const mailOptions: {
+    from: string
+    to: string
+    subject: string
+    text: string
+    html?: string
+  } = {
     from: `"Digital läsesal" ${config.smtp.user}`,
     to,
     subject,
     text: body,
-  })
+    html: htmlBody || body,
+  }
+
+  await transport.sendMail(mailOptions)
 }

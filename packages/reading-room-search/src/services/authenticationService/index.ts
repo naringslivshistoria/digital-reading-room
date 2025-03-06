@@ -151,6 +151,15 @@ export const routes = (router: KoaRouter) => {
       )}&token=${token}\n\n` +
       `Om du inte har begärt att ditt lösenord ska återställas kan du bortse från detta mail. Lämna aldrig ut länken till någon annan.`
 
+    let htmlBody =
+      `<html><body>` +
+      `<p>En begäran om att nollställa lösenordet för kontot ${ctx.request.body.email} i den Digitala läsesalen har mottagits.</p>` +
+      `<p><a href="${referer}/nollstall?email=${encodeURIComponent(
+        ctx.request.body.email as string
+      )}&token=${token}">Nollställ ditt lösenord här</a></p>` +
+      `<p>Om du inte har begärt att ditt lösenord ska återställas kan du bortse från detta mail. Lämna aldrig ut länken till någon annan.</p>` +
+      `</body></html>`
+
     if (ctx.query.new) {
       subject = 'Välkommen till den Digitala läsesalen'
       body = `Kontot ${
@@ -158,9 +167,17 @@ export const routes = (router: KoaRouter) => {
       } har skapats för dig i den Digitala läsesalen.\n\nAnvänd denna länk för att välja ett lösenord: ${referer}/nollstall?email=${encodeURIComponent(
         ctx.request.body.email as string
       )}&token=${token}`
+
+      htmlBody =
+        `<html><body>` +
+        `<p>Kontot ${ctx.request.body.email} har skapats för dig i den Digitala läsesalen.</p>` +
+        `<p><a href="${referer}/nollstall?email=${encodeURIComponent(
+          ctx.request.body.email as string
+        )}&token=${token}">Klicka här för att välja ett lösenord</a></p>` +
+        `</body></html>`
     }
 
-    await sendEmail(ctx.request.body.email as string, subject, body)
+    await sendEmail(ctx.request.body.email as string, subject, body, htmlBody)
 
     ctx.body = {
       token: token,
@@ -266,7 +283,7 @@ export const routes = (router: KoaRouter) => {
         ctx.request.body.username as string
       )
 
-      const subject = 'Verifiera ditt konto'
+      const subject = 'Verifiera ditt konto i digitala läsesalen'
       const body = `Hej,
    
 Klicka på länken nedan för att verifiera ditt konto:
@@ -274,12 +291,33 @@ ${config.createAccount.verifyAccountUrl}?email=${encodeURIComponent(
         ctx.request.body.username as string
       )}&token=${verificationToken}
    
-Länken är giltig i 1 dag. Om du inte begärde detta, vänligen ignorera meddelandet.
+Länken är giltig i 1 dag. Om det inte var du som försökte skapa ett konto i digitala läsesalen, vänligen ignorera meddelandet.
       
 Centrum för Näringslivshistoria
 www.naringslivshistoria.se`
 
-      await sendEmail(ctx.request.body.username as string, subject, body)
+      const htmlBody = `
+<html>
+<body>
+  <p>Hej,</p>
+  <p>Klicka på länken nedan för att verifiera ditt konto:</p>
+  <p><a href="${
+    config.createAccount.verifyAccountUrl
+  }?email=${encodeURIComponent(
+        ctx.request.body.username as string
+      )}&token=${verificationToken}">Klicka här för att verifiera ditt konto</a></p>
+  <p>Länken är giltig i 1 dag. Om det inte var du som försökte skapa ett konto i digitala läsesalen, vänligen ignorera meddelandet.</p>
+  <p>Centrum för Näringslivshistoria<br/>
+  <a href="https://www.naringslivshistoria.se">www.naringslivshistoria.se</a></p>
+</body>
+</html>`
+
+      await sendEmail(
+        ctx.request.body.username as string,
+        subject,
+        body,
+        htmlBody
+      )
     } catch (error: unknown) {
       ctx.status = 400
       const errorMessage = error instanceof Error ? error.message : ''
@@ -294,7 +332,8 @@ www.naringslivshistoria.se`
       await sendEmail(
         config.createAccount.notificationEmailRecipient,
         'Nytt konto har skapats i den digitala läsesalen',
-        `Kontot ${ctx.request.body.username} har skapats i den Digitala läsesalen. Om du vill lägga till deponenter görs det genom administrationsgränssnittet`
+        `Kontot ${ctx.request.body.username} har skapats i den Digitala läsesalen. Om du vill lägga till deponenter görs det genom administrationsgränssnittet`,
+        `<html><body><p>Kontot ${ctx.request.body.username} har skapats i den Digitala läsesalen. Om du vill lägga till deponenter görs det genom administrationsgränssnittet</p></body></html>`
       )
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -344,7 +383,25 @@ Välkommen att börja söka!\n
 Centrum för Näringslivshistoria
 www.naringslivshistoria.se`
 
-      await sendEmail(ctx.request.body.username as string, subject, body)
+      const htmlBody = `
+<html>
+<body>
+  <p>Hej,</p>
+  <p>Nu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.</p>
+  <p>Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: <a href="https://arkivet.naringslivshistoria.se/om-oss">https://arkivet.naringslivshistoria.se/om-oss</a></p>
+  <p>Har du några andra frågor, hör av dig till <a href="mailto:info@naringslivshistoria.se">info@naringslivshistoria.se</a>.</p>
+  <p>Välkommen att börja söka!</p>
+  <p>Centrum för Näringslivshistoria<br/>
+  <a href="https://www.naringslivshistoria.se">www.naringslivshistoria.se</a></p>
+</body>
+</html>`
+
+      await sendEmail(
+        ctx.request.body.username as string,
+        subject,
+        body,
+        htmlBody
+      )
     } catch (error: unknown) {
       ctx.status = 400
       const errorMessage = error instanceof Error ? error.message : ''
