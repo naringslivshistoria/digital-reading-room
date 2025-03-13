@@ -20,7 +20,7 @@ export const MetaDataField = ({
       const newFilter = [
         `depositor::${document.fields.depositor.value}`,
         `archiveInitiator::${document.fields.archiveInitiator.value}`,
-        `seriesName::${document.fields.seriesName.value}`,
+        `seriesName::${document.fields.seriesSignature.value} - ${document.fields.seriesName.value}`,
         `volume::${document.fields.volume.value}`,
       ]
         .filter((f) => f)
