@@ -12,6 +12,7 @@ import PublicoTextItalic from '../assets/PublicoText-Italic.woff2'
 import { PageReset } from './routes/login/resetPage'
 import { MyPage } from './routes/my-page/myPage'
 import { CreateAccountPage } from './routes/login/createAccountPage'
+import { VerifyAccountPage } from './routes/login/verifyPage'
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -146,7 +147,8 @@ const mdTheme = createTheme({
     MuiFormLabel: {
       styleOverrides: {
         root: {
-          padding: 5,
+          paddingTop: 5,
+          paddingBottom: 5,
         },
       },
     },
@@ -184,6 +186,7 @@ function App() {
             <Route path="/login/nollstall" element={<PageReset />} />
             <Route path="/login" element={<PageLogin />} />
             <Route path="/skapa-konto" element={<CreateAccountPage />} />
+            <Route path="/verifiera-konto" element={<VerifyAccountPage />} />
           </Routes>
         </Box>
       </ThemeProvider>

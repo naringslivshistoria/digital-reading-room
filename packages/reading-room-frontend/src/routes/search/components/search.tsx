@@ -8,7 +8,6 @@ import {
   IconButton,
   InputAdornment,
   MenuItem,
-  Select,
   Stack,
   TextField,
 } from '@mui/material'
@@ -17,7 +16,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Typography from '@mui/material/Typography'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import {
   FieldFilter,
@@ -181,245 +180,341 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
   return (
     <>
       {searchEnabled && (
-        <>
-          <Grid
-            item
-            xs={8}
-            md={6}
-            sx={{
-              paddingRight: { xs: '20px', md: '20px' },
-            }}
-          >
-            <TextField
-              variant="outlined"
-              sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
-              placeholder="Sök efter dokument"
-              defaultValue={query}
-              onKeyUp={onSubmit}
-              inputProps={{
-                style: {
-                  height: '12px',
-                  padding: '19px 10px 15px 10px',
-                  color: 'black',
-                  backgroundColor: 'white',
-                },
-              }}
-              InputProps={{
-                style: {
-                  backgroundColor: 'white',
-                },
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Stack direction="row">
-                      {query && (
-                        <IconButton
-                          onClick={() => clearQuery()}
-                          sx={{
-                            bgcolor: 'white',
-                            height: '44px',
-                            width: '44px',
-                            borderRadius: 0,
-                            '&:hover': { bgcolor: 'white ' },
-                          }}
-                        >
-                          <HighlightOffIcon />
-                        </IconButton>
-                      )}
-                      <IconButton
-                        edge="end"
-                        disableRipple
-                        onClick={() => search()}
-                        sx={{
-                          color: 'white',
-                          bgcolor: '#53565a',
-                          borderRadius: 0,
-                          height: '46px',
-                          width: '46px',
-                          marginRight: '-13px',
-                        }}
-                      >
-                        <SearchIcon />
-                      </IconButton>
-                    </Stack>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          <Grid item sm={3} sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box
-              sx={{
-                // marginTop: { xs: '0px', sm: '7px' },
-                marginLeft: { xs: '-20px', sm: '0px' },
-                transform: { xs: 'scale(0.75)', sm: 'scale(1)' },
-              }}
-            >
-              <IconButton
-                onClick={() => {
-                  setShowHelp(true)
-                }}
-              >
-                <HelpOutlineIcon sx={{ color: '#00AFD8' }} />
+        <Grid container>
+          <Grid item xs={0} sm={1} />
+          <Grid item xs={12} sm={10}>
+            <Stack spacing={2}>
+              <Stack direction="row" alignItems="center" position="relative">
                 <Typography
-                  variant="body1"
                   sx={{
-                    color: 'black',
-                    lineHeight: 1,
-                    marginLeft: '5px',
+                    width: '100px',
+                    display: { xs: 'none', xl: 'flex' },
+                    position: 'absolute',
+                    left: '-120px',
+                    justifyContent: 'flex-end',
                   }}
                 >
-                  Söktips
+                  Sök:
                 </Typography>
-              </IconButton>
-            </Box>
-          </Grid>
-          <Grid item sm={1}></Grid>
-          <Grid
-            item
-            xs={8}
-            sm={10}
-            sx={{
-              paddingRight: { xs: '20px', md: '20px' },
-            }}
-          >
-            <Grid
-              container
-              direction="row"
-              bgcolor={'white'}
-              columns={{ xs: 6, sm: 12 }}
-              sx={{
-                paddingLeft: { xs: '20px', sm: '0px' },
-                paddingRight: { xs: '20px', sm: '0px' },
-              }}
-            >
-              <Grid item sm={10} xs={6}>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    fontSize: { xs: 12, sm: 14 },
-                    marginTop: { xs: '0px', sm: '10px' },
-                    marginLeft: { xs: '-20px', sm: '0px' },
-                  }}
+
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={2}
+                  sx={{ width: '100%' }}
                 >
-                  <b>
-                    Se vilka arkiv du kan söka i på{' '}
-                    <Link to="/min-sida">Min sida</Link>{' '}
-                  </b>
-                </Typography>
-              </Grid>
-            </Grid>
-            <Box bgcolor={'white'}>
-              <Grid container sx={{ marginTop: 2 }} columnGap={2} rowGap={1}>
-                {fieldFilterConfigs &&
-                  fieldFilterConfigs.map((filterConfig: FieldFilterConfig) => {
-                    switch (filterConfig.filterType) {
-                      case FilterType.freeText:
-                        return (
-                          <Grid
-                            item
-                            key={filterConfig.fieldName}
-                            xs={12}
-                            md={filterConfig.visualSize}
-                          >
-                            <Typography>{filterConfig.displayName}</Typography>
-                            <TextField
-                              onKeyUp={filterKeyUp}
-                              defaultValue={
-                                filters[filterConfig.fieldName]?.values[0]
-                              }
-                              size="small"
-                              onChange={(e) =>
-                                updateFilter(filterConfig.fieldName, [
-                                  e.target.value,
-                                ])
-                              }
-                              sx={{ width: '100%' }}
-                            ></TextField>
-                          </Grid>
-                        )
-                      case FilterType.values:
-                        return (
-                          <Grid
-                            item
-                            key={filterConfig.fieldName}
-                            xs={12}
-                            md={filterConfig.visualSize}
-                          >
-                            <Typography>{filterConfig.displayName}</Typography>
-                            <Select
-                              renderValue={(selected) => {
-                                if (!selected || selected.length === 0) {
-                                  return <em>Placeholder</em>
-                                }
-
-                                return selected.join(', ')
-                              }}
-                              defaultValue={
-                                Array.isArray(
-                                  filters[filterConfig.fieldName]?.values
-                                )
-                                  ? filters[filterConfig.fieldName]?.values
-                                  : []
-                              }
-                              value={
-                                filters[filterConfig.fieldName]?.values ?? []
-                              }
-                              size="small"
-                              onChange={(e) => {
-                                const val =
-                                  e.target.value === 'string'
-                                    ? e.target.value.split(';')
-                                    : (e.target.value as string[])
-
-                                if (val.length > 1 && !val[0]) {
-                                  val.splice(0, 1)
-                                }
-
-                                updateFilter(filterConfig.fieldName, val)
-                                search()
-                              }}
-                              disabled={
-                                isFieldDisabled(filterConfig, filters) ||
-                                filtersLoading
-                              }
-                              multiple
-                              sx={{ width: '100%' }}
-                              inputProps={{
-                                style: {
-                                  padding: '6px 4px',
-                                },
+                  <TextField
+                    variant="outlined"
+                    sx={{ width: { xs: '100%' }, bgcolor: 'white' }}
+                    placeholder="Sök efter dokument"
+                    defaultValue={query}
+                    onKeyUp={onSubmit}
+                    inputProps={{
+                      style: {
+                        height: '12px',
+                        padding: '19px 10px 15px 12px',
+                        color: 'black',
+                        backgroundColor: 'white',
+                      },
+                    }}
+                    InputProps={{
+                      style: {
+                        backgroundColor: 'white',
+                      },
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Stack direction="row">
+                            {query && (
+                              <IconButton
+                                onClick={() => clearQuery()}
+                                sx={{
+                                  bgcolor: 'white',
+                                  height: '44px',
+                                  width: '44px',
+                                  borderRadius: 0,
+                                  '&:hover': { bgcolor: 'white ' },
+                                }}
+                              >
+                                <HighlightOffIcon />
+                              </IconButton>
+                            )}
+                            <IconButton
+                              edge="end"
+                              disableRipple
+                              onClick={() => search()}
+                              sx={{
+                                color: 'white',
+                                bgcolor: '#53565a',
+                                borderRadius: 0,
+                                height: '46px',
+                                width: '46px',
+                                marginRight: '-13px',
                               }}
                             >
-                              {filterConfig.allValues?.map((value: string) => (
-                                <MenuItem
-                                  key={value}
-                                  value={value}
-                                  disabled={filtersLoading}
-                                >
-                                  <Checkbox
-                                    checked={
-                                      filters[
-                                        filterConfig.fieldName
-                                      ]?.values.indexOf(value) > -1
-                                    }
-                                    disabled={filtersLoading}
-                                  />
-                                  {filterConfig.values?.includes(value) ? (
-                                    <b>{value}</b>
-                                  ) : (
+                              <SearchIcon />
+                            </IconButton>
+                          </Stack>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  <Stack direction="row" spacing={2}>
+                    {fieldFilterConfigs?.find(
+                      (f) => f.fieldName === 'attachmentType'
+                    ) && (
+                      <TextField
+                        select
+                        label="Mediatyp"
+                        SelectProps={{
+                          multiple: true,
+                          renderValue: (selected) => {
+                            if (
+                              !selected ||
+                              (selected as string[]).length === 0
+                            ) {
+                              return ''
+                            }
+                            return (selected as string[]).join(', ')
+                          },
+                          sx: {
+                            lineHeight: 1.8,
+                          },
+                        }}
+                        value={filters['attachmentType']?.values ?? []}
+                        size="small"
+                        onChange={(e) => {
+                          const values = e.target.value as unknown as string[]
+
+                          if (values.length > 1 && !values[0]) {
+                            values.splice(0, 1)
+                          }
+
+                          updateFilter('attachmentType', values)
+                          search()
+                        }}
+                        disabled={filtersLoading}
+                        sx={{
+                          width: {
+                            xs: '100%',
+                            sm: '150px',
+                          },
+                          transition: 'opacity 0.2s',
+                        }}
+                      >
+                        {fieldFilterConfigs
+                          .find((f) => f.fieldName === 'attachmentType')
+                          ?.allValues?.map((value: string) => (
+                            <MenuItem
+                              key={value}
+                              value={value}
+                              disabled={filtersLoading}
+                            >
+                              <Checkbox
+                                checked={
+                                  filters['attachmentType']?.values.indexOf(
                                     value
-                                  )}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </Grid>
-                        )
-                    }
-                  })}
-              </Grid>
-            </Box>
+                                  ) > -1
+                                }
+                                disabled={filtersLoading}
+                              />
+                              {fieldFilterConfigs
+                                .find((f) => f.fieldName === 'attachmentType')
+                                ?.values?.includes(value) ? (
+                                <b>{value}</b>
+                              ) : (
+                                value
+                              )}
+                            </MenuItem>
+                          ))}
+                      </TextField>
+                    )}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <IconButton
+                        onClick={() => {
+                          setShowHelp(true)
+                        }}
+                      >
+                        <HelpOutlineIcon sx={{ color: '#00AFD8' }} />
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            color: 'black',
+                            lineHeight: 1,
+                            marginLeft: '5px',
+                          }}
+                        >
+                          Söktips
+                        </Typography>
+                      </IconButton>
+                    </Box>
+                  </Stack>
+                </Stack>
+              </Stack>
+
+              <Stack direction="row" alignItems="center" position="relative">
+                {fieldFilterConfigs && (
+                  <>
+                    <Typography
+                      sx={{
+                        width: '100px',
+                        display: { xs: 'none', xl: 'flex' },
+                        position: 'absolute',
+                        left: '-120px',
+                        justifyContent: 'flex-end',
+                      }}
+                    >
+                      Filtrera:
+                    </Typography>
+                    <Stack
+                      direction={{ xs: 'column', sm: 'row' }}
+                      spacing={2}
+                      sx={{ width: '100%' }}
+                    >
+                      {fieldFilterConfigs
+                        .filter((config) => config.fieldName !== 'mediaType')
+                        .map((filterConfig: FieldFilterConfig) => {
+                          const isDisabled = isFieldDisabled(
+                            filterConfig,
+                            filters
+                          )
+                          switch (filterConfig.filterType) {
+                            case FilterType.freeText:
+                              return (
+                                <Box
+                                  key={filterConfig.fieldName}
+                                  sx={{
+                                    width: {
+                                      xs: '100%',
+                                      sm: `${filterConfig.visualSize * 25}%`,
+                                    },
+                                  }}
+                                >
+                                  <Typography
+                                    sx={{
+                                      color: isDisabled
+                                        ? 'text.disabled'
+                                        : 'text.primary',
+                                    }}
+                                  >
+                                    {filterConfig.displayName}
+                                  </Typography>
+                                  <TextField
+                                    onKeyUp={filterKeyUp}
+                                    defaultValue={
+                                      filters[filterConfig.fieldName]?.values[0]
+                                    }
+                                    size="small"
+                                    disabled={isDisabled}
+                                    onChange={(e) =>
+                                      updateFilter(filterConfig.fieldName, [
+                                        e.target.value,
+                                      ])
+                                    }
+                                    sx={{ width: '100%' }}
+                                  />
+                                </Box>
+                              )
+                            case FilterType.values:
+                              if (filterConfig.fieldName === 'attachmentType') {
+                                return null
+                              }
+                              return (
+                                <Box
+                                  key={filterConfig.fieldName}
+                                  sx={{
+                                    width: {
+                                      xs: '100%',
+                                      sm: `${filterConfig.visualSize * 25}%`,
+                                    },
+                                  }}
+                                >
+                                  <TextField
+                                    select
+                                    label={filterConfig.displayName}
+                                    SelectProps={{
+                                      multiple: true,
+                                      renderValue: (selected) => {
+                                        if (
+                                          !selected ||
+                                          (selected as string[]).length === 0
+                                        ) {
+                                          return ''
+                                        }
+                                        return (selected as string[]).join(', ')
+                                      },
+                                      sx: {
+                                        lineHeight: 1.8,
+                                      },
+                                    }}
+                                    value={
+                                      filters[filterConfig.fieldName]?.values ??
+                                      []
+                                    }
+                                    size="small"
+                                    onChange={(e) => {
+                                      const val =
+                                        e.target.value === 'string'
+                                          ? e.target.value.split(';')
+                                          : (e.target
+                                              .value as unknown as string[])
+
+                                      if (val.length > 1 && !val[0]) {
+                                        val.splice(0, 1)
+                                      }
+
+                                      updateFilter(filterConfig.fieldName, val)
+                                      search()
+                                    }}
+                                    disabled={isDisabled || filtersLoading}
+                                    sx={{
+                                      width: '100%',
+                                      opacity: isDisabled ? 0.7 : 1,
+                                      transition: 'opacity 0.2s',
+                                    }}
+                                  >
+                                    {filterConfig.allValues?.map(
+                                      (value: string) => (
+                                        <MenuItem
+                                          key={value}
+                                          value={value}
+                                          disabled={filtersLoading}
+                                        >
+                                          <Checkbox
+                                            checked={
+                                              filters[
+                                                filterConfig.fieldName
+                                              ]?.values.indexOf(value) > -1
+                                            }
+                                            disabled={filtersLoading}
+                                          />
+                                          {filterConfig.values?.includes(
+                                            value
+                                          ) ? (
+                                            <b>{value}</b>
+                                          ) : (
+                                            value
+                                          )}
+                                        </MenuItem>
+                                      )
+                                    )}
+                                  </TextField>
+                                </Box>
+                              )
+                          }
+                        })}
+                    </Stack>
+                  </>
+                )}
+              </Stack>
+            </Stack>
           </Grid>
-        </>
+          <Grid item xs={0} sm={1} />
+        </Grid>
       )}
       <Dialog
         open={showHelp}

@@ -3,6 +3,8 @@ import KoaRouter from '@koa/router'
 import { Document } from '../../common/types'
 import comprimaAdapter from './comprimaAdapter'
 
+import { Readable } from 'stream'
+
 const batchSize = 10
 
 const healthCheck = async () => {
@@ -70,10 +72,11 @@ export const routes = (router: KoaRouter) => {
         parseInt(ctx.params.documentId)
       )
       const attachment = await comprimaAdapter.getAttachment(document)
+      const attachmentStream = attachment.data as Readable
 
       ctx.type =
         document.fields.format?.value ?? attachment.headers['content-type']
-      ctx.body = attachment.data
+      ctx.body = attachmentStream
     } catch (err) {
       ctx.status = 500
       ctx.body = { results: 'error: ' + err }

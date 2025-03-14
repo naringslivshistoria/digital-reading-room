@@ -1,4 +1,5 @@
 import { Typography } from '@mui/material'
+import { Link } from 'react-router-dom'
 
 import { Document } from '../common/types'
 
@@ -12,15 +13,27 @@ export const MetaDataField = ({
   heading: string
 }) => {
   const getFieldValueString = (fieldName: string) => {
-    if (
-      !document.fields[fieldName] ||
-      !document.fields[fieldName].value ||
-      document.fields[fieldName].value === ''
-    ) {
+    if (!document.fields[fieldName]?.value) {
       return '-'
-    } else {
-      return document.fields[fieldName].value
     }
+    if (fieldName === 'volume') {
+      const newFilter = [
+        `depositor::${document.fields.depositor.value}`,
+        `archiveInitiator::${document.fields.archiveInitiator.value}`,
+        `seriesName::${document.fields.seriesSignature.value} - ${document.fields.seriesName.value}`,
+        `volume::${document.fields.volume.value}`,
+      ]
+        .filter((f) => f)
+        .join('||')
+
+      const searchString = `/search?query=${
+        newFilter ? `&filter=${encodeURIComponent(newFilter)}` : ''
+      }`
+
+      return <Link to={searchString}>{document.fields[fieldName].value}</Link>
+    }
+
+    return document.fields[fieldName].value
   }
 
   return (

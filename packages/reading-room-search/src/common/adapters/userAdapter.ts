@@ -95,6 +95,13 @@ export const updateUserLocked = async (
   await db('users').where('id', userId).update({ locked: locked })
 }
 
+export const updateUserDisabled = async (
+  userId: number,
+  disabled: boolean
+): Promise<void> => {
+  await db('users').where('id', userId).update({ disabled: disabled })
+}
+
 export const updateResetToken = async (
   user: User,
   token: string

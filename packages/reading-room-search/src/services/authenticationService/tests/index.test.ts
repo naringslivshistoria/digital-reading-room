@@ -201,6 +201,7 @@ describe('authenticationService', () => {
         role: 'User',
         password_hash: mockHash.password,
         salt: mockHash.salt,
+        disabled: true,
       })
 
       expect(hashSpy).toHaveBeenCalledWith('securePassword123')
@@ -217,6 +218,10 @@ describe('authenticationService', () => {
         .spyOn(hash, 'createSaltAndHash')
         .mockResolvedValue({ password: 'hash', salt: 'salt' })
 
+      const createVerificationTokenSpy = jest
+        .spyOn(jwt, 'createVerificationToken')
+        .mockResolvedValue('verification-token-123')
+
       const sendMailSpy = jest
         .spyOn(smtpAdapter, 'sendEmail')
         .mockImplementation(() => Promise.resolve())
@@ -231,7 +236,64 @@ describe('authenticationService', () => {
 
       expect(createAccountSpy).toHaveBeenCalled()
       expect(hashSpy).toHaveBeenCalled()
+      expect(createVerificationTokenSpy).toHaveBeenCalled()
       expect(sendMailSpy).toBeCalledTimes(2)
+    })
+  })
+
+  describe('POST /auth/verify-account', () => {
+    it('verifierar konto och aktiverar det', async () => {
+      const verifyTokenSpy = jest
+        .spyOn(jwt, 'verifyVerificationToken')
+        .mockResolvedValue({
+          userId: '1',
+          email: 'foo@example.com',
+        })
+
+      const getUserSpy = jest.spyOn(userAdapter, 'getUser').mockResolvedValue({
+        id: 1,
+        username: 'foo@example.com',
+      })
+
+      const updateUserDisabledSpy = jest
+        .spyOn(userAdapter, 'updateUserDisabled')
+        .mockResolvedValue()
+      const sendMailSpy = jest
+        .spyOn(smtpAdapter, 'sendEmail')
+        .mockResolvedValue()
+
+      const response = await request(app.callback())
+        .post('/auth/verify-account')
+        .send({
+          username: 'foo@example.com',
+          verificationToken: 'valid-token-123',
+        })
+
+      expect(response.status).toBe(200)
+      expect(updateUserDisabledSpy).toBeCalledWith(1, false)
+      expect(sendMailSpy).toHaveBeenCalled()
+
+      verifyTokenSpy.mockRestore()
+      getUserSpy.mockRestore()
+      updateUserDisabledSpy.mockRestore()
+      sendMailSpy.mockRestore()
+    })
+
+    it('hanterar ogiltiga verifieringsförsök', async () => {
+      const verifyTokenSpy = jest
+        .spyOn(jwt, 'verifyVerificationToken')
+        .mockRejectedValue(new Error('Invalid verification token'))
+
+      const response = await request(app.callback())
+        .post('/auth/verify-account')
+        .send({
+          username: 'foo@example.com',
+          verificationToken: 'invalid-token',
+        })
+
+      expect(response.status).toBe(400)
+      expect(response.body).toHaveProperty('error')
+      verifyTokenSpy.mockRestore()
     })
   })
 })

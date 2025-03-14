@@ -2,9 +2,55 @@ import { Grid, List, ListItem, Typography } from '@mui/material'
 
 import { SiteHeader } from '../../components/siteHeader'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
+import { useFieldValues } from '../search/hooks/useSearch'
 
 export const MyPage = () => {
   const { data: user } = useIsLoggedIn(true)
+  const { data: fieldValues } = useFieldValues({ filter: null })
+
+  const getFieldValues = (fieldName: string) =>
+    fieldValues?.find((c) => c.fieldName === fieldName)?.allValues || []
+
+  const currentValues = {
+    depositor: getFieldValues('depositor'),
+    archiveInitiator: getFieldValues('archiveInitiator'),
+    seriesName: getFieldValues('seriesName'),
+    volume: getFieldValues('volume'),
+  }
+
+  const validateHierarchy = (path: string, levels: string[][]) => {
+    const parts = path.split('>')
+    return parts.every((part, index) => levels[index]?.includes(part) ?? false)
+  }
+
+  const accessList = [
+    ...(user?.depositors?.filter((d) => currentValues.depositor.includes(d)) ||
+      []),
+    ...(user?.archiveInitiators?.filter((a) =>
+      validateHierarchy(a, [
+        currentValues.depositor,
+        currentValues.archiveInitiator,
+      ])
+    ) || []),
+    ...(user?.series?.filter((s) =>
+      validateHierarchy(s, [
+        currentValues.depositor,
+        currentValues.archiveInitiator,
+        currentValues.seriesName,
+      ])
+    ) || []),
+    ...(user?.volumes?.filter((v) =>
+      validateHierarchy(v, [
+        currentValues.depositor,
+        currentValues.archiveInitiator,
+        currentValues.seriesName,
+        currentValues.volume,
+      ])
+    ) || []),
+    ...(user?.documentIds?.filter((id) => id) || []),
+  ]
+    .filter(Boolean)
+    .sort()
 
   return (
     <>
@@ -42,18 +88,11 @@ export const MyPage = () => {
           <List
             sx={{ listStyleType: 'disc', paddingTop: 0, marginLeft: '20px' }}
           >
-            {user?.depositors
-              ?.concat(user?.archiveInitiators || [])
-              .concat(user?.documentIds || [])
-              .concat(user?.series || [])
-              .concat(user?.volumes || [])
-              .filter((a) => a != '')
-              .sort()
-              .map((archive) => (
-                <ListItem sx={{ display: 'list-item' }} key={archive}>
-                  {archive}
-                </ListItem>
-              ))}
+            {accessList.map((archive) => (
+              <ListItem sx={{ display: 'list-item' }} key={archive}>
+                {archive}
+              </ListItem>
+            ))}
           </List>
         </Grid>
         <Grid item xs={0.5} sm={1} />
