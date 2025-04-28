@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - name: 🛎️ Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: 🎫 Update patch verision
       run: |
@@ -49,7 +49,7 @@ jobs:
 
     steps:
     - name: 🛎️ Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - run: |
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
