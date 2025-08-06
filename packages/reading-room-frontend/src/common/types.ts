@@ -77,6 +77,8 @@ interface ViewerContentProps {
   thumbnailUrl?: string
   isLoading: boolean
   setIsLoading: (isLoading: boolean) => void
+  scale?: number
+  rotation?: number
 }
 
 interface NavigationButtonsProps {
@@ -102,6 +104,8 @@ interface VideoPlayerProps {
   file: {
     url: string
   }
+  scale?: number
+  rotation?: number
 }
 
 interface ThumbnailImageProps {

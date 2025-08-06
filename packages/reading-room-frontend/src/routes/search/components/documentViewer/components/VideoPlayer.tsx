@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material'
 
 import { VideoPlayerProps } from '../../../../../common/types'
 
-export const VideoPlayer = ({ file }: VideoPlayerProps) => {
+export const VideoPlayer = ({ file, scale, rotation }: VideoPlayerProps) => {
   if (file.url.endsWith('.flv')) {
     return (
       <Typography variant="h6" sx={{ color: 'white' }}>
@@ -29,6 +29,7 @@ export const VideoPlayer = ({ file }: VideoPlayerProps) => {
           maxWidth: '100%',
           maxHeight: '100%',
           objectFit: 'contain',
+          transform: `scale(${scale || 1}) rotate(${rotation || 0}deg)`,
         }}
         controlsList="nodownload"
       >
