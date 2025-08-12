@@ -284,7 +284,7 @@ export default function DocumentViewer({
 
           <Box
             sx={{
-              transform: `scale(${scale}) translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
+              transform: `translate(${position.x}px, ${position.y}px)`,
               transition: isDragging ? 'none' : 'transform 0.3s ease-in-out',
               transformOrigin: 'center center',
               padding: '50px',
@@ -306,6 +306,8 @@ export default function DocumentViewer({
               thumbnailUrl={thumbnailUrl}
               isLoading={isLoading}
               setIsLoading={setIsLoading}
+              scale={scale}
+              rotation={rotation}
             />
           </Box>
         </Box>

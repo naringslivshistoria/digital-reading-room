@@ -15,11 +15,15 @@ export const ViewerContent = ({
   thumbnailUrl,
   isLoading,
   setIsLoading,
+  scale,
+  rotation,
 }: ViewerContentProps) => {
   const [showThumbnail, setShowThumbnail] = useState(true)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const imgRef = useRef<HTMLImageElement>(null)
   const mountedRef = useRef(true)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerHeight, setContainerHeight] = useState<number | undefined>()
 
   useEffect(() => {
     mountedRef.current = true
@@ -29,6 +33,19 @@ export const ViewerContent = ({
         clearTimeout(timeoutRef.current)
       }
     }
+  }, [])
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        setContainerHeight(containerRef.current.clientHeight)
+      }
+    }
+
+    updateHeight()
+    window.addEventListener('resize', updateHeight)
+
+    return () => window.removeEventListener('resize', updateHeight)
   }, [])
 
   const handleDocumentLoad = useCallback(() => {
@@ -79,6 +96,7 @@ export const ViewerContent = ({
     if (type === ViewerType.PDF) {
       return (
         <Box
+          ref={containerRef}
           sx={{
             position: 'relative',
             width: '100%',
@@ -86,11 +104,6 @@ export const ViewerContent = ({
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            '& canvas': {
-              maxWidth: '100%',
-              maxHeight: '100%',
-              objectFit: 'contain',
-            },
           }}
         >
           <PdfDocument
@@ -124,15 +137,22 @@ export const ViewerContent = ({
               renderTextLayer={false}
               renderAnnotationLayer={false}
               loading={null}
-              canvasBackground="black"
-              width={800}
-              scale={1}
+              height={containerHeight}
+              scale={scale}
+              rotate={rotation}
             />
           </PdfDocument>
         </Box>
       )
     } else if (type === ViewerType.VIDEO) {
-      return <VideoPlayer file={file} key={file.url} />
+      return (
+        <VideoPlayer
+          file={file}
+          scale={scale}
+          rotation={rotation}
+          key={file.url}
+        />
+      )
     } else {
       return (
         <img
@@ -148,6 +168,7 @@ export const ViewerContent = ({
             position: 'absolute',
             top: 0,
             pointerEvents: 'none',
+            transform: `scale(${scale || 1}) rotate(${rotation || 0}deg)`,
           }}
           onLoad={handleDocumentLoad}
           onError={(e) => {
