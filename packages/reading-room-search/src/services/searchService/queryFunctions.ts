@@ -1,13 +1,6 @@
-import {
-  AggregationsAggregationContainer,
-  QueryDslQueryContainer,
-  QueryDslTermQuery,
-  QueryDslWildcardQuery,
-  SearchTotalHits,
-} from '@elastic/elasticsearch/lib/api/types'
 import { Document, FieldFilterConfig, FilterType } from '../../common/types'
 import config from '../../common/config'
-import { Client } from '@elastic/elasticsearch'
+import { Client, estypes } from '@elastic/elasticsearch'
 
 // Currently no numeric fields anymore, keep for future use
 const numericFields: Record<string, boolean> = {}
@@ -49,8 +42,8 @@ const createAccessFilter = (
   volumes: string[] | undefined,
   documentIds: string[] | undefined,
   fileNames: string[] | undefined
-): QueryDslQueryContainer[] | undefined => {
-  const accessFilter: QueryDslQueryContainer[] = []
+): estypes.QueryDslQueryContainer[] | undefined => {
+  const accessFilter: estypes.QueryDslQueryContainer[] = []
 
   if (depositors && depositors.length > 0) {
     accessFilter.push({
@@ -68,7 +61,7 @@ const createAccessFilter = (
             (archiveInitiator) =>
               archiveInitiator != '' && archiveInitiator.split('>').length >= 1
           )
-          .map((archiveInitiator): QueryDslQueryContainer => {
+          .map((archiveInitiator): estypes.QueryDslQueryContainer => {
             return {
               bool: {
                 must: [
@@ -102,7 +95,7 @@ const createAccessFilter = (
             (archiveInitiator) =>
               archiveInitiator != '' && archiveInitiator.split('>').length >= 2
           )
-          .map((serie): QueryDslQueryContainer => {
+          .map((serie): estypes.QueryDslQueryContainer => {
             return {
               bool: {
                 must: [
@@ -141,7 +134,7 @@ const createAccessFilter = (
       bool: {
         should: volumes
           .filter((volume) => volume != '' && volume.split('>').length >= 3)
-          .map((volume): QueryDslQueryContainer => {
+          .map((volume): estypes.QueryDslQueryContainer => {
             return {
               bool: {
                 must: [
@@ -200,10 +193,10 @@ const createAccessFilter = (
 
 export const createSearchQuery = (
   queryString: string | undefined,
-  accessFilter: QueryDslQueryContainer[] | undefined,
+  accessFilter: estypes.QueryDslQueryContainer[] | undefined,
   filterString: string | undefined
 ) => {
-  const must: QueryDslQueryContainer[] = []
+  const must: estypes.QueryDslQueryContainer[] = []
 
   if (queryString) {
     must.push({
@@ -228,10 +221,10 @@ export const createSearchQuery = (
     filters.forEach((filter) => {
       const filterTerm = filter.split('::')
       if (numericFields[filterTerm[0]]) {
-        const should: QueryDslQueryContainer[] = []
+        const should: estypes.QueryDslQueryContainer[] = []
 
         filterTerm[1].split('%%').forEach((value) => {
-          const term: Record<string, QueryDslTermQuery> = {}
+          const term: Record<string, estypes.QueryDslTermQuery> = {}
           term[getFullFieldName(filterTerm[0])] = {
             value,
           }
@@ -243,7 +236,7 @@ export const createSearchQuery = (
           bool: { should },
         })
       } else if (filterTerm[0] === 'location' || filterTerm[0] === 'time') {
-        const wildcard: { [k: string]: QueryDslWildcardQuery } = {}
+        const wildcard: { [k: string]: estypes.QueryDslWildcardQuery } = {}
 
         wildcard[`${getFullFieldName(filterTerm[0])}`] = {
           value: filterTerm[1] + '*',
@@ -299,7 +292,7 @@ export const setValues = async (
   fileNames: string[] | undefined,
   valueField: string
 ) => {
-  const aggs: Record<string, AggregationsAggregationContainer> = {}
+  const aggs: Record<string, estypes.AggregationsAggregationContainer> = {}
   const filterString = Array.isArray(filter) ? filter[0] : filter
 
   fieldFilterConfigs.forEach((fieldFilterConfig) => {
@@ -461,7 +454,7 @@ export const search = async (
   })
 
   const totalHits =
-    (searchResults.hits.total as SearchTotalHits)?.value ??
+    (searchResults.hits.total as estypes.SearchTotalHits)?.value ??
     Number(searchResults.hits.total)
 
   return {

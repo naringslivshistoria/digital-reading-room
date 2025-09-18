@@ -1,9 +1,28 @@
 {
-  "extends": "@tsconfig/node16/tsconfig.json",
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./build",
-    "resolveJsonModule": true,
+    "types": [
+      "jest",
+      "node"
+    ],
+    "noErrorTruncation": true,
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
+    "lib": [
+      "ES2022"
+    ],
+    "strict": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
   },
+  "exclude": [
+    "node_modules",
+    "**/dist",
+    "**/build"
+  ]
 }

@@ -1,7 +1,7 @@
 import request from 'supertest'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
-import bodyParser from 'koa-bodyparser'
+import bodyParser from '@koa/bodyparser'
 import { Client } from '@elastic/elasticsearch'
 import koaJwt from 'koa-jwt'
 import jwt from 'jsonwebtoken'

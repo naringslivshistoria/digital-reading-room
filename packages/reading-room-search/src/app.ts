@@ -1,6 +1,6 @@
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
-import bodyParser from 'koa-bodyparser'
+import bodyParser from '@koa/bodyparser'
 import cors from '@koa/cors'
 import jwt from 'koa-jwt'
 import session from 'koa-session'
