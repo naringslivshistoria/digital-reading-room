@@ -24,11 +24,11 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           if [[ $GITHUB_REF == refs/tags/production* ]]; then
-            pnpm version major
+            npm version major
           elif [[ $GITHUB_REF == refs/tags/staging* ]]; then
-            pnpm version minor
+            npm version minor
           else
-            pnpm version patch
+            npm version patch
           fi
           git fetch --all
           git push origin main
@@ -54,11 +54,11 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           if [[ $GITHUB_REF == refs/tags/production* ]]; then
-            pnpm version major
+            npm version major
           elif [[ $GITHUB_REF == refs/tags/staging* ]]; then
-            pnpm version minor
+            npm version minor
           else
-            pnpm version patch
+            npm version patch
           fi
 
       - name: 📝 Get Current Version
