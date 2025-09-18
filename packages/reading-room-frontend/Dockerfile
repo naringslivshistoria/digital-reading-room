@@ -1,7 +1,7 @@
 FROM node:18.14.1-slim AS builder
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@10.6.1 --activate
+RUN corepack enable && corepack prepare pnpm@10.17.0 --activate
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 

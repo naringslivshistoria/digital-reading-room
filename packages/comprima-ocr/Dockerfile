@@ -1,6 +1,6 @@
 FROM node:18.14.1-alpine AS builder
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@10.6.1 --activate
+RUN corepack enable && corepack prepare pnpm@10.17.1 --activate
 
 RUN apk add --update --no-cache \
   build-base \
