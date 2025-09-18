@@ -28,22 +28,13 @@ jobs:
         with:
           node-version: 18
 
-      #- name: 💾 PNPM Install ${{ matrix.context }}
-      #  uses: ./.github/actions/pnpm-setup
-      #  with:
-      #    working-directory: ./packages/${{ matrix.context }}
-
-      - name: Install PNPM
-        uses: pnpm/action-setup@v4
-
       - name: 💾 PNPM Install ${{ matrix.context }}
-        run: pnpm install
+        uses: pnpm/action-setup@v4
         with:
-          working-directory: ./packages/${{ matrix.context }}
-      #      - name: 💾 NPM Install ${{ matrix.context }}
-      #        uses: bahmutov/npm-install@v1
-      #        with:
-      #          working-directory: ./packages/${{ matrix.context }}
+          version: 10.17.0
+          run_install:
+            cwd: ./packages/${{ matrix.context }}
+            args: [--frozen-lockfile, --no-fund]
 
       - name: 🔎 Lint ${{ matrix.context }}
         run: |
