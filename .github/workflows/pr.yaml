@@ -3,7 +3,7 @@ name: Run code linting and tests
 on:
   pull_request:
     branches:
-    - main
+      - main
 
 jobs:
   check:
@@ -13,32 +13,37 @@ jobs:
     strategy:
       matrix:
         context:
-        - comprima-adapter
-        - comprima-crawler
-        - comprima-ocr
-        - reading-room-frontend
-        - reading-room-search
+          - comprima-adapter
+          - comprima-crawler
+          - comprima-ocr
+          - reading-room-frontend
+          - reading-room-search
 
     steps:
-    - name: 🛎️ Checkout
-      uses: actions/checkout@v3
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
 
-    - name: 🔧 Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      - name: 🔧 Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: 💾 NPM Install ${{ matrix.context }}
-      uses: bahmutov/npm-install@v1
-      with:
-        working-directory: ./packages/${{ matrix.context }}
+      - name: 💾 PNPM Install ${{ matrix.context }}
+        uses: ./.github/actions/pnpm-setup
+        with:
+          working-directory: ./packages/${{ matrix.context }}
 
-    - name: 🔎 Lint ${{ matrix.context }}
-      run: |
-        cd ./packages/${{ matrix.context }}
-        npm run lint
+      #      - name: 💾 NPM Install ${{ matrix.context }}
+      #        uses: bahmutov/npm-install@v1
+      #        with:
+      #          working-directory: ./packages/${{ matrix.context }}
 
-    - name: 🤖 Test ${{ matrix.context }}
-      run: |
-        cd ./packages/${{ matrix.context }}
-        npm run test
+      - name: 🔎 Lint ${{ matrix.context }}
+        run: |
+          cd ./packages/${{ matrix.context }}
+          pnpm run lint
+
+      - name: 🤖 Test ${{ matrix.context }}
+        run: |
+          cd ./packages/${{ matrix.context }}
+          pnpm run test
