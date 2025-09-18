@@ -24,15 +24,22 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🔧 Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
+      #- name: 💾 PNPM Install ${{ matrix.context }}
+      #  uses: ./.github/actions/pnpm-setup
+      #  with:
+      #    working-directory: ./packages/${{ matrix.context }}
+
+      - name: Install PNPM
+        uses: pnpm/action-setup@v4
+
       - name: 💾 PNPM Install ${{ matrix.context }}
-        uses: ./.github/actions/pnpm-setup
+        run: pnpm install
         with:
           working-directory: ./packages/${{ matrix.context }}
-
       #      - name: 💾 NPM Install ${{ matrix.context }}
       #        uses: bahmutov/npm-install@v1
       #        with:
