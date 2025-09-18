@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken'
+import jwt, { SignOptions } from 'jsonwebtoken'
 import createHttpError from 'http-errors'
 import crypto from 'crypto'
 
@@ -42,6 +42,10 @@ export const createToken = async (username: string, password: string) => {
 
     await updateUserFailedLoginAttempts(user.id, 0)
 
+    const signOptions: SignOptions = {
+      expiresIn: config.auth.expiresIn,
+    }
+
     const token = jwt.sign(
       {
         sub: user.id,
@@ -49,9 +53,7 @@ export const createToken = async (username: string, password: string) => {
         role: user.role,
       },
       config.auth.secret,
-      {
-        expiresIn: config.auth.expiresIn,
-      }
+      signOptions
     )
 
     return { token }

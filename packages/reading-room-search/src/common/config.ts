@@ -13,7 +13,7 @@ export interface Config {
   postgres: Postgres
   auth: {
     secret: string
-    expiresIn: string
+    expiresIn: number
     maxFailedLoginAttempts: number
   }
   elasticSearch: {
@@ -31,9 +31,9 @@ export interface Config {
     password: string
   }
   createAccount: {
-    notificationEmailRecipient: 'string'
-    resetPasswordUrl: 'string'
-    verifyAccountUrl: 'string'
+    notificationEmailRecipient: string
+    resetPasswordUrl: string
+    verifyAccountUrl: string
   }
 }
 
@@ -51,7 +51,7 @@ const config = configPackage({
     auth: {
       secret:
         'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
-      expiresIn: '3h', // format allowed by https://github.com/zeit/ms
+      expiresIn: 10800, // format allowed by https://github.com/zeit/ms
       maxFailedLoginAttempts: 3,
     },
     elasticSearch: {

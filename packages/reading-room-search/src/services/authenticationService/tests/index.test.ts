@@ -1,7 +1,7 @@
 import request from 'supertest'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
-import bodyParser from 'koa-bodyparser'
+import bodyParser from '@koa/bodyparser'
 import session from 'koa-session'
 import { routes } from '../index'
 import hash from '../hash'

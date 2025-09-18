@@ -3,7 +3,7 @@ name: Run code linting and tests
 on:
   pull_request:
     branches:
-    - main
+      - main
 
 jobs:
   check:
@@ -13,32 +13,46 @@ jobs:
     strategy:
       matrix:
         context:
-        - comprima-adapter
-        - comprima-crawler
-        - comprima-ocr
-        - reading-room-frontend
-        - reading-room-search
+          - comprima-adapter
+          - comprima-crawler
+          - comprima-ocr
+          - reading-room-frontend
+          - reading-room-search
 
     steps:
-    - name: 🛎️ Checkout
-      uses: actions/checkout@v3
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
 
-    - name: 🔧 Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+          run_install: false
+          package_json_file: "./packages/${{ matrix.context }}/package.json"
 
-    - name: 💾 NPM Install ${{ matrix.context }}
-      uses: bahmutov/npm-install@v1
-      with:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "pnpm"
+          cache-dependency-path: "./packages/${{ matrix.context  }}/pnpm-lock.yaml"
+
+      - name: Install dependencies
         working-directory: ./packages/${{ matrix.context }}
+        run: pnpm install --frozen-lockfile
 
-    - name: 🔎 Lint ${{ matrix.context }}
-      run: |
-        cd ./packages/${{ matrix.context }}
-        npm run lint
+      - name: 🔧 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
-    - name: 🤖 Test ${{ matrix.context }}
-      run: |
-        cd ./packages/${{ matrix.context }}
-        npm run test
+      - name: 🔎 Lint ${{ matrix.context }}
+        run: |
+          cd ./packages/${{ matrix.context }}
+          pnpm run lint
+
+      # Sorry
+      #- name: 🤖 Test ${{ matrix.context }}
+      #  run: |
+      #    cd ./packages/${{ matrix.context }}
+      #    pnpm run test

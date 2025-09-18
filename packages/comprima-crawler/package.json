@@ -7,12 +7,12 @@
     "node": "18.14.1"
   },
   "scripts": {
-    "dev": "nodemon -e ts,js --exec npm run start",
+    "dev": "nodemon -e ts,js --exec pnpm run start",
     "lint": "eslint -c .eslintrc src/",
     "migrate:down": "knex migrate:down",
     "migrate:up": "knex migrate:latest",
     "seed": "knex seed:run",
-    "start": "npm run migrate:up && ts-node ./src/index.ts",
+    "start": "pnpm run migrate:up && ts-node ./src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch"
   },
