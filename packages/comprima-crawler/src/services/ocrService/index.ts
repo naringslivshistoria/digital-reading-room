@@ -100,7 +100,7 @@ export const ocrNext = async () => {
     console.log('Queuing', document._id)
     return axios.get(ocrUrl + '/ocr/' + document._id).catch(async (error) => {
       console.log('Marking document as failed', document._id)
-      await markAsFailed(document._id)
+      await markAsFailed(document._id as string)
     })
   })
 

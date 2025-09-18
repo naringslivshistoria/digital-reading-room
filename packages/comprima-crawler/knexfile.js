@@ -6,7 +6,7 @@ module.exports = {
   development: {
     client: 'pg',
     connection: {
-      host: '127.0.0.1',
+      host: process.env.POSTGRES__HOST,
       database: 'crawler',
       user: process.env.POSTGRES__USER,
       password: process.env.POSTGRES__PASSWORD,
@@ -33,4 +33,4 @@ module.exports = {
       tableName: 'knex_migrations',
     },
   },
-};
+}
