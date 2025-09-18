@@ -1,0 +1,5 @@
+minimumReleaseAge: 20160
+
+onlyBuiltDependencies:
+  - canvas
+  - esbuild

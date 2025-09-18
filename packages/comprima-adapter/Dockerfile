@@ -1,9 +1,9 @@
 FROM node:18.14.1 AS builder
 WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@10.6.1 --activate
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.6.1 --activate
 RUN pnpm install
 
 FROM node:18.14.1-alpine AS runner
