@@ -9,7 +9,7 @@
   "scripts": {
     "test": "jest",
     "start": "ts-node ./src/index.ts",
-    "dev": "nodemon -e ts,js --exec npm run start",
+    "dev": "nodemon -e ts,js --exec pnpm start",
     "lint": "eslint -c .eslintrc src/"
   },
   "author": "",
