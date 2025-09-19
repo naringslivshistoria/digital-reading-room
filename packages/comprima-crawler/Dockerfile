@@ -1,11 +1,11 @@
-FROM node:18.14.1 AS builder
+FROM node:20 AS builder
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@10.17.0 --activate
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install
 
-FROM node:18.14.1-alpine AS runner
+FROM node:20-alpine AS runner
 
 # Install pnpm
 WORKDIR /app

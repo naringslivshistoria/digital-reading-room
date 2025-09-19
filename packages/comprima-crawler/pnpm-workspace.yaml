@@ -1,1 +1,4 @@
 minimumReleaseAge: 20160
+
+onlyBuiltDependencies:
+  - '@tensorflow/tfjs-node'
