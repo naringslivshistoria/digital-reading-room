@@ -10,8 +10,9 @@ FROM node:20-alpine AS runner
 # Install pnpm
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@10.17.0 --activate
+RUN apk add libc6-compat
 
 COPY . .
 COPY --from=builder /app/node_modules ./node_modules
 
-CMD ["pnpm", "start"]
+CMD ["pnpm", "run", "start2"]

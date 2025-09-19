@@ -4,7 +4,7 @@
   "main": "./src/index.ts",
   "private": "true",
   "engines": {
-    "node": "18.14.1"
+    "node": "20.19.5"
   },
   "scripts": {
     "dev": "nodemon -e ts,js --exec pnpm run start",
@@ -13,6 +13,7 @@
     "migrate:up": "knex migrate:latest",
     "seed": "knex seed:run",
     "start": "pnpm run migrate:up && ts-node ./src/index.ts",
+    "start2": "ts-node ./src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch"
   },
