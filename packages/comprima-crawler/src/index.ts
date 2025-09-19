@@ -3,7 +3,6 @@ import config from './common/config'
 import log from './common/log'
 import { crawlLevels } from './services/crawlerService'
 import { ocrNext } from './services/ocrService'
-import { recognizeNext } from './services/recognizerService'
 
 log.info('🐛 Comprima Crawler running!')
 log.info('Configuration', config)
@@ -13,7 +12,7 @@ const delay = async (time: number) => {
 }
 
 let documentId = null
-let recognized = 0
+//let recognized = 0
 
 ;(async () => {
   console.log(
@@ -54,11 +53,11 @@ let recognized = 0
     // case 'update':
     //   levelPromise = getUpdatedLevels
     //   break;
-    case 'recognize':
+    /*    case 'recognize':
       do {
         recognized = await recognizeNext()
       } while (recognized > 0)
-      break
+      break*/
     default:
       log.warn(`CRAWLER_MODE must be either 'index', 'recognize' or 'ocr`)
       log.error(`Unknown mode ${config.mode}!`)
