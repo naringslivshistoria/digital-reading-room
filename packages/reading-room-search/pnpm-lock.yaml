@@ -81,8 +81,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       nodemailer:
-        specifier: ^6.9.7
-        version: 6.10.1
+        specifier: ^7.0.7
+        version: 7.0.7
       pg:
         specifier: ^8.9.0
         version: 8.16.3
@@ -2411,6 +2411,7 @@ packages:
   keygrip@1.1.0:
     resolution: {integrity: sha512-iYSchDJ+liQ8iwbSI2QqsQOvqv58eJCEanyJPJi+Khyu8smkcKSFUCbPwzFcL7YVtZ6eONjqRX/38caJ7QjRAQ==}
     engines: {node: '>= 0.6'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -2643,8 +2644,8 @@ packages:
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
 
-  nodemailer@6.10.1:
-    resolution: {integrity: sha512-Z+iLaBGVaSjbIzQ4pX6XV41HrooLsQ10ZWPUehGmuantvzWoDVBnmsdUcOIDM1t+yPor5pDhVlDESgOMEGxhHA==}
+  nodemailer@7.0.7:
+    resolution: {integrity: sha512-jGOaRznodf62TVzdyhKt/f1Q/c3kYynk8629sgJHpRzGZj01ezbgMMWJSAjHADcwTKxco3B68/R+KHJY2T5BaA==}
     engines: {node: '>=6.0.0'}
 
   nodemon@2.0.22:
@@ -5010,7 +5011,7 @@ snapshots:
       '@typescript-eslint/scope-manager': 5.62.0
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/typescript-estree': 5.62.0(typescript@4.9.5)
-      debug: 4.3.4
+      debug: 4.4.3
       eslint: 8.57.1
     optionalDependencies:
       typescript: 4.9.5
@@ -7040,7 +7041,7 @@ snapshots:
 
   node-releases@2.0.19: {}
 
-  nodemailer@6.10.1: {}
+  nodemailer@7.0.7: {}
 
   nodemon@2.0.22:
     dependencies:
