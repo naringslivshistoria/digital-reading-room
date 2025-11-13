@@ -179,7 +179,6 @@ function App() {
           <Routes>
             <Route path="/search" element={<PageSearch />} />
             <Route path="/" element={<PageAbout />} />
-            <Route path="/om-oss" element={<PageAbout />} />
             <Route path="/min-sida" element={<MyPage />} />
             <Route path="/dokument" element={<DocumentPage />} />
             <Route path="/dokument/:id" element={<DocumentPage />} />

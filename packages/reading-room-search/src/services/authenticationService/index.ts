@@ -158,10 +158,10 @@ export const routes = (router: KoaRouter) => {
       `<p>En begäran om att nollställa lösenordet för kontot ${ctx.request.body.email} i den Digitala läsesalen har mottagits.</p>` +
       `<p><a href="${referer}/nollstall?email=${encodeURIComponent(
         ctx.request.body.email as string
-      )}&token=${token}">Nollställ ditt lösenord här</a></p>` +
+      )}&token=${token}" target="_blank">Nollställ ditt lösenord här</a></p>` +
       `<p>Om du inte har begärt att ditt lösenord ska återställas kan du bortse från detta mail. Lämna aldrig ut länken till någon annan.</p>` +
       `<p>Centrum för Näringslivshistoria<br/>` +
-      `<a href="https://naringslivshistoria.se">naringslivshistoria.se</a></p>` +
+      `<a href="https://naringslivshistoria.se" target="_blank">naringslivshistoria.se</a></p>` +
       `</body></html>`
 
     if (ctx.query.new) {
@@ -180,9 +180,9 @@ export const routes = (router: KoaRouter) => {
         `<p>Kontot ${ctx.request.body.email} har skapats för dig i den Digitala läsesalen.</p>` +
         `<p><a href="${referer}/nollstall?email=${encodeURIComponent(
           ctx.request.body.email as string
-        )}&token=${token}">Klicka här för att välja ett lösenord</a></p>` +
+        )}&token=${token}" target="_blank">Klicka här för att välja ett lösenord</a></p>` +
         `<p>Centrum för Näringslivshistoria<br/>` +
-        `<a href="https://naringslivshistoria.se">naringslivshistoria.se</a></p>` +
+        `<a href="https://naringslivshistoria.se" target="_blank">naringslivshistoria.se</a></p>` +
         `</body></html>`
     }
 
@@ -314,10 +314,10 @@ www.naringslivshistoria.se`
     config.createAccount.verifyAccountUrl
   }?email=${encodeURIComponent(
         ctx.request.body.username as string
-      )}&token=${verificationToken}">Klicka här för att verifiera ditt konto</a></p>
+      )}&token=${verificationToken}" target="_blank">Klicka här för att verifiera ditt konto</a></p>
   <p>Länken är giltig i 1 dag. Om det inte var du som försökte skapa ett konto i digitala läsesalen, vänligen ignorera meddelandet.</p>
   <p>Centrum för Näringslivshistoria<br/>
-  <a href="https://www.naringslivshistoria.se">www.naringslivshistoria.se</a></p>
+  <a href="https://www.naringslivshistoria.se" target="_blank">www.naringslivshistoria.se</a></p>
 </body>
 </html>`
 
@@ -386,7 +386,7 @@ www.naringslivshistoria.se`
 
       const subject = 'Välkommen till digitala läsesalen'
       const body = `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
-Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://arkivet.naringslivshistoria.se/om-oss\n
+Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://www.naringslivshistoria.se/om-digitala-lasesalen/\n
 Har du några andra frågor, hör av dig till info@naringslivshistoria.se.\n
 Välkommen att börja söka!\n
 Centrum för Näringslivshistoria
@@ -397,11 +397,11 @@ www.naringslivshistoria.se`
 <body>
   <p>Hej,</p>
   <p>Nu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.</p>
-  <p>Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: <a href="https://arkivet.naringslivshistoria.se/om-oss">https://arkivet.naringslivshistoria.se/om-oss</a></p>
+  <p>Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: <a href="https://www.naringslivshistoria.se/om-digitala-lasesalen/" target="_blank">https://www.naringslivshistoria.se/om-digitala-lasesalen/</a></p>
   <p>Har du några andra frågor, hör av dig till <a href="mailto:info@naringslivshistoria.se">info@naringslivshistoria.se</a>.</p>
   <p>Välkommen att börja söka!</p>
   <p>Centrum för Näringslivshistoria<br/>
-  <a href="https://www.naringslivshistoria.se">www.naringslivshistoria.se</a></p>
+  <a href="https://www.naringslivshistoria.se" target="_blank">www.naringslivshistoria.se</a></p>
 </body>
 </html>`
 

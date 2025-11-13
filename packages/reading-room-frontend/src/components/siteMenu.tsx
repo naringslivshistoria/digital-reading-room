@@ -19,7 +19,6 @@ import { useIsLoggedIn } from '../hooks/useIsLoggedIn'
 export const SiteMenu = () => {
   const isPublicPage =
     location.pathname.startsWith('/login') ||
-    location.pathname == '/om-oss' ||
     location.pathname == '/skapa-konto' ||
     location.pathname == '/verifiera-konto'
 
@@ -32,7 +31,7 @@ export const SiteMenu = () => {
       <Box columnGap={2} sx={{ display: { xs: 'none', sm: 'inline' } }}>
         {isLoggedIn ? (
           <>
-            <Link to="/om-oss" component={RouterLink}>
+            <Link href="https://www.naringslivshistoria.se/om-digitala-lasesalen/" target="_blank">
               Om Digital läsesal
             </Link>
             <Link to="/min-sida" component={RouterLink}>
@@ -45,7 +44,7 @@ export const SiteMenu = () => {
             <Link to="/search" component={RouterLink}>
               Sök i arkiven
             </Link>
-            <Link to="/om-oss" component={RouterLink}>
+            <Link href="https://www.naringslivshistoria.se/om-digitala-lasesalen/" target="_blank">
               Om Digital läsesal
             </Link>
             <Link to="/login" component={RouterLink}>
@@ -160,7 +159,7 @@ export const SiteMenu = () => {
                     <Link to="/search" component={RouterLink}>
                       Sök i arkiven
                     </Link>
-                    <Link to="/om-oss" component={RouterLink}>
+                    <Link href="https://www.naringslivshistoria.se/om-digitala-lasesalen/" target="_blank">
                       Om Digital läsesal
                     </Link>
                     <Link to="/login" component={RouterLink}>

@@ -79,7 +79,7 @@ export const PageLogin = () => {
           </Typography>
           <Typography variant="body1">
             Hur fungerar digitala läsesalen, vilka arkiv finns, hur söker jag
-            tillstånd för slutna arkiv? <Link to="/om-oss">Läs här</Link>
+            tillstånd för slutna arkiv? <Link to="https://www.naringslivshistoria.se/om-digitala-lasesalen/" target="_blank">Läs här</Link>
           </Typography>
           <Typography
             variant="h2"
