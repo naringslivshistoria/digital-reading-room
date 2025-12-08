@@ -119,13 +119,15 @@ services:
       - "discovery.type=single-node"
       - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
       - "repositories.url.allowed_urls=http://192.168.88.172:8844"
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1
+      - "path.repo=/usr/share/elasticsearch/snapshots"
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
     networks:
       - digital-reading-room
     ports:
       - 9200:9200
     volumes:
       - elasticsearch:/usr/share/elasticsearch/data
+      - ./snapshots:/usr/share/elasticsearch/snapshots
 
   kibana:
     container_name: kibana
