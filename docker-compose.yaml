@@ -36,7 +36,6 @@ services:
       - POSTGRES__USER=crawler
     depends_on:
       - comprima-adapter
-      - comprima-ocr
     networks:
       - digital-reading-room
 
@@ -44,31 +43,21 @@ services:
     build: ./packages/comprima-crawler
     container_name: comprima-crawler-ocr
     environment:
+      - COMPRIMA_URL=http://comprima-adapter:4000
       - DATABASE_URL=postgres://crawler:${POSTGRES_PASSWORD}@postgres:5432/crawler
       - ELASTIC_SEARCH__URL=http://elasticsearch:9200
       - LOG_LEVEL=debug
       - MODE=ocr
       - NODE_ENV=ci
-      - OCR_URL=http://comprima-ocr:4003
+      - OCR__BATCH_SIZE=1
+      - OCR__DESCRIPTION_LANGUAGE=sv
+      - OCR__DPI=200
+      - OCR_API_URL=http://host.docker.internal:8000
     depends_on:
       - elasticsearch
-      - comprima-ocr
+      - comprima-adapter
     networks:
       - digital-reading-room
-
-  comprima-ocr:
-    build: ./packages/comprima-ocr
-    container_name: comprima-ocr
-    environment:
-      - COMPRIMA_ADAPTER__URL=http://comprima-adapter:4000
-      - ELASTIC_SEARCH__URL=http://elasticsearch:9200
-      - LOG_LEVEL=debug
-    depends_on:
-      - elasticsearch
-    networks:
-      - digital-reading-room
-    ports:
-      - 14003:4003
 
   reading-room-frontend:
     build:
@@ -119,7 +108,7 @@ services:
       - "discovery.type=single-node"
       - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
       - "repositories.url.allowed_urls=http://192.168.88.172:8844"
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
     networks:
       - digital-reading-room
     ports:

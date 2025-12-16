@@ -32,6 +32,9 @@ importers:
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
+      form-data:
+        specifier: ^4.0.0
+        version: 4.0.4
       knex:
         specifier: ^2.4.2
         version: 2.5.1(pg@8.16.3)

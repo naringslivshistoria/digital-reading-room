@@ -12,17 +12,16 @@ const delay = async (time: number) => {
 }
 
 let documentId = null
-//let recognized = 0
 
 ;(async () => {
-  console.log(
-    'Delaying startup 120s for comprima adapter to intialize (if it was started simultaneously)'
+  log.info(
+    'Delaying startup 120s for comprima adapter to initialize (if it was started simultaneously)'
   )
 
   switch (config.mode) {
     case 'index':
       await delay(120 * 1000)
-      console.log('Delay complete, resuming normal startup')
+      log.info('Delay complete, resuming normal startup')
 
       crawlLevels()
         .then(() => {
@@ -49,17 +48,8 @@ let documentId = null
       } while (documentId != null)
 
       break
-    // TODO: implement update mode
-    // case 'update':
-    //   levelPromise = getUpdatedLevels
-    //   break;
-    /*    case 'recognize':
-      do {
-        recognized = await recognizeNext()
-      } while (recognized > 0)
-      break*/
     default:
-      log.warn(`CRAWLER_MODE must be either 'index', 'recognize' or 'ocr`)
+      log.warn(`MODE must be 'index' or 'ocr'`)
       log.error(`Unknown mode ${config.mode}!`)
       throw new Error(`Unknown mode ${config.mode}!`)
   }
