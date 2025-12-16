@@ -4,6 +4,20 @@ import FormData from 'form-data'
 import config from '../../common/config'
 import log from '../../common/log'
 
+interface OcrApiResponse {
+  document: {
+    filename: string
+    mime_type: string
+    page_count: number
+    pages: Array<{
+      page_index: number
+      image_text: string
+      image_description: string
+    }>
+    full_text: string
+  }
+}
+
 const client = new Client({
   node: config.elasticSearch.url,
 })
@@ -46,7 +60,7 @@ const getAttachment = async (documentId: string) => {
 const callOcrApi = async (
   fileData: ArrayBuffer,
   contentType: string
-): Promise<string> => {
+): Promise<OcrApiResponse> => {
   log.info(`Sending attachment of type ${contentType} to OCR API`)
 
   const form = new FormData()
@@ -66,15 +80,38 @@ const callOcrApi = async (
     headers: form.getHeaders(),
   })
 
-  return JSON.stringify(response.data)
+  return response.data as OcrApiResponse
 }
 
-const saveOcrText = async (documentId: string, text: string) => {
+const saveOcrData = async (
+  documentId: string,
+  ocrResponse: OcrApiResponse
+) => {
+  const { document } = ocrResponse
+
+  const ocrContent = document.full_text
+  const ocrDescription = document.pages
+    .map((page) => page.image_description)
+    .filter(Boolean)
+    .join('\n')
+  const ocrMetadata = JSON.stringify({
+    filename: document.filename,
+    mime_type: document.mime_type,
+    page_count: document.page_count,
+    pages: document.pages.map((page) => ({
+      page_index: page.page_index,
+      image_text: page.image_text,
+    })),
+  })
+
   await client.update({
     id: documentId,
     index: config.elasticSearch.indexName,
     doc: {
-      ocrText: text,
+      ocrContent,
+      ocrDescription,
+      ocrMetadata,
+      ocrStatus: 'success',
     },
   })
 }
@@ -84,7 +121,17 @@ const markAsFailed = async (documentId: string) => {
     id: documentId,
     index: config.elasticSearch.indexName,
     doc: {
-      ocrText: '--- exterr ---',
+      ocrStatus: 'error',
+    },
+  })
+}
+
+const markAsTooLarge = async (documentId: string) => {
+  await client.update({
+    id: documentId,
+    index: config.elasticSearch.indexName,
+    doc: {
+      ocrStatus: 'too_large',
     },
   })
 }
@@ -95,19 +142,19 @@ const processDocument = async (documentId: string) => {
     const attachment = await getAttachment(documentId)
     log.info(`Retrieved attachment, size: ${attachment.data.length}`)
 
-    let ocrText: string
-    if (attachment.data.length < MAX_ATTACHMENT_SIZE) {
-      ocrText = await callOcrApi(
-        attachment.data,
-        attachment.headers['content-type']
-      )
-      log.info('OCR complete')
-    } else {
+    if (attachment.data.length >= MAX_ATTACHMENT_SIZE) {
       log.warn(`Attachment too large: ${attachment.data.length}`)
-      ocrText = '--- extsz ---'
+      await markAsTooLarge(documentId)
+      return true
     }
 
-    await saveOcrText(documentId, ocrText)
+    const ocrResponse = await callOcrApi(
+      attachment.data,
+      attachment.headers['content-type']
+    )
+    log.info('OCR complete')
+
+    await saveOcrData(documentId, ocrResponse)
     return true
   } catch (error) {
     log.error('OCR failed', error as object)
@@ -125,7 +172,7 @@ export const ocrNext = async () => {
       bool: {
         must_not: {
           exists: {
-            field: 'ocrText',
+            field: 'ocrStatus',
           },
         },
         must: {
