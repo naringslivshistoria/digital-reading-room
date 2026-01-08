@@ -17,6 +17,7 @@
   "license": "MIT",
   "devDependencies": {
     "@humanwhocodes/gitignore-to-minimatch": "^1.0.2",
+    "@types/node": "^18.14.0",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",

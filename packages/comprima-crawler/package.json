@@ -21,6 +21,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "29.2.4",
+    "@types/node": "^20.19.0",
     "@types/supertest": "2.0.12",
     "@typescript-eslint/eslint-plugin": "5.46.0",
     "csv": "^6.2.8",
