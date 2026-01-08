@@ -63,11 +63,20 @@ router.get('/indexlevel', async (ctx) => {
     )
   }
 
+  let maxResults = 100
+  if (ctx.query.maxResults) {
+    maxResults = parseInt(
+      Array.isArray(ctx.query.maxResults)
+        ? ctx.query.maxResults[0]
+        : ctx.query.maxResults
+    )
+  }
+
   try {
     const level = Array.isArray(ctx.query.level)
       ? ctx.query.level[0]
       : ctx.query.level
-    const results = await comprima.search(level, skip)
+    const results = await comprima.search(level, skip, maxResults)
 
     let successful = 0
 

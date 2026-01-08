@@ -11,11 +11,19 @@ const healthCheck = async () => {
   await comprimaAdapter.getDocuments('34913', 0, 1)
 }
 
-const search = async (level: string, skip?: number): Promise<Document[]> => {
+const search = async (
+  level: string,
+  skip?: number,
+  maxResults?: number
+): Promise<Document[]> => {
   let lastSetSize = batchSize
   const totalResults = Array<Document>()
   let currentSkip = skip ?? 0
-  while (lastSetSize === batchSize) {
+
+  while (
+    lastSetSize === batchSize &&
+    (maxResults === undefined || totalResults.length < maxResults)
+  ) {
     const startTime = Date.now()
     const result = await comprimaAdapter.getDocuments(
       level,
@@ -32,6 +40,10 @@ const search = async (level: string, skip?: number): Promise<Document[]> => {
       } in ${elapsedTime} ms`
     )
     currentSkip += batchSize
+  }
+
+  if (maxResults !== undefined && totalResults.length > maxResults) {
+    return totalResults.slice(0, maxResults)
   }
 
   return totalResults
