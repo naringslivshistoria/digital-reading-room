@@ -1,54 +1,65 @@
+import config from '../../common/config';
 import log from '../../common/log';
 import { indexLevel } from '../comprimaService';
 import { getUnindexedLevel, updateLevel } from '../postgresAdapter';
+import { Level } from '../../common/types';
+
+const isNetworkError = (error: string | null | undefined) =>
+  error &&
+  (error.includes('ECONNREFUSED') ||
+    error.includes('ECONNRESET') ||
+    error.includes('ENOTFOUND') ||
+    error.includes('ETIMEDOUT'));
+
+const processBatch = async (level: Level): Promise<boolean> => {
+  const { result } = await indexLevel(level.level, level.position, config.maxResults);
+  const batchCount = result.successful + result.failed;
+
+  level.position += batchCount;
+  level.successful += result.successful;
+  level.failed += result.failed;
+  level.error = null;
+
+  const isComplete = batchCount < config.maxResults;
+  if (isComplete) {
+    level.crawled = new Date();
+    level.position = 0;
+    level.attempts++;
+  }
+
+  await updateLevel(level);
+
+  return isComplete;
+};
+
+const handleError = async (level: Level, error: unknown) => {
+  log.error(`Crawling level ${level.level} failed at position ${level.position}`);
+
+  level.error = JSON.parse(JSON.stringify(error));
+
+  if (!isNetworkError(level.error)) {
+    level.attempts++;
+  }
+
+  await updateLevel(level);
+};
 
 export const crawlLevels = async () => {
-  let level;
-
-  do {
+  while (true) {
+    let level: Level;
     try {
       level = await getUnindexedLevel();
-    } catch (error) {
-      log.warn(`No unindexed levels found!`);
-      return Promise.resolve(true);
+    } catch {
+      log.warn('No unindexed levels found');
+      return true;
     }
 
     log.info(`Crawling level`, level);
 
     try {
-      const { result } = await indexLevel(level.level);
-
-      level.crawled = new Date();
-      level.attempts++;
-
-      level.failed = result.failed;
-      level.successful = result.successful;
-      level.error = null;
-
-      await updateLevel(level);
-
-      log.info(`✅ Levels ${level.level}`, level);
+      while (!(await processBatch(level))) {}
     } catch (error) {
-      log.error(`Crawling level ${level.level} failed!`);
-
-      level.crawled = new Date();
-
-      level.error = JSON.parse(JSON.stringify(error));
-
-      if (
-        level.error &&
-        level.error?.indexOf('ECONNREFUSED') === -1 &&
-        level.error?.indexOf('ECONNRESET') === -1 &&
-        level.error?.indexOf('ENOTFOUND') === -1 &&
-        level.error?.indexOf('ETIMEDOUT') === -1
-      ) {
-        level.attempts++;
-      }
-
-      await updateLevel(level);
+      await handleError(level, error);
     }
-  } while (level);
-
-  // TODO: Figure out if we should return something more meaningful here.
-  return Promise.resolve(true);
+  }
 };
