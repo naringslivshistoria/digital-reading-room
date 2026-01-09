@@ -41,7 +41,7 @@
     "@tensorflow/tfjs": "latest",
     "@tensorflow/tfjs-node": "latest",
     "@tsconfig/node18": "^1.0.1",
-    "axios": "^1.3.4",
+    "axios": "^1.12.0",
     "chalk": "^4.1.2",
     "knex": "^2.4.2",
     "pg": "^8.10.0",
