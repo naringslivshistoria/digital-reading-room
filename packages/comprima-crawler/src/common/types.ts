@@ -7,8 +7,8 @@ export interface Level {
   created: Date
 
   attempts: number
-  crawled?: Date
-  error?: string | null
+  crawled: Date | null
+  error?: object | null
 
   failed: number
   successful: number

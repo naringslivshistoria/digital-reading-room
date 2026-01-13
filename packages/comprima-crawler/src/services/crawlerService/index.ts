@@ -1,15 +1,15 @@
+import axios from 'axios';
 import config from '../../common/config';
 import log from '../../common/log';
 import { indexLevel } from '../comprimaService';
 import { getUnindexedLevel, updateLevel } from '../postgresAdapter';
 import { Level } from '../../common/types';
 
-const isNetworkError = (error: string | null | undefined) =>
-  error &&
-  (error.includes('ECONNREFUSED') ||
-    error.includes('ECONNRESET') ||
-    error.includes('ENOTFOUND') ||
-    error.includes('ETIMEDOUT'));
+const NETWORK_ERROR_CODES = ['ECONNREFUSED', 'ECONNRESET', 'ENOTFOUND', 'ETIMEDOUT'];
+
+const isNetworkError = (error: unknown): boolean => {
+  return axios.isAxiosError(error) && !!error.code && NETWORK_ERROR_CODES.includes(error.code);
+};
 
 const processBatch = async (level: Level): Promise<boolean> => {
   const { result } = await indexLevel(level.level, level.position, config.maxResults);
@@ -35,18 +35,18 @@ const processBatch = async (level: Level): Promise<boolean> => {
 const handleError = async (level: Level, error: unknown) => {
   log.error(`Crawling level ${level.level} failed at position ${level.position}`);
 
-  level.error = JSON.parse(JSON.stringify(error));
-
-  if (!isNetworkError(level.error)) {
+  if (!isNetworkError(error)) {
     level.attempts++;
   }
 
+  level.error = JSON.parse(JSON.stringify(error));
   await updateLevel(level);
 };
 
-export const crawlLevels = async () => {
-  while (true) {
-    let level: Level;
+export const crawlLevels = async (): Promise<boolean> => {
+  let level;
+
+  do {
     try {
       level = await getUnindexedLevel();
     } catch {
@@ -57,9 +57,11 @@ export const crawlLevels = async () => {
     log.info(`Crawling level`, level);
 
     try {
-      while (!(await processBatch(level))) {}
+      while (!(await processBatch(level)));
     } catch (error) {
       await handleError(level, error);
     }
-  }
+  } while (level);
+
+  return true;
 };
