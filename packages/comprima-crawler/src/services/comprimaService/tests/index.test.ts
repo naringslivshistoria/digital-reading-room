@@ -20,9 +20,9 @@ describe('comprimaAdapter', () => {
 
   describe('indexLevel', () => {
     it('passes correct level to comprima adapter', async () => {
-      await indexLevel(1);
+      await indexLevel(1, 0, 100);
       expect(axios.get).toBeCalledWith(
-        'http://fakehost:7357/indexLevel?level=1',
+        'http://fakehost:7357/indexLevel?level=1&skip=0&maxResults=100',
         {}
       );
     });
