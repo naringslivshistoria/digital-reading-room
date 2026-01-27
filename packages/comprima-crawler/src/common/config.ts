@@ -23,7 +23,7 @@ export interface Config {
     descriptionLanguage: string
     dpi: number
   }
-  ocrApiUrl: string
+  ocrUrl: string
   thumbnailDir: string
   postgres: Postgres
 }
@@ -45,7 +45,7 @@ const config = configPackage({
       descriptionLanguage: 'sv',
       dpi: 200,
     },
-    ocrApiUrl: 'http://localhost:8000',
+    ocrUrl: 'http://localhost:8000',
     thumbnailDir: '',
     postgres: {
       host: '127.0.0.1',
@@ -65,7 +65,7 @@ export default {
   maxResults: config.get('maxResults'),
   mode: config.get('mode'),
   ocr: config.get('ocr'),
-  ocrApiUrl: config.get('ocrApiUrl'),
+  ocrUrl: config.get('ocrUrl'),
   thumbnailDir: config.get('thumbnailDir'),
   postgres: config.get('postgres'),
 } as Config

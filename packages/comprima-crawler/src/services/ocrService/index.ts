@@ -76,7 +76,7 @@ const callOcrApi = async (
     })
   )
 
-  const response = await axios.post(`${config.ocrApiUrl}/ocr`, form, {
+  const response = await axios.post(`${config.ocrUrl}/ocr`, form, {
     headers: form.getHeaders(),
   })
 

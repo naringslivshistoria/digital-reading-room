@@ -52,7 +52,7 @@ services:
       - OCR__BATCH_SIZE=1
       - OCR__DESCRIPTION_LANGUAGE=sv
       - OCR__DPI=200
-      - OCR_API_URL=http://host.docker.internal:8000
+      - OCR_URL=http://host.docker.internal:8000
     depends_on:
       - elasticsearch
       - comprima-adapter
