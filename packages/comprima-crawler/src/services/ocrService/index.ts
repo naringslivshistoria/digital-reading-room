@@ -78,6 +78,7 @@ const callOcrApi = async (
 
   const response = await axios.post(`${config.ocrUrl}/ocr`, form, {
     headers: form.getHeaders(),
+    timeout: 1800000,
   })
 
   return response.data as OcrApiResponse
