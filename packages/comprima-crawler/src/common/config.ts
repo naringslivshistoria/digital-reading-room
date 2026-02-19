@@ -16,7 +16,13 @@ export interface Config {
     indexName: string
   }
   logLevel: string
-  mode: 'index' | 'update' | 'ocr' | 'recognize'
+  maxResults: number
+  mode: 'index' | 'ocr'
+  ocr: {
+    batchSize: number
+    descriptionLanguage: string
+    dpi: number
+  }
   ocrUrl: string
   thumbnailDir: string
   postgres: Postgres
@@ -32,8 +38,14 @@ const config = configPackage({
       indexName: 'comprima',
     },
     logLevel: 'info',
+    maxResults: 100,
     mode: 'index',
-    ocrUrl: 'http://localhost:4003',
+    ocr: {
+      batchSize: 1,
+      descriptionLanguage: 'sv',
+      dpi: 200,
+    },
+    ocrUrl: 'http://localhost:8000',
     thumbnailDir: '',
     postgres: {
       host: '127.0.0.1',
@@ -50,7 +62,9 @@ export default {
   comprimaUrl: config.get('comprimaUrl'),
   elasticSearch: config.get('elasticSearch'),
   logLevel: config.get('logLevel'),
+  maxResults: config.get('maxResults'),
   mode: config.get('mode'),
+  ocr: config.get('ocr'),
   ocrUrl: config.get('ocrUrl'),
   thumbnailDir: config.get('thumbnailDir'),
   postgres: config.get('postgres'),

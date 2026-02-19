@@ -72,7 +72,7 @@ kubectl -n production port-forward services/kibana-kibana 5601 # or -n ci
 
 Open [http://localhost:5601](http://localhost:5601) and create the index pattern `comprima` if it does not already exist. Then go to the Discover tab, click `Add filter` and `Edit as Query DSL` to be able to enter JSON queries.
 
-**Find all documents that has the `ocrText` field set.**
+**Find all documents that has the `ocrStatus` field set.**
 
 ```json
 {
@@ -80,7 +80,7 @@ Open [http://localhost:5601](http://localhost:5601) and create the index pattern
     "bool": {
       "must": {
         "exists": {
-          "field": "ocrText"
+          "field": "ocrStatus"
         }
       }
     }

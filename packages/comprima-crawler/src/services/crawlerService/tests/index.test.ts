@@ -1,7 +1,14 @@
+import { AxiosError } from 'axios';
 import * as comprimaService from '../../comprimaService';
 import * as postgresAdapter from '../../postgresAdapter';
 import { Level } from '../../../common/types';
 import { crawlLevels } from '..';
+
+const createAxiosError = (code: string): AxiosError => {
+  const error = new AxiosError(`Network error: ${code}`);
+  error.code = code;
+  return error;
+};
 
 jest.mock('knex');
 jest.mock('../../../common/config', () => {
@@ -10,6 +17,7 @@ jest.mock('../../../common/config', () => {
     default: {
       logLevel: 'SILENT',
       postgres: {},
+      maxResults: 100,
     },
   };
 });
@@ -18,6 +26,9 @@ describe('crawler', () => {
   describe('crawlLevels', () => {
     const level = {
       level: 41000,
+      position: 0,
+      failed: 0,
+      successful: 0,
     } as Level;
 
     afterEach(() => {
@@ -31,7 +42,7 @@ describe('crawler', () => {
     it('calls comprima service with correct levels', async () => {
       jest
         .spyOn(comprimaService, 'indexLevel')
-        .mockResolvedValue({ result: {} });
+        .mockResolvedValue({ result: { successful: 0, failed: 0 } });
 
       jest
         .spyOn(postgresAdapter, 'getUnindexedLevel')
@@ -39,15 +50,15 @@ describe('crawler', () => {
         .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
 
       await crawlLevels();
-      expect(comprimaService.indexLevel).toBeCalledWith(level.level);
+      expect(comprimaService.indexLevel).toBeCalledWith(level.level, 0, 100);
     });
 
     it('clears error field if level is crawled successfully', async () => {
-      level.error = 'Some error';
+      level.error = { message: 'Some error' };
 
       jest
         .spyOn(comprimaService, 'indexLevel')
-        .mockResolvedValue({ result: {} });
+        .mockResolvedValue({ result: { successful: 0, failed: 0 } });
 
       jest
         .spyOn(postgresAdapter, 'getUnindexedLevel')
@@ -55,10 +66,9 @@ describe('crawler', () => {
         .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
 
       await crawlLevels();
-      expect(postgresAdapter.updateLevel).toBeCalledWith({
-        ...level,
-        error: null,
-      });
+      expect(postgresAdapter.updateLevel).toBeCalledWith(
+        expect.objectContaining({ error: null })
+      );
     });
 
     describe('increases crawl attempts', () => {
@@ -69,7 +79,7 @@ describe('crawler', () => {
       it('after a successful crawl', async () => {
         jest
           .spyOn(comprimaService, 'indexLevel')
-          .mockResolvedValue({ result: {} });
+          .mockResolvedValue({ result: { successful: 0, failed: 0 } });
 
         jest
           .spyOn(postgresAdapter, 'getUnindexedLevel')
@@ -77,17 +87,16 @@ describe('crawler', () => {
           .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
 
         await crawlLevels();
-        expect(comprimaService.indexLevel).toBeCalledWith(level.level);
-        expect(postgresAdapter.updateLevel).toBeCalledWith({
-          ...level,
-          attempts: 6,
-        });
+        expect(comprimaService.indexLevel).toBeCalledWith(level.level, 0, 100);
+        expect(postgresAdapter.updateLevel).toBeCalledWith(
+          expect.objectContaining({ attempts: 6 })
+        );
       });
 
       it('after a failed crawl', async () => {
         jest
           .spyOn(comprimaService, 'indexLevel')
-          .mockRejectedValueOnce('Some error');
+          .mockRejectedValueOnce(new Error('Some error'));
 
         jest
           .spyOn(postgresAdapter, 'getUnindexedLevel')
@@ -95,15 +104,14 @@ describe('crawler', () => {
           .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
 
         await crawlLevels();
-        expect(comprimaService.indexLevel).toBeCalledWith(level.level);
-        expect(postgresAdapter.updateLevel).toBeCalledWith({
-          ...level,
-          attempts: 6,
-        });
+        expect(comprimaService.indexLevel).toBeCalledWith(level.level, 0, 100);
+        expect(postgresAdapter.updateLevel).toBeCalledWith(
+          expect.objectContaining({ attempts: 6 })
+        );
       });
     });
 
-    describe('does not increases crawl attempts', () => {
+    describe('does not increase crawl attempts', () => {
       beforeEach(() => {
         level.attempts = 5;
       });
@@ -112,7 +120,7 @@ describe('crawler', () => {
         it('ECONNREFUSED', async () => {
           jest
             .spyOn(comprimaService, 'indexLevel')
-            .mockRejectedValueOnce('connect ECONNREFUSED 127.0.0.1');
+            .mockRejectedValueOnce(createAxiosError('ECONNREFUSED'));
 
           jest
             .spyOn(postgresAdapter, 'getUnindexedLevel')
@@ -120,17 +128,16 @@ describe('crawler', () => {
             .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
 
           await crawlLevels();
-          expect(comprimaService.indexLevel).toBeCalledWith(level.level);
-          expect(postgresAdapter.updateLevel).toBeCalledWith({
-            ...level,
-            attempts: 5,
-          });
+          expect(comprimaService.indexLevel).toBeCalledWith(level.level, 0, 100);
+          expect(postgresAdapter.updateLevel).toBeCalledWith(
+            expect.objectContaining({ attempts: 5 })
+          );
         });
 
         it('ECONNRESET', async () => {
           jest
             .spyOn(comprimaService, 'indexLevel')
-            .mockRejectedValueOnce('ECONNRESET');
+            .mockRejectedValueOnce(createAxiosError('ECONNRESET'));
 
           jest
             .spyOn(postgresAdapter, 'getUnindexedLevel')
@@ -138,17 +145,16 @@ describe('crawler', () => {
             .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
 
           await crawlLevels();
-          expect(comprimaService.indexLevel).toBeCalledWith(level.level);
-          expect(postgresAdapter.updateLevel).toBeCalledWith({
-            ...level,
-            attempts: 5,
-          });
+          expect(comprimaService.indexLevel).toBeCalledWith(level.level, 0, 100);
+          expect(postgresAdapter.updateLevel).toBeCalledWith(
+            expect.objectContaining({ attempts: 5 })
+          );
         });
 
         it('ENOTFOUND', async () => {
           jest
             .spyOn(comprimaService, 'indexLevel')
-            .mockRejectedValueOnce('getaddrinfo ENOTFOUND comprima-adapter');
+            .mockRejectedValueOnce(createAxiosError('ENOTFOUND'));
 
           jest
             .spyOn(postgresAdapter, 'getUnindexedLevel')
@@ -156,17 +162,16 @@ describe('crawler', () => {
             .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
 
           await crawlLevels();
-          expect(comprimaService.indexLevel).toBeCalledWith(level.level);
-          expect(postgresAdapter.updateLevel).toBeCalledWith({
-            ...level,
-            attempts: 5,
-          });
+          expect(comprimaService.indexLevel).toBeCalledWith(level.level, 0, 100);
+          expect(postgresAdapter.updateLevel).toBeCalledWith(
+            expect.objectContaining({ attempts: 5 })
+          );
         });
 
         it('ETIMEDOUT', async () => {
           jest
             .spyOn(comprimaService, 'indexLevel')
-            .mockRejectedValueOnce('ETIMEDOUT');
+            .mockRejectedValueOnce(createAxiosError('ETIMEDOUT'));
 
           jest
             .spyOn(postgresAdapter, 'getUnindexedLevel')
@@ -174,11 +179,10 @@ describe('crawler', () => {
             .mockRejectedValueOnce('NO_UNINDEXED_LEVELS');
 
           await crawlLevels();
-          expect(comprimaService.indexLevel).toBeCalledWith(level.level);
-          expect(postgresAdapter.updateLevel).toBeCalledWith({
-            ...level,
-            attempts: 5,
-          });
+          expect(comprimaService.indexLevel).toBeCalledWith(level.level, 0, 100);
+          expect(postgresAdapter.updateLevel).toBeCalledWith(
+            expect.objectContaining({ attempts: 5 })
+          );
         });
       });
     });

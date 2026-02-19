@@ -1,5 +1,0 @@
-minimumReleaseAge: 20160
-
-onlyBuiltDependencies:
-  - canvas
-  - tesseract.js

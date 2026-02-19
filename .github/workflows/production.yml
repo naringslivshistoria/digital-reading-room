@@ -13,7 +13,6 @@ jobs:
         context:
           - comprima-adapter
           - comprima-crawler
-          - comprima-ocr
           - reading-room-frontend
           - reading-room-search
 
