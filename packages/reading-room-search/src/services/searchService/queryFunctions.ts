@@ -206,7 +206,7 @@ export const createSearchQuery = (
         ...(includeAiContent
           ? {}
           : {
-              fields: ['fields.*.value', 'attachmentType', 'pages.pageType'],
+              fields: ['fields.*.value', 'attachmentType', 'pages.pageType', 'ocrContent'],
             }),
       },
     })
