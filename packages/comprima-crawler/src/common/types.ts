@@ -12,6 +12,7 @@ export interface Level {
 
   failed: number
   successful: number
+  position: number
 }
 
 export interface Field {

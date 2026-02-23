@@ -15,12 +15,12 @@ let documentId = null
 
 ;(async () => {
   log.info(
-    'Delaying startup 120s for comprima adapter to initialize (if it was started simultaneously)'
+    'Delaying startup 10s for comprima adapter to initialize (if it was started simultaneously)'
   )
 
   switch (config.mode) {
     case 'index':
-      await delay(120 * 1000)
+      await delay(10 * 1000)
       log.info('Delay complete, resuming normal startup')
 
       crawlLevels()

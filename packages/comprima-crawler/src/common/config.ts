@@ -16,6 +16,7 @@ export interface Config {
     indexName: string
   }
   logLevel: string
+  maxResults: number
   mode: 'index' | 'ocr'
   ocr: {
     batchSize: number
@@ -37,6 +38,7 @@ const config = configPackage({
       indexName: 'comprima',
     },
     logLevel: 'info',
+    maxResults: 100,
     mode: 'index',
     ocr: {
       batchSize: 1,
@@ -60,6 +62,7 @@ export default {
   comprimaUrl: config.get('comprimaUrl'),
   elasticSearch: config.get('elasticSearch'),
   logLevel: config.get('logLevel'),
+  maxResults: config.get('maxResults'),
   mode: config.get('mode'),
   ocr: config.get('ocr'),
   ocrApiUrl: config.get('ocrApiUrl'),

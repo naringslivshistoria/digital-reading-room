@@ -1,6 +1,48 @@
 import log from '../../common/log';
+import config from '../../common/config';
 import { indexLevel } from '../comprimaService';
 import { getUnindexedLevel, updateLevel } from '../postgresAdapter';
+import { Level } from '../../common/types';
+
+const processBatch = async (level: Level): Promise<boolean> => {
+  const { result } = await indexLevel(level.level, level.position, config.maxResults);
+  const batchCount = result.successful + result.failed;
+
+  level.position += batchCount;
+  level.successful += result.successful;
+  level.failed += result.failed;
+  level.error = null;
+
+  const isComplete = batchCount < config.maxResults;
+  if (isComplete) {
+    level.crawled = new Date();
+    level.position = 0;
+    level.attempts++;
+  }
+
+  await updateLevel(level);
+
+  return isComplete;
+};
+
+const handleError = async (level: Level, error: unknown) => {
+  log.error(`Crawling level ${level.level} failed at position ${level.position}`);
+
+  level.error = JSON.parse(JSON.stringify(error));
+
+  const errorString = JSON.stringify(error);
+  const isNetworkError =
+    errorString.includes('ECONNREFUSED') ||
+    errorString.includes('ECONNRESET') ||
+    errorString.includes('ENOTFOUND') ||
+    errorString.includes('ETIMEDOUT');
+
+  if (!isNetworkError) {
+    level.attempts++;
+  }
+
+  await updateLevel(level);
+};
 
 export const crawlLevels = async () => {
   let level;
@@ -13,39 +55,22 @@ export const crawlLevels = async () => {
       return Promise.resolve(true);
     }
 
-    log.info(`Crawling level`, level);
+    log.info(`Crawling level ${level.level} from position ${level.position}`);
 
-    try {
-      const { result } = await indexLevel(level.level);
+    let isComplete = false;
+    while (!isComplete) {
+      try {
+        isComplete = await processBatch(level);
 
-      level.crawled = new Date();
-      level.attempts++;
-
-      level.failed = result.failed;
-      level.successful = result.successful;
-      level.error = null;
-
-      await updateLevel(level);
-
-      log.info(`✅ Levels ${level.level}`, level);
-    } catch (error) {
-      log.error(`Crawling level ${level.level} failed!`);
-
-      level.crawled = new Date();
-
-      level.error = JSON.parse(JSON.stringify(error));
-
-      if (
-        level.error &&
-        level.error?.indexOf('ECONNREFUSED') === -1 &&
-        level.error?.indexOf('ECONNRESET') === -1 &&
-        level.error?.indexOf('ENOTFOUND') === -1 &&
-        level.error?.indexOf('ETIMEDOUT') === -1
-      ) {
-        level.attempts++;
+        if (isComplete) {
+          log.info(`✅ Level ${level.level} completed`, level);
+        } else {
+          log.info(`Processed batch for level ${level.level}, position now at ${level.position}`);
+        }
+      } catch (error) {
+        await handleError(level, error);
+        break;
       }
-
-      await updateLevel(level);
     }
   } while (level);
 

@@ -56,6 +56,7 @@ services:
     depends_on:
       - elasticsearch
       - comprima-adapter
+      - comprima-crawler
     networks:
       - digital-reading-room
 

@@ -15,4 +15,4 @@ RUN apk add libc6-compat
 COPY . .
 COPY --from=builder /app/node_modules ./node_modules
 
-CMD ["pnpm", "run", "start2"]
+CMD ["pnpm", "run", "start"]
