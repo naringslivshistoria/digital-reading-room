@@ -194,7 +194,8 @@ const createAccessFilter = (
 export const createSearchQuery = (
   queryString: string | undefined,
   accessFilter: estypes.QueryDslQueryContainer[] | undefined,
-  filterString: string | undefined
+  filterString: string | undefined,
+  includeAiContent?: boolean
 ) => {
   const must: estypes.QueryDslQueryContainer[] = []
 
@@ -202,6 +203,11 @@ export const createSearchQuery = (
     must.push({
       query_string: {
         query: queryString,
+        ...(includeAiContent
+          ? {}
+          : {
+              fields: ['fields.*.value', 'attachmentType', 'pages.pageType'],
+            }),
       },
     })
   }
@@ -419,7 +425,8 @@ export const search = async (
   size = 20,
   filter: string | string[] | undefined,
   sort: string | string[] | undefined,
-  sortOrder: string | string[] | undefined
+  sortOrder: string | string[] | undefined,
+  includeAiContent?: boolean
 ) => {
   const queryString = Array.isArray(query) ? query[0] : query
   const filterString = Array.isArray(filter) ? filter[0] : filter
@@ -434,7 +441,7 @@ export const search = async (
     documentIds,
     fileNames
   )
-  const searchQuery = createSearchQuery(queryString, accessFilter, filterString)
+  const searchQuery = createSearchQuery(queryString, accessFilter, filterString, includeAiContent)
   const sortingArray = createSortingArray({
     field: sortString,
     order: sortOrderString,
