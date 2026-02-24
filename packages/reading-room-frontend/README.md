@@ -1,33 +1,64 @@
-# :guitar: Iteam React TS Template :fire:
+# reading-room-frontend
 
-## Setup
+End-user search interface for the CFN Digital Reading Room. Built with React, Vite and Material-UI.
 
-This template uses [@iteam/eslint-config-react](https://github.com/Iteam1337/eslint-config-react), so we need to configure it by installing its peer dependencies.
+## Requirements
 
-From the project root, run the following command:
+- Node.js 18
+- pnpm
+- `reading-room-search` running on port 4001
 
-```sh
-npx install-peerdeps --dev @iteam/eslint-config-react
+## Installation
+
+```bash
+pnpm install
 ```
 
-Then, install the rest of the dependencies:
+## Development
 
-```sh
-npm install
+```bash
+pnpm dev
 ```
 
-```
-# Template .env.local
-VITE_SEARCH_URL=
+Runs on **port 4002**. API requests to `/api/*` are proxied to `reading-room-search` on port 4001.
+
+## Environment variables
+
+Create `.env.local` in this package directory if you need to override defaults:
+
+```bash
+VITE_SEARCH_URL=   # defaults to /api (proxied to localhost:4001)
 VITE_COOKIE_DOMAIN=
 ```
 
-## Recommended VSCode extensions
+Leave `VITE_SEARCH_URL` empty for local development — the Vite proxy handles routing to the search API.
 
-- ESLint
-- Prettier
-- Tailwind CSS Intellisense
+## Troubleshooting
 
-## Configuration
+### Empty dropdowns / no search results after logging in
 
-This template comes with a basic setup of Github Actions to lint and test code on PR:s made against `main`.
+If filter dropdowns (Deponent, Arkivbildare, Serie) are empty or searches return no results despite the API being reachable, you likely have a stale or mismatched `readingroom` auth cookie. This happens when:
+
+- You previously logged into the production site and still have that cookie
+- You switched between local and production environments
+- You logged in while the search service was running a different JWT secret
+
+**Fix:** Open DevTools → Application → Cookies → `localhost:4002` → clear all cookies, then log in again at `/login`.
+
+### Search returns 500 errors
+
+Check that the `ELASTIC_SEARCH__INDEX_NAME` in your `.envrc` matches the actual index name on the Elasticsearch cluster you are connected to. See `reading-room-search/README.md` for instructions.
+
+## Tests
+
+```bash
+pnpm test        # run once
+pnpm test:watch  # watch mode
+pnpm test:ui     # Vitest UI
+```
+
+## Lint
+
+```bash
+pnpm lint
+```
