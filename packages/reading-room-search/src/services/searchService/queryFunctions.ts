@@ -195,9 +195,9 @@ export const createSearchQuery = (
   queryString: string | undefined,
   accessFilter: estypes.QueryDslQueryContainer[] | undefined,
   filterString: string | undefined,
-  includeAiContent?: boolean
 ) => {
   const must: estypes.QueryDslQueryContainer[] = []
+  const includeAiContent = filterString?.includes('includeAiContent::true')
 
   if (queryString) {
     must.push({
@@ -251,6 +251,8 @@ export const createSearchQuery = (
         searchQuery.bool.must.push({
           wildcard,
         })
+      } else if (filterTerm[0] === 'includeAiContent') {
+        // Handled above via filterString.includes check, skip
       } else if (filterTerm[0] === 'seriesName') {
         const terms: { [k: string]: string[] } = {}
         terms[`${getFullFieldName(filterTerm[0])}`] = filterTerm[1]
@@ -426,7 +428,6 @@ export const search = async (
   filter: string | string[] | undefined,
   sort: string | string[] | undefined,
   sortOrder: string | string[] | undefined,
-  includeAiContent?: boolean
 ) => {
   const queryString = Array.isArray(query) ? query[0] : query
   const filterString = Array.isArray(filter) ? filter[0] : filter
@@ -441,7 +442,7 @@ export const search = async (
     documentIds,
     fileNames
   )
-  const searchQuery = createSearchQuery(queryString, accessFilter, filterString, includeAiContent)
+  const searchQuery = createSearchQuery(queryString, accessFilter, filterString)
   const sortingArray = createSortingArray({
     field: sortString,
     order: sortOrderString,

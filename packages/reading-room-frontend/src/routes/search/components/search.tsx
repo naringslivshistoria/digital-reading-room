@@ -62,9 +62,6 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
   const [filters, setFilters] = useState<Dictionary<FieldFilter>>(
     parseFilter(searchParams.get('filter'))
   )
-  const [includeAiContent, setIncludeAiContent] = useState<boolean>(
-    searchParams.get('includeAiContent') === 'true'
-  )
 
   useIsLoggedIn(true)
 
@@ -98,8 +95,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
     navigate(
       '/search?query=' +
         (query ? query : '') +
-        (filters ? '&filter=' + encodeURIComponent(createFilterString()) : '') +
-        (includeAiContent ? '&includeAiContent=true' : '')
+        (filters ? '&filter=' + encodeURIComponent(createFilterString()) : '')
     )
   }
 
@@ -519,19 +515,10 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
 
               <Stack direction="row" alignItems="center">
                 <Checkbox
-                  checked={includeAiContent}
+                  checked={filters['includeAiContent']?.values?.[0] === 'true'}
                   onChange={(e) => {
-                    const checked = e.target.checked
-                    setIncludeAiContent(checked)
-                    navigate(
-                      '/search?query=' +
-                        (query ?? '') +
-                        (createFilterString()
-                          ? '&filter=' +
-                            encodeURIComponent(createFilterString())
-                          : '') +
-                        (checked ? '&includeAiContent=true' : '')
-                    )
+                    updateFilter('includeAiContent', e.target.checked ? ['true'] : [])
+                    search()
                   }}
                   sx={{
                     padding: 0,

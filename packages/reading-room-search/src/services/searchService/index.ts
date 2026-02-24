@@ -105,7 +105,7 @@ export const routes = (router: KoaRouter) => {
   })
 
   router.get('(.*)/search', async (ctx) => {
-    const { query, start, size, filter, sort, sortOrder, includeAiContent } = ctx.request.query
+    const { query, start, size, filter, sort, sortOrder } = ctx.request.query
     if (!query && !filter) {
       ctx.status = 400
       ctx.body = {
@@ -128,8 +128,7 @@ export const routes = (router: KoaRouter) => {
         size ? Number(size) : 20,
         filter,
         sort,
-        sortOrder,
-        includeAiContent === 'true'
+        sortOrder
       )
       ctx.body = {
         results: results.documents,

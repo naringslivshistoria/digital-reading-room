@@ -19,15 +19,12 @@ export const PageSearch = () => {
   useIsLoggedIn(true)
 
   const page = Number(searchParams.get('page') ?? 1)
-  const includeAiContent = searchParams.get('includeAiContent') === 'true'
-
   const { data, isLoading } = useSearch({
     query,
     startIndex: (page - 1) * pageSize,
     filter,
     sort,
     sortOrder,
-    includeAiContent,
   })
 
   const pageChange = (newPage: number) => {

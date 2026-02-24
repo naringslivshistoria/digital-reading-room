@@ -61,7 +61,6 @@ export const useSearch = ({
   filter,
   sort,
   sortOrder,
-  includeAiContent,
   onError,
 }: {
   query: string | undefined | null
@@ -69,11 +68,10 @@ export const useSearch = ({
   filter: string | undefined | null
   sort: string | undefined | null
   sortOrder: string | undefined | null
-  includeAiContent?: boolean
   onError?: () => void
 }) =>
   useQuery<SearchResponse, AxiosError>({
-    queryKey: ['search', query, startIndex, filter, sort, sortOrder, includeAiContent],
+    queryKey: ['search', query, startIndex, filter, sort, sortOrder],
     queryFn: async () => {
       if (query || filter) {
         const fixedQuery = fixSimpleQuery(query)
@@ -85,9 +83,6 @@ export const useSearch = ({
         if (sort) {
           url += `&sort=${sort}`
           if (sortOrder) url += `&sortOrder=${sortOrder}`
-        }
-        if (includeAiContent) {
-          url += `&includeAiContent=true`
         }
         const { data } = await axios.get<SearchResponse>(url, {
           headers: {
