@@ -203,6 +203,7 @@ export const createSearchQuery = (
     must.push({
       query_string: {
         query: queryString,
+        lenient: true,
         ...(includeAiContent
           ? {}
           : {
