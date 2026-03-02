@@ -165,6 +165,10 @@ const processDocument = async (documentId: string) => {
 }
 
 export const ocrNext = async () => {
+  const levelFilter = config.ocr.levelId
+    ? [{ term: { level: config.ocr.levelId } }]
+    : []
+
   const next = await client.search({
     index: config.elasticSearch.indexName,
     from: 0,
@@ -176,6 +180,7 @@ export const ocrNext = async () => {
             field: 'ocrStatus',
           },
         },
+        filter: levelFilter,
         must: {
           bool: {
             should: [

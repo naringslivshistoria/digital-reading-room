@@ -22,6 +22,7 @@ export interface Config {
     batchSize: number
     descriptionLanguage: string
     dpi: number
+    levelId: string | null
   }
   ocrUrl: string
   thumbnailDir: string
@@ -44,6 +45,7 @@ const config = configPackage({
       batchSize: 1,
       descriptionLanguage: 'sv',
       dpi: 200,
+      levelId: null,
     },
     ocrUrl: 'http://localhost:8000',
     thumbnailDir: '',
