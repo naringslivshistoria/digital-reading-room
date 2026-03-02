@@ -10,6 +10,7 @@ import {
   MenuItem,
   Stack,
   TextField,
+  Tooltip,
 } from '@mui/material'
 import { Box } from '@mui/system'
 import SearchIcon from '@mui/icons-material/Search'
@@ -231,7 +232,7 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                                   height: '44px',
                                   width: '44px',
                                   borderRadius: 0,
-                                  '&:hover': { bgcolor: 'white ' },
+                                  '&:hover': { bgcolor: 'white' },
                                 }}
                               >
                                 <HighlightOffIcon />
@@ -510,6 +511,35 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
                     </Stack>
                   </>
                 )}
+              </Stack>
+
+              <Stack direction="row" alignItems="center">
+                <Checkbox
+                  checked={filters['includeAiGeneratedDescription']?.values?.[0] === 'true'}
+                  onChange={(e) => {
+                    updateFilter('includeAiGeneratedDescription', e.target.checked ? ['true'] : [])
+                  }}
+                  sx={{
+                    padding: 0,
+                    '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.04)' },
+                  }}
+                />
+                <Typography sx={{ ml: 0.8, mr: 0.8, mb: -0.5 }}>
+                  Sök i utökad, AI-genererad metadata
+                </Typography>
+                <Tooltip
+                  title="Bocka i rutan för att söka i AI-genererade beskrivningar av arkivmaterialet."
+                  placement='right'
+                  componentsProps={{
+                    tooltip: {
+                      sx: { fontSize: 14 },
+                    },
+                  }}
+                >
+                  <IconButton size="small">
+                    <HelpOutlineIcon sx={{ color: '#00AFD8' }} />
+                  </IconButton>
+                </Tooltip>
               </Stack>
             </Stack>
           </Grid>

@@ -194,14 +194,21 @@ const createAccessFilter = (
 export const createSearchQuery = (
   queryString: string | undefined,
   accessFilter: estypes.QueryDslQueryContainer[] | undefined,
-  filterString: string | undefined
+  filterString: string | undefined,
 ) => {
   const must: estypes.QueryDslQueryContainer[] = []
+  const includeAiGeneratedDescription = filterString?.includes('includeAiGeneratedDescription::true')
 
   if (queryString) {
     must.push({
       query_string: {
         query: queryString,
+        lenient: true,
+        ...(includeAiGeneratedDescription
+          ? {}
+          : {
+              fields: ['fields.*.value', 'attachmentType', 'pages.pageType', 'ocrContent'],
+            }),
       },
     })
   }
@@ -245,6 +252,8 @@ export const createSearchQuery = (
         searchQuery.bool.must.push({
           wildcard,
         })
+      } else if (filterTerm[0] === 'includeAiGeneratedDescription') {
+        // Handled above via filterString.includes check, skip
       } else if (filterTerm[0] === 'seriesName') {
         const terms: { [k: string]: string[] } = {}
         terms[`${getFullFieldName(filterTerm[0])}`] = filterTerm[1]
@@ -419,7 +428,7 @@ export const search = async (
   size = 20,
   filter: string | string[] | undefined,
   sort: string | string[] | undefined,
-  sortOrder: string | string[] | undefined
+  sortOrder: string | string[] | undefined,
 ) => {
   const queryString = Array.isArray(query) ? query[0] : query
   const filterString = Array.isArray(filter) ? filter[0] : filter

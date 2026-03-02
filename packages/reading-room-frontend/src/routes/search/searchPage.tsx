@@ -19,7 +19,6 @@ export const PageSearch = () => {
   useIsLoggedIn(true)
 
   const page = Number(searchParams.get('page') ?? 1)
-
   const { data, isLoading } = useSearch({
     query,
     startIndex: (page - 1) * pageSize,
