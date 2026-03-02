@@ -197,14 +197,14 @@ export const createSearchQuery = (
   filterString: string | undefined,
 ) => {
   const must: estypes.QueryDslQueryContainer[] = []
-  const includeAiContent = filterString?.includes('includeAiContent::true')
+  const includeAiGeneratedDescription = filterString?.includes('includeAiGeneratedDescription::true')
 
   if (queryString) {
     must.push({
       query_string: {
         query: queryString,
         lenient: true,
-        ...(includeAiContent
+        ...(includeAiGeneratedDescription
           ? {}
           : {
               fields: ['fields.*.value', 'attachmentType', 'pages.pageType', 'ocrContent'],
@@ -252,7 +252,7 @@ export const createSearchQuery = (
         searchQuery.bool.must.push({
           wildcard,
         })
-      } else if (filterTerm[0] === 'includeAiContent') {
+      } else if (filterTerm[0] === 'includeAiGeneratedDescription') {
         // Handled above via filterString.includes check, skip
       } else if (filterTerm[0] === 'seriesName') {
         const terms: { [k: string]: string[] } = {}

@@ -515,10 +515,9 @@ export const Search = ({ searchEnabled }: { searchEnabled: boolean }) => {
 
               <Stack direction="row" alignItems="center">
                 <Checkbox
-                  checked={filters['includeAiContent']?.values?.[0] === 'true'}
+                  checked={filters['includeAiGeneratedDescription']?.values?.[0] === 'true'}
                   onChange={(e) => {
-                    updateFilter('includeAiContent', e.target.checked ? ['true'] : [])
-                    search()
+                    updateFilter('includeAiGeneratedDescription', e.target.checked ? ['true'] : [])
                   }}
                   sx={{
                     padding: 0,
