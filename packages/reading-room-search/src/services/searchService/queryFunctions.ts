@@ -204,11 +204,15 @@ export const createSearchQuery = (
       query_string: {
         query: queryString,
         lenient: true,
-        ...(includeAiGeneratedDescription
-          ? {}
-          : {
-              fields: ['fields.*.value', 'attachmentType', 'pages.pageType', 'ocrContent'],
-            }),
+        fields: [
+          'fields.*',
+          'attachmentType',
+          'pages.pageType',
+          'level',
+          'ocrContent',
+          'ocrText',
+          ...(includeAiGeneratedDescription ? ['ocrDescription'] : []),
+        ],
       },
     })
   }
