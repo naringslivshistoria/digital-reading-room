@@ -92,7 +92,7 @@ export const routes = (router: KoaRouter) => {
    *                type: string
    */
   router.post('(.*)/auth/login', async (ctx) => {
-    const username = ctx.request.body?.username as string
+    const username = (ctx.request.body?.username as string)?.toLowerCase()
     const password = ctx.request.body?.password as string
 
     if (!username || !password) {
@@ -140,14 +140,15 @@ export const routes = (router: KoaRouter) => {
       return
     }
 
-    const token = await createResetToken(ctx.request.body.email as string)
+    const email = (ctx.request.body.email as string).toLowerCase()
+    const token = await createResetToken(email)
     const referer = ctx.query.referer ?? ctx.headers['referer']
 
     let subject = 'Nollställ ditt lösenord'
     let body =
-      `En begäran om att nollställa lösenordet för kontot ${ctx.request.body.email} i den Digitala läsesalen har mottagits.\n\n` +
+      `En begäran om att nollställa lösenordet för kontot ${email} i den Digitala läsesalen har mottagits.\n\n` +
       `Nollställ ditt lösenord här: ${referer}/nollstall?email=${encodeURIComponent(
-        ctx.request.body.email as string
+        email
       )}&token=${token}\n\n` +
       `Om du inte har begärt att ditt lösenord ska återställas kan du bortse från detta mail. Lämna aldrig ut länken till någon annan.\n\n` +
       `Centrum för Näringslivshistoria\n` +
@@ -155,9 +156,9 @@ export const routes = (router: KoaRouter) => {
 
     let htmlBody =
       `<html><body>` +
-      `<p>En begäran om att nollställa lösenordet för kontot ${ctx.request.body.email} i den Digitala läsesalen har mottagits.</p>` +
+      `<p>En begäran om att nollställa lösenordet för kontot ${email} i den Digitala läsesalen har mottagits.</p>` +
       `<p><a href="${referer}/nollstall?email=${encodeURIComponent(
-        ctx.request.body.email as string
+        email
       )}&token=${token}" target="_blank">Nollställ ditt lösenord här</a></p>` +
       `<p>Om du inte har begärt att ditt lösenord ska återställas kan du bortse från detta mail. Lämna aldrig ut länken till någon annan.</p>` +
       `<p>Centrum för Näringslivshistoria<br/>` +
@@ -167,26 +168,24 @@ export const routes = (router: KoaRouter) => {
     if (ctx.query.new) {
       subject = 'Välkommen till den Digitala läsesalen'
       body =
-        `Kontot ${
-          ctx.request.body.email
-        } har skapats för dig i den Digitala läsesalen.\n\nAnvänd denna länk för att välja ett lösenord: ${referer}/nollstall?email=${encodeURIComponent(
-          ctx.request.body.email as string
+        `Kontot ${email} har skapats för dig i den Digitala läsesalen.\n\nAnvänd denna länk för att välja ett lösenord: ${referer}/nollstall?email=${encodeURIComponent(
+          email
         )}&token=${token}\n\n` +
         `Centrum för Näringslivshistoria\n` +
         `https://naringslivshistoria.se`
 
       htmlBody =
         `<html><body>` +
-        `<p>Kontot ${ctx.request.body.email} har skapats för dig i den Digitala läsesalen.</p>` +
+        `<p>Kontot ${email} har skapats för dig i den Digitala läsesalen.</p>` +
         `<p><a href="${referer}/nollstall?email=${encodeURIComponent(
-          ctx.request.body.email as string
+          email
         )}&token=${token}" target="_blank">Klicka här för att välja ett lösenord</a></p>` +
         `<p>Centrum för Näringslivshistoria<br/>` +
         `<a href="https://naringslivshistoria.se" target="_blank">naringslivshistoria.se</a></p>` +
         `</body></html>`
     }
 
-    await sendEmail(ctx.request.body.email as string, subject, body, htmlBody)
+    await sendEmail(email, subject, body, htmlBody)
 
     ctx.body = {
       token: token,
@@ -218,13 +217,15 @@ export const routes = (router: KoaRouter) => {
       return
     }
 
+    const email = (ctx.request.body.email as string).toLowerCase()
+
     const saltAndHash = await hash.createSaltAndHash(
       ctx.request.body.password as string
     )
 
     try {
       await setPassword(
-        ctx.request.body.email as string,
+        email,
         ctx.request.body.token as string,
         saltAndHash.salt,
         saltAndHash.password
@@ -259,13 +260,15 @@ export const routes = (router: KoaRouter) => {
       return
     }
 
+    const username = (ctx.request.body.username as string).toLowerCase()
+
     try {
       const { password, salt } = await hash.createSaltAndHash(
         ctx.request.body.password as string
       )
 
       const newUser = {
-        username: ctx.request.body.username as string,
+        username,
         firstName: ctx.request.body.firstName as string,
         lastName: ctx.request.body.lastName as string,
         password_hash: password,
@@ -288,20 +291,18 @@ export const routes = (router: KoaRouter) => {
     }
 
     try {
-      const verificationToken = await createVerificationToken(
-        ctx.request.body.username as string
-      )
+      const verificationToken = await createVerificationToken(username)
 
       const subject = 'Verifiera ditt konto i digitala läsesalen'
       const body = `Hej,
-   
+
 Klicka på länken nedan för att verifiera ditt konto:
 ${config.createAccount.verifyAccountUrl}?email=${encodeURIComponent(
-        ctx.request.body.username as string
+        username
       )}&token=${verificationToken}
-   
+
 Länken är giltig i 1 dag. Om det inte var du som försökte skapa ett konto i digitala läsesalen, vänligen ignorera meddelandet.
-      
+
 Centrum för Näringslivshistoria
 www.naringslivshistoria.se`
 
@@ -313,7 +314,7 @@ www.naringslivshistoria.se`
   <p><a href="${
     config.createAccount.verifyAccountUrl
   }?email=${encodeURIComponent(
-        ctx.request.body.username as string
+        username
       )}&token=${verificationToken}" target="_blank">Klicka här för att verifiera ditt konto</a></p>
   <p>Länken är giltig i 1 dag. Om det inte var du som försökte skapa ett konto i digitala läsesalen, vänligen ignorera meddelandet.</p>
   <p>Centrum för Näringslivshistoria<br/>
@@ -322,7 +323,7 @@ www.naringslivshistoria.se`
 </html>`
 
       await sendEmail(
-        ctx.request.body.username as string,
+        username,
         subject,
         body,
         htmlBody
@@ -341,8 +342,8 @@ www.naringslivshistoria.se`
       await sendEmail(
         config.createAccount.notificationEmailRecipient,
         'Nytt konto har skapats i den digitala läsesalen',
-        `Kontot ${ctx.request.body.username} har skapats i den Digitala läsesalen. Om du vill lägga till deponenter görs det genom administrationsgränssnittet`,
-        `<html><body><p>Kontot ${ctx.request.body.username} har skapats i den Digitala läsesalen. Om du vill lägga till deponenter görs det genom administrationsgränssnittet</p></body></html>`
+        `Kontot ${username} har skapats i den Digitala läsesalen. Om du vill lägga till deponenter görs det genom administrationsgränssnittet`,
+        `<html><body><p>Kontot ${username} har skapats i den Digitala läsesalen. Om du vill lägga till deponenter görs det genom administrationsgränssnittet</p></body></html>`
       )
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -358,18 +359,20 @@ www.naringslivshistoria.se`
   })
 
   router.post('(.*)/auth/verify-account', async (ctx) => {
-    if (!ctx.request.body) {
+    if (!ctx.request.body || !ctx.request.body.username) {
       ctx.status = 400
       ctx.body = { errorMessage: 'Något gick fel' }
       return
     }
+
+    const username = (ctx.request.body.username as string).toLowerCase()
 
     try {
       const { email } = await verifyVerificationToken(
         ctx.request.body.verificationToken as string
       )
 
-      if (email !== ctx.request.body.username) {
+      if (email !== username) {
         ctx.status = 400
         ctx.body = { errorMessage: 'Ogiltig verifieringskod' }
         return
@@ -385,7 +388,7 @@ www.naringslivshistoria.se`
       await updateUserDisabled(user.id, false)
 
       const subject = 'Välkommen till digitala läsesalen'
-      const body = `Hej,\n\nNu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
+      const body = `Hej,\n\nNu har kontot ${username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.\n
 Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: https://www.naringslivshistoria.se/om-digitala-lasesalen/\n
 Har du några andra frågor, hör av dig till info@naringslivshistoria.se.\n
 Välkommen att börja söka!\n
@@ -396,7 +399,7 @@ www.naringslivshistoria.se`
 <html>
 <body>
   <p>Hej,</p>
-  <p>Nu har kontot ${ctx.request.body.username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.</p>
+  <p>Nu har kontot ${username} skapats för dig i Centrum för Näringslivshistorias digitala läsesal.</p>
   <p>Lite mer beskrivning om vad digitala läsesalen är, med svar på de vanligaste frågorna, finns här: <a href="https://www.naringslivshistoria.se/om-digitala-lasesalen/" target="_blank">https://www.naringslivshistoria.se/om-digitala-lasesalen/</a></p>
   <p>Har du några andra frågor, hör av dig till <a href="mailto:info@naringslivshistoria.se">info@naringslivshistoria.se</a>.</p>
   <p>Välkommen att börja söka!</p>
@@ -406,7 +409,7 @@ www.naringslivshistoria.se`
 </html>`
 
       await sendEmail(
-        ctx.request.body.username as string,
+        username,
         subject,
         body,
         htmlBody
