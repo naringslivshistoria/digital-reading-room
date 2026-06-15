@@ -17,7 +17,6 @@ import {
 } from '../../common/adapters/userAdapter'
 import { User } from '../../common/types'
 import config from '../../common/config'
-import { fetchUserData } from '../userService'
 
 const cookieOptions = {
   httpOnly: true,
@@ -107,14 +106,6 @@ export const routes = (router: KoaRouter) => {
 
       ctx.cookies.set('readingroom', token, cookieOptions)
 
-      const userData = await fetchUserData(username)
-      if (ctx.session) {
-        ctx.session.user = {
-          username,
-          ...userData,
-        }
-      }
-
       ctx.body = { message: 'Login successful' }
     } catch (error) {
       if (createHttpError.isHttpError(error)) {
@@ -129,7 +120,6 @@ export const routes = (router: KoaRouter) => {
 
   router.get('(.*)/auth/logout', async (ctx) => {
     ctx.cookies.set('readingroom', null, cookieOptions)
-    ctx.session = null
     ctx.redirect('/login')
   })
 
