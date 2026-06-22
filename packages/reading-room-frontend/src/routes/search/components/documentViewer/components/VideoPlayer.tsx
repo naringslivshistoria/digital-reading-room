@@ -33,7 +33,7 @@ export const VideoPlayer = ({ file, scale, rotation }: VideoPlayerProps) => {
         }}
         controlsList="nodownload"
       >
-        <source src={file.url} type="video/mp4" />
+        <source src={file.url} />
         <track kind="captions" src={file.url} srcLang="en" label="English" />
         Din webbläsare stödjer inte videouppspelning.
       </video>

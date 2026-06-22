@@ -72,14 +72,26 @@ export const routes = (router: KoaRouter) => {
     }
 
     try {
+      const rangeHeader = ctx.request.headers['range'] as string | undefined
       const document = await comprimaAdapter.getDocument(
         parseInt(ctx.params.documentId)
       )
-      const attachment = await comprimaAdapter.getAttachment(document)
+      const attachment = await comprimaAdapter.getAttachment(document, rangeHeader)
       const attachmentStream = attachment.data as Readable
 
       ctx.type =
         document.fields.format?.value ?? attachment.headers['content-type']
+
+      if (attachment.headers['content-range']) {
+        ctx.response.set('content-range', attachment.headers['content-range'])
+      }
+      if (attachment.headers['accept-ranges']) {
+        ctx.response.set('accept-ranges', attachment.headers['accept-ranges'])
+      }
+      if (attachment.status === 206) {
+        ctx.status = 206
+      }
+
       ctx.body = attachmentStream
     } catch (err) {
       ctx.status = 500
