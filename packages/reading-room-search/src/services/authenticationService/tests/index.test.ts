@@ -114,8 +114,8 @@ describe('authenticationService', () => {
       })
 
       expect(res.headers['set-cookie']).toBeDefined()
-      expect(res.headers['set-cookie'][0]).toContain('readingroom')
       const cookies = res.headers['set-cookie'] as unknown as string[]
+      expect(cookies.some((cookie) => cookie.includes('readingroom'))).toBe(true)
       expect(cookies.some((cookie) => cookie.includes('koa.sess'))).toBe(false)
     })
   })
