@@ -87,13 +87,36 @@ describe('populateUserState', () => {
     expect(res.body).toEqual({ error: 'User is disabled' })
   })
 
-  it('svarar 401 om användaren inte finns', async () => {
-    mockedFetchUserData.mockRejectedValue(new Error('User not found'))
+  it('svarar 500 vid oväntat fel under hämtning av användardata', async () => {
+    mockedFetchUserData.mockRejectedValue(new Error('DB connection failed'))
+
+    const res = await request(app.callback())
+      .get('/whoami')
+      .set('Authorization', 'Bearer ' + createToken())
+
+    expect(res.status).toBe(500)
+    expect(res.body).toEqual({ error: 'Internal server error' })
+  })
+
+  it('svarar 401 om användaren inte finns i databasen', async () => {
+    mockedFetchUserData.mockResolvedValue(null)
 
     const res = await request(app.callback())
       .get('/whoami')
       .set('Authorization', 'Bearer ' + createToken())
 
     expect(res.status).toBe(401)
+  })
+
+  it('når inte next() vid oväntat DB-fel', async () => {
+    mockedFetchUserData.mockRejectedValue(new Error('DB connection failed'))
+
+    const res = await request(app.callback())
+      .get('/whoami')
+      .set('Authorization', 'Bearer ' + createToken())
+
+    expect(res.status).toBe(500)
+    expect(res.body).toEqual({ error: 'Internal server error' })
+    expect(res.body.username).toBeUndefined()
   })
 })
