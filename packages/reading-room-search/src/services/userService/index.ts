@@ -2,7 +2,7 @@ import { getUserData } from '../../common/adapters/userAdapter'
 import { User } from '../../common/types'
 
 const userCache = new Map<string, { data: Partial<User>; expiresAt: number }>()
-const CACHE_TTL_MS = 60 * 1000;
+const CACHE_TTL_MS = 60 * 1000
 
 export const fetchUserData = async (
   username: string
