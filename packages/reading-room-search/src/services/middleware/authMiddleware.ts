@@ -1,6 +1,7 @@
 import { Context, Next } from 'koa'
 
 import { fetchUserData } from '../userService'
+import { User } from '../../common/types'
 
 export const populateUserState = async (ctx: Context, next: Next) => {
   if (!ctx.state.user?.username) {
@@ -8,7 +9,7 @@ export const populateUserState = async (ctx: Context, next: Next) => {
     return
   }
 
-  let userData
+  let userData: Partial<User> | null = null
   try {
     userData = await fetchUserData(ctx.state.user.username)
   } catch (error) {
