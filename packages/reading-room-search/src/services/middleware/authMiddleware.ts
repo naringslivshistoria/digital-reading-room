@@ -13,7 +13,8 @@ export const populateUserState = async (ctx: Context, next: Next) => {
     userData = await fetchUserData(ctx.state.user.username)
   } catch (error) {
     console.error('Error fetching user data:', error)
-    ctx.status = 401
+    ctx.status = 500
+    ctx.body = { error: 'Internal server error' }
     return
   }
 
