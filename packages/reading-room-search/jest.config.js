@@ -2,6 +2,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  setupFiles: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     "axios": "axios/dist/node/axios.cjs"
   },

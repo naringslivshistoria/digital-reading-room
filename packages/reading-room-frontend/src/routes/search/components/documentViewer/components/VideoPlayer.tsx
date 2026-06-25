@@ -22,6 +22,9 @@ export const VideoPlayer = ({ file, scale, rotation }: VideoPlayerProps) => {
         alignItems: 'center',
       }}
     >
+      {/* No caption track: archived videos have no caption resources, and
+          pointing one at the video URL triggers a failing transcode fetch. */}
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <video
         controls
         playsInline
@@ -33,8 +36,7 @@ export const VideoPlayer = ({ file, scale, rotation }: VideoPlayerProps) => {
         }}
         controlsList="nodownload"
       >
-        <source src={file.url} type="video/mp4" />
-        <track kind="captions" src={file.url} srcLang="en" label="English" />
+        <source src={file.url} />
         Din webbläsare stödjer inte videouppspelning.
       </video>
     </Box>

@@ -14,7 +14,7 @@ class DocumentNotFoundError extends Error {
   }
 }
 
-const getAttachmentStream = async (id: string) => {
+const getAttachmentStream = async (id: string, rangeHeader?: string) => {
   const url = `${
     config.comprimaAdapter?.url || 'https://comprima.dev.cfn.iteam.se'
   }/document/${id}/attachment`
@@ -23,6 +23,7 @@ const getAttachmentStream = async (id: string) => {
     method: 'get',
     url: url,
     responseType: 'stream',
+    ...(rangeHeader ? { headers: { Range: rangeHeader } } : {}),
   })
 
   return response
@@ -188,8 +189,20 @@ export const routes = (router: KoaRouter) => {
         return
       }
 
-      const response = await getAttachmentStream(id)
+      const rangeHeader = ctx.request.headers['range'] as string | undefined
+      const response = await getAttachmentStream(id, rangeHeader)
       ctx.type = response.headers['content-type']?.toString() ?? 'image/jpeg'
+
+      if (response.headers['content-range']) {
+        ctx.response.set('content-range', response.headers['content-range'])
+      }
+      if (response.headers['accept-ranges']) {
+        ctx.response.set('accept-ranges', response.headers['accept-ranges'])
+      }
+      if (response.status === 206) {
+        ctx.status = 206
+      }
+
       ctx.body = response.data
     } catch (err) {
       if (err instanceof DocumentNotFoundError) {
