@@ -23,7 +23,7 @@ const getAttachmentStream = async (id: string, rangeHeader?: string) => {
     method: 'get',
     url: url,
     responseType: 'stream',
-    headers: rangeHeader ? { Range: rangeHeader } : {},
+    ...(rangeHeader ? { headers: { Range: rangeHeader } } : {}),
   })
 
   return response
