@@ -2,11 +2,9 @@ import request from 'supertest'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import bodyParser from '@koa/bodyparser'
-import session from 'koa-session'
 import { routes } from '../index'
 import hash from '../hash'
 import * as jwt from '../jwt'
-import * as userService from '../../userService'
 import * as userAdapter from '../../../common/adapters/userAdapter'
 import * as smtpAdapter from '../../../common/adapters/smtpAdapter'
 import dotenv from 'dotenv'
@@ -14,20 +12,6 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const app = new Koa()
-app.keys = [process.env.SESSION_SECRET || 'dev-session-secret']
-
-app.use(
-  session(
-    {
-      key: 'koa.sess',
-      maxAge: 86400000,
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-    },
-    app
-  )
-)
 
 app.use(bodyParser())
 
@@ -109,19 +93,6 @@ describe('authenticationService', () => {
     it('anropar createToken med användarnamn och lösenord', async () => {
       const token = 'abc123'
       const jwtSpy = jest.spyOn(jwt, 'createToken').mockResolvedValue({ token })
-      const userDataSpy = jest
-        .spyOn(userService, 'fetchUserData')
-        .mockResolvedValue({
-          firstName: 'Test',
-          lastName: 'User',
-          organization: 'Test Org',
-          depositors: ['Dep1', 'Dep2'],
-          archiveInitiators: [],
-          series: [],
-          volumes: [],
-          documentIds: [],
-          fileNames: [],
-        })
 
       const res = await request(app.callback()).post('/auth/login').send({
         username: 'foo',
@@ -129,25 +100,13 @@ describe('authenticationService', () => {
       })
 
       expect(jwtSpy).toBeCalledWith('foo', 'bar')
-      expect(userDataSpy).toBeCalledWith('foo')
       expect(res.status).toBe(200)
       expect(res.body).toEqual({ message: 'Login successful' })
     })
 
-    it('sätter sessionen och cookie vid lyckad inloggning', async () => {
+    it('sätter readingroom-cookien men ingen sessionscookie vid lyckad inloggning', async () => {
       const token = 'abc123'
       jest.spyOn(jwt, 'createToken').mockResolvedValue({ token })
-      jest.spyOn(userService, 'fetchUserData').mockResolvedValue({
-        firstName: 'Test',
-        lastName: 'User',
-        organization: 'Test Org',
-        depositors: ['Dep1', 'Dep2'],
-        archiveInitiators: [],
-        series: [],
-        volumes: [],
-        documentIds: [],
-        fileNames: [],
-      })
 
       const res = await request(app.callback()).post('/auth/login').send({
         username: 'foo',
@@ -155,7 +114,9 @@ describe('authenticationService', () => {
       })
 
       expect(res.headers['set-cookie']).toBeDefined()
-      expect(res.headers['set-cookie'][0]).toContain('readingroom')
+      const cookies = res.headers['set-cookie'] as unknown as string[]
+      expect(cookies.some((cookie) => cookie.includes('readingroom'))).toBe(true)
+      expect(cookies.some((cookie) => cookie.includes('koa.sess'))).toBe(false)
     })
   })
 
