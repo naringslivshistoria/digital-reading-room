@@ -371,6 +371,25 @@ describe('documentService', () => {
       })
     })
 
+    it('forwards the Range header to comprima-adapter when present', async () => {
+      const id = '1337'
+      mockedAxios.mockReturnValue(
+        Promise.resolve('SUCCESS') as Promise<unknown>
+      )
+
+      await request(app.callback())
+        .get(`/document/${id}/attachment/filename.jpg`)
+        .set('Range', 'bytes=0-100')
+        .set('Authorization', 'Bearer ' + token)
+
+      expect(mockedAxios).toBeCalledWith({
+        method: 'get',
+        responseType: 'stream',
+        url: `${config.comprimaAdapter.url}/document/${id}/attachment`,
+        headers: { Range: 'bytes=0-100' },
+      })
+    })
+
     it("returns 404 if user doesn't have access to that document", async () => {
       const id = '1337'
       mockedAxios.mockReturnValue(
