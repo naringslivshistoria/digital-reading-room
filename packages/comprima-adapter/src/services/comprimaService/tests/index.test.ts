@@ -4,8 +4,9 @@ import KoaRouter from '@koa/router';
 import bodyParser from 'koa-bodyparser';
 import { Readable, PassThrough } from 'stream';
 import { EventEmitter } from 'events';
+import { createServer, Server } from 'http';
 import { spawn } from 'child_process';
-import { createWriteStream } from 'fs';
+import { createWriteStream, createReadStream, unlink } from 'fs';
 import { routes } from '../index';
 import comprimaAdapter from '../comprimaAdapter';
 
@@ -24,6 +25,8 @@ jest.mock('fs', () => {
 const mockedComprimaAdapter = jest.mocked(comprimaAdapter);
 const mockedSpawn = jest.mocked(spawn);
 const mockedCreateWriteStream = jest.mocked(createWriteStream);
+const mockedCreateReadStream = jest.mocked(createReadStream);
+const mockedUnlink = jest.mocked(unlink);
 
 const app = new Koa();
 const router = new KoaRouter();
@@ -67,6 +70,42 @@ const mockTranscodingFfmpeg = () => {
     });
     return child as never;
   });
+};
+
+// Wires up a spawn that fails the way a missing ffmpeg binary does: an 'error'
+// event followed by stdout ending without ever producing data.
+const mockMissingFfmpeg = () => {
+  mockedCreateWriteStream.mockReturnValue(new PassThrough() as never);
+  mockedSpawn.mockImplementation((): never => {
+    const child = new EventEmitter() as EventEmitter & {
+      stdout: PassThrough;
+      stderr: EventEmitter;
+      kill: jest.Mock;
+    };
+    child.stdout = new PassThrough();
+    child.stderr = new EventEmitter();
+    child.kill = jest.fn();
+    setImmediate(() => {
+      child.emit('error', new Error('spawn ffmpeg ENOENT'));
+      child.stdout.end();
+    });
+    return child as never;
+  });
+};
+
+const flushEvents = () => new Promise((resolve) => setTimeout(resolve, 20));
+
+// Tests that tear the response down mid-flight leave sockets supertest never
+// closes, which keeps the jest worker alive. Own the server so we can close it.
+const withServer = async (fn: (server: Server) => Promise<void>) => {
+  const server = createServer(app.callback());
+  await new Promise<void>((resolve) => server.listen(0, resolve));
+  try {
+    await fn(server);
+  } finally {
+    server.closeAllConnections();
+    await new Promise((resolve) => server.close(resolve));
+  }
 };
 
 describe('comprimaService', () => {
@@ -185,6 +224,140 @@ describe('comprimaService', () => {
       expect(mockedSpawn).not.toHaveBeenCalled();
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toContain('audio/mp4');
+    });
+
+    it('creates the temp file owner-only', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(
+        makeDocument('video/mp4')
+      );
+      mockedComprimaAdapter.getAttachment.mockResolvedValue({
+        data: makeStream(),
+        status: 200,
+        headers: { 'content-type': 'video/mp4' },
+      } as never);
+
+      mockTranscodingFfmpeg();
+
+      await request(app.callback()).get('/document/1337/attachment');
+
+      // The buffered file may hold restricted archive content.
+      expect(mockedCreateWriteStream).toHaveBeenCalledWith(expect.any(String), {
+        mode: 0o600,
+      });
+    });
+
+    it('removes the temp file and never spawns ffmpeg when buffering fails', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(
+        makeDocument('video/mp4')
+      );
+      mockedComprimaAdapter.getAttachment.mockResolvedValue({
+        data: new PassThrough(),
+        status: 200,
+        headers: { 'content-type': 'video/mp4' },
+      } as never);
+
+      mockedCreateWriteStream.mockImplementation((): never => {
+        const ws = new PassThrough();
+        setImmediate(() => ws.emit('error', new Error('disk full')));
+        return ws as never;
+      });
+
+      const res = await request(app.callback()).get('/document/1337/attachment');
+
+      expect(res.status).toBe(500);
+      expect(mockedUnlink).toHaveBeenCalled();
+      expect(mockedSpawn).not.toHaveBeenCalled();
+    });
+
+    it('serves the buffered file when ffmpeg cannot be spawned', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(
+        makeDocument('video/mp4')
+      );
+      mockedComprimaAdapter.getAttachment.mockResolvedValue({
+        data: makeStream(),
+        status: 200,
+        headers: { 'content-type': 'video/mp4' },
+      } as never);
+
+      mockMissingFfmpeg();
+      // A real file read delivers asynchronously, i.e. after ffmpeg's stdout
+      // has already ended — which is what makes the end-race observable.
+      mockedCreateReadStream.mockImplementation((): never => {
+        const rs = new PassThrough();
+        setTimeout(() => rs.end('fallback-bytes'), 5);
+        return rs as never;
+      });
+
+      await withServer(async (server) => {
+        const res = await request(server)
+          .get('/document/1337/attachment')
+          .buffer(true);
+
+        // Regression guard: piping ffmpeg's (immediately ended) stdout with the
+        // default end:true would close the response before the fallback flowed.
+        expect(res.status).toBe(200);
+        expect((res.body as Buffer).toString()).toContain('fallback-bytes');
+        expect(mockedUnlink).toHaveBeenCalled();
+      });
+    });
+
+    it('does not hang when the fallback read stream fails', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(
+        makeDocument('video/mp4')
+      );
+      mockedComprimaAdapter.getAttachment.mockResolvedValue({
+        data: makeStream(),
+        status: 200,
+        headers: { 'content-type': 'video/mp4' },
+      } as never);
+
+      mockMissingFfmpeg();
+      mockedCreateReadStream.mockImplementation((): never => {
+        const rs = new PassThrough();
+        setImmediate(() => rs.emit('error', new Error('read failed')));
+        return rs as never;
+      });
+
+      await withServer(async (server) => {
+        try {
+          await request(server).get('/document/1337/attachment');
+        } catch {
+          /* the response is torn down; either outcome is fine, it must not hang */
+        }
+
+        await flushEvents();
+        expect(mockedUnlink).toHaveBeenCalled();
+      });
+    });
+
+    it('cleans up without transcoding when the client disconnects while buffering', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(
+        makeDocument('video/mp4')
+      );
+      mockedComprimaAdapter.getAttachment.mockResolvedValue({
+        data: new PassThrough(),
+        status: 200,
+        headers: { 'content-type': 'video/mp4' },
+      } as never);
+
+      // Never emits 'finish', so the request stays stuck in the buffering phase.
+      mockedCreateWriteStream.mockImplementation(
+        () => new PassThrough() as never
+      );
+
+      await withServer(async (server) => {
+        const req = request(server).get('/document/1337/attachment');
+        setTimeout(() => req.abort(), 50);
+        try {
+          await req;
+        } catch {
+          /* client-side abort */
+        }
+
+        await flushEvents();
+        expect(mockedUnlink).toHaveBeenCalled();
+        expect(mockedSpawn).not.toHaveBeenCalled();
+      });
     });
   });
 });

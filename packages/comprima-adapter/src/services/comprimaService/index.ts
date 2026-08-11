@@ -83,7 +83,7 @@ export const routes = (router: KoaRouter) => {
     }
 
     try {
-      const rangeHeader = ctx.request.headers['range'] as string | undefined
+      const rangeHeader = ctx.request.headers['range']
       const document = await comprimaAdapter.getDocument(
         parseInt(ctx.params.documentId)
       )
@@ -133,14 +133,48 @@ export const routes = (router: KoaRouter) => {
           }
         }
 
-        // Buffer to disk so ffmpeg can seek backwards to the moov atom (not seekable via pipe)
-        const fileWrite = createWriteStream(tmpPath)
+        // Buffer to disk so ffmpeg can seek backwards to the moov atom (not
+        // seekable via pipe). 0o600 keeps the temp file, which may hold
+        // restricted archive content, owner-only.
+        const fileWrite = createWriteStream(tmpPath, { mode: 0o600 })
+
+        // If the client disconnects during buffering, the post-spawn abort
+        // handler does not exist yet and 'close' is never replayed — destroy
+        // the streams (with an error, so the buffering promise below settles)
+        // to avoid transcoding for a dead request.
+        let clientGone = false
+        const onClientClose = () => {
+          clientGone = true
+          attachmentStream.destroy(
+            new Error('client disconnected during buffering')
+          )
+          fileWrite.destroy()
+          cleanup()
+        }
+        ctx.req.on('close', onClientClose)
+
         attachmentStream.pipe(fileWrite)
         await new Promise<void>((resolve, reject) => {
+          // cleanup() is not wired to the request/ffmpeg lifecycle yet, so a
+          // buffering error would otherwise leak the temp file — and pipe()
+          // does not destroy the sibling stream, which would leak its fd (and
+          // the unlinked file's disk space) too.
+          const fail = (err: Error) => {
+            fileWrite.destroy()
+            attachmentStream.destroy()
+            cleanup()
+            reject(err)
+          }
           fileWrite.on('finish', resolve)
-          fileWrite.on('error', reject)
-          attachmentStream.on('error', reject)
+          fileWrite.on('error', fail)
+          attachmentStream.on('error', fail)
         })
+
+        ctx.req.off('close', onClientClose)
+        if (clientGone || ctx.req.destroyed) {
+          cleanup()
+          return
+        }
 
         const ffmpeg = spawn('ffmpeg', [
           '-hide_banner',
@@ -164,8 +198,17 @@ export const routes = (router: KoaRouter) => {
           const fallback = createReadStream(tmpPath)
           fallback.pipe(output)
           fallback.on('close', cleanup)
+          fallback.on('error', (e) => {
+            output.destroy(e)
+            cleanup()
+          })
         })
-        ffmpeg.stdout.pipe(output)
+        // When spawn fails, stdout ends immediately; a plain pipe would end
+        // `output` before the fallback's data flows, producing an empty 200
+        ffmpeg.stdout.pipe(output, { end: false })
+        ffmpeg.stdout.on('end', () => {
+          if (!useFallback) output.end()
+        })
 
         // Kill ffmpeg and clean up if the client disconnects mid-stream so the
         // CPU-intensive process does not run to completion for an aborted request.
@@ -175,7 +218,12 @@ export const routes = (router: KoaRouter) => {
           cleanup()
         }
         ctx.req.on('close', abort)
-        ffmpeg.on('close', () => {
+        ffmpeg.on('close', (code) => {
+          if (code !== 0 && !useFallback) {
+            console.error(
+              `[ffmpeg] exited with code ${code} for document ${ctx.params.documentId}`
+            )
+          }
           ctx.req.off('close', abort)
           if (!useFallback) cleanup()
         })
