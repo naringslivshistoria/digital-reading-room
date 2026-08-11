@@ -189,7 +189,7 @@ export const routes = (router: KoaRouter) => {
         return
       }
 
-      const rangeHeader = ctx.request.headers['range'] as string | undefined
+      const rangeHeader = ctx.request.headers['range']
       const response = await getAttachmentStream(id, rangeHeader)
       ctx.type = response.headers['content-type']?.toString() ?? 'image/jpeg'
 
