@@ -2,7 +2,7 @@ import KoaRouter from '@koa/router'
 import { Client, errors } from '@elastic/elasticsearch'
 import { Document } from '../../common/types'
 import config from '../../common/config'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import fs from 'fs'
 
 class DocumentNotFoundError extends Error {
@@ -12,26 +12,6 @@ class DocumentNotFoundError extends Error {
     // Set the prototype explicitly.
     Object.setPrototypeOf(this, DocumentNotFoundError.prototype)
   }
-}
-
-// Axios rejects on non-2xx, so an adapter error surfaces here as an error with
-// a `response` property rather than as a return value. The adapter fails closed
-// with shaped 5xx responses (e.g. 502 for a partial upstream video body) that
-// must reach the client instead of being flattened to a generic 500.
-const getUpstream5xxResponse = (err: unknown) => {
-  const response = (
-    err as {
-      response?: {
-        status: number
-        headers: Record<string, string | undefined>
-        data: unknown
-      }
-    }
-  )?.response
-
-  return typeof response?.status === 'number' && response.status >= 500
-    ? response
-    : undefined
 }
 
 const getAttachmentStream = async (id: string, rangeHeader?: string) => {
@@ -228,22 +208,22 @@ export const routes = (router: KoaRouter) => {
       if (err instanceof DocumentNotFoundError) {
         ctx.status = 404
         ctx.body = { results: 'error: document not found' }
-        return
+      } else if (
+        err instanceof AxiosError &&
+        err.response &&
+        err.response.status >= 500
+      ) {
+        // The adapter fails closed with shaped 5xx responses (e.g. 502 for a
+        // partial upstream video body) — mirror status and body instead of
+        // flattening them to a generic 500.
+        ctx.status = err.response.status
+        ctx.type =
+          err.response.headers['content-type']?.toString() ?? 'application/json'
+        ctx.body = err.response.data
+      } else {
+        ctx.status = 500
+        ctx.body = { results: 'error: ' + err }
       }
-
-      const upstream = getUpstream5xxResponse(err)
-      if (upstream) {
-        ctx.status = upstream.status
-        if (upstream.headers['content-type']) {
-          ctx.type = upstream.headers['content-type']
-        }
-        // With responseType 'stream' the error body is a Readable; Koa pipes it.
-        ctx.body = upstream.data
-        return
-      }
-
-      ctx.status = 500
-      ctx.body = { results: 'error: ' + err }
     }
   })
 

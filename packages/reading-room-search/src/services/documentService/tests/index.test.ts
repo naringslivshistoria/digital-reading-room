@@ -3,7 +3,7 @@ import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import bodyParser from '@koa/bodyparser'
 import { Client } from '@elastic/elasticsearch'
-import axios from 'axios'
+import axios, { AxiosError, AxiosResponse } from 'axios'
 import { routes } from '../index'
 import documentResultMock from './documentResultMock'
 import config from '../../../common/config'
@@ -402,15 +402,15 @@ describe('documentService', () => {
       bodyStream.push(JSON.stringify(upstreamBody))
       bodyStream.push(null)
 
-      mockedAxios.mockRejectedValue(
-        Object.assign(new Error('Request failed with status code 502'), {
-          response: {
-            status: 502,
-            headers: { 'content-type': 'application/json; charset=utf-8' },
-            data: bodyStream,
-          },
-        })
+      const upstreamError = new AxiosError(
+        'Request failed with status code 502'
       )
+      upstreamError.response = {
+        status: 502,
+        headers: { 'content-type': 'application/json; charset=utf-8' },
+        data: bodyStream,
+      } as unknown as AxiosResponse
+      mockedAxios.mockRejectedValue(upstreamError)
 
       const res = await request(app.callback())
         .get(`/document/${id}/attachment/filename.mp4`)
