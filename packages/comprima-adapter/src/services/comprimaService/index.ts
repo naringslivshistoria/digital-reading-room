@@ -18,6 +18,14 @@ const isTranscodableVideo = (t: string) => {
   return v.startsWith('video/') && v.includes('mp4')
 }
 
+// A 206 means a byte range; so does a Content-Range on a 200, which a
+// non-compliant upstream can send. Either way the body is a slice, and a slice
+// must never reach the transcoder.
+const isPartialResponse = (response: {
+  status: number
+  headers: Record<string, unknown>
+}) => response.status === 206 || Boolean(response.headers['content-range'])
+
 const healthCheck = async () => {
   await comprimaAdapter.getDocuments('34913', 0, 1)
 }
@@ -93,32 +101,85 @@ export const routes = (router: KoaRouter) => {
       // transcode. Only a video/mp4 is transcoded — audio/mp4 (and any other
       // audio type) must pass through untouched, since the ffmpeg branch maps a
       // mandatory video stream (0:v:0) that audio-only files do not have.
-      let contentType = document.fields.format?.value ?? ''
+      const formatContentType = document.fields.format?.value ?? ''
+      let contentType = formatContentType
       let isVideoMp4 = isTranscodableVideo(contentType)
 
       // We withhold the Range header for video/mp4 because that branch buffers
-      // and transcodes the whole file. Note this is NOT what protects ffmpeg
-      // from a truncated slice: the 47% of video docs with no `format` are
-      // pre-decided as non-video here (empty format) and so DO get Range
+      // and transcodes the whole file. The 47% of video docs with no `format`
+      // are pre-decided as non-video here (empty format) and so DO get Range
       // forwarded upstream — they only flip to transcode after the post-fetch
-      // header check below. That is safe purely because Comprima ignores Range
-      // entirely and always returns 200 + the full file; byte-range serving
-      // never actually happens on the final hop.
-      const attachment = await comprimaAdapter.getAttachment(
+      // header check below. Comprima ignores Range today and always answers
+      // 200 + the full file, but that is an external, unenforced invariant, so
+      // the partial-response guard after the type check re-fetches rather than
+      // trusting it. Keep what we actually sent: only a forwarded Range makes a
+      // Range-less retry worth attempting.
+      const forwardedRange = isVideoMp4 ? undefined : rangeHeader
+      let attachment = await comprimaAdapter.getAttachment(
         document,
-        isVideoMp4 ? undefined : rangeHeader
+        forwardedRange
       )
-      const attachmentStream = attachment.data as Readable
 
-      if (!contentType) {
-        // Edge case: format hint missing, fall back to the upstream content
-        // type. Comprima returns Content-Type: video/mp4 for these no-MIME
-        // docs, so this fallback covers them. The startsWith('video/') guard in
-        // isTranscodableVideo also hardens this path: a stray audio/mp4 response
-        // is correctly rejected here rather than pushed into the ffmpeg branch.
+      // Edge case: format hint missing, fall back to the upstream content type.
+      // Comprima returns Content-Type: video/mp4 for these no-MIME docs, so this
+      // fallback covers them. The startsWith('video/') guard in
+      // isTranscodableVideo also hardens this path: a stray audio/mp4 response is
+      // correctly rejected here rather than pushed into the ffmpeg branch. Run
+      // again after a re-fetch, so the decision always describes the body we are
+      // about to serve rather than the discarded one.
+      const resolveTypeFromUpstream = () => {
+        if (formatContentType) return
         contentType = attachment.headers['content-type'] ?? ''
         isVideoMp4 = isTranscodableVideo(contentType)
       }
+
+      resolveTypeFromUpstream()
+
+      const refusePartialBody = () => {
+        console.error(
+          `Refusing to transcode a partial body for document ${ctx.params.documentId}`
+        )
+        ctx.status = 502
+        ctx.body = {
+          errorMessage:
+            'Upstream returned a partial response for a video attachment; cannot transcode a partial body',
+          documentId: ctx.params.documentId,
+        }
+      }
+
+      if (isVideoMp4 && isPartialResponse(attachment)) {
+        // Feeding a partial slice to ffmpeg yields a silently truncated
+        // transcode, so this body is unusable either way — discard it.
+        ;(attachment.data as Readable).destroy()
+
+        if (!forwardedRange) {
+          // Nothing to retry: we never sent a Range, so a Range-less re-fetch is
+          // byte-for-byte the same request and would pull a whole video again
+          // only to fail the same way.
+          console.error(
+            `Upstream returned an unsolicited partial response for video document ${ctx.params.documentId}`
+          )
+          refusePartialBody()
+          return
+        }
+
+        // We only learned this was a video after forwarding the client's Range,
+        // and upstream honoured it. Re-fetch the whole file once.
+        console.warn(
+          `Upstream returned a partial response for video document ${ctx.params.documentId}; re-fetching the full file`
+        )
+        attachment = await comprimaAdapter.getAttachment(document, undefined)
+        resolveTypeFromUpstream()
+
+        if (isVideoMp4 && isPartialResponse(attachment)) {
+          // Fail closed: a partial body must never reach the transcoder.
+          ;(attachment.data as Readable).destroy()
+          refusePartialBody()
+          return
+        }
+      }
+
+      const attachmentStream = attachment.data as Readable
 
       if (isVideoMp4) {
         const tmpPath = join(tmpdir(), `comprima-mp4-${randomBytes(8).toString('hex')}.mp4`)

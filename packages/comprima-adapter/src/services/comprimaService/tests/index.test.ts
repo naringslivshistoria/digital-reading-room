@@ -41,6 +41,28 @@ const makeStream = (data = 'data') => {
   return stream;
 };
 
+// A partial video body: 206 + content-range, i.e. a slice ffmpeg must never see.
+const partialVideoResponse = (data: Readable) => ({
+  data,
+  status: 206,
+  headers: {
+    'content-type': 'video/mp4',
+    'content-range': 'bytes 0-100/2000',
+  },
+});
+
+// Collects whatever the transcode branch buffers to its temp file, so a test can
+// assert which body actually reached ffmpeg. Call after mockTranscodingFfmpeg().
+const captureBufferedFile = () => {
+  const chunks: Buffer[] = [];
+  mockedCreateWriteStream.mockImplementation((): never => {
+    const ws = new PassThrough();
+    ws.on('data', (chunk) => chunks.push(chunk as Buffer));
+    return ws as never;
+  });
+  return () => Buffer.concat(chunks).toString();
+};
+
 const makeDocument = (format: string, filename?: string) =>
   ({
     id: 1337,
@@ -221,6 +243,151 @@ describe('comprimaService', () => {
       const res = await request(app.callback()).get('/document/1337/attachment');
 
       // Hardened header path: the old includes('mp4') would have transcoded this.
+      expect(mockedSpawn).not.toHaveBeenCalled();
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toContain('audio/mp4');
+    });
+
+    it('re-fetches without Range when a no-format doc turns out to be a 206 video/mp4', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(makeDocument(''));
+      const partial = makeStream('partial-slice');
+      mockedComprimaAdapter.getAttachment
+        .mockResolvedValueOnce(partialVideoResponse(partial) as never)
+        .mockResolvedValueOnce({
+          data: makeStream('full-body'),
+          status: 200,
+          headers: { 'content-type': 'video/mp4' },
+        } as never);
+
+      mockTranscodingFfmpeg();
+      const buffered = captureBufferedFile();
+
+      const res = await request(app.callback())
+        .get('/document/1337/attachment')
+        .set('Range', 'bytes=0-100');
+
+      // The Range is forwarded on the first hop (format is empty, so the doc is
+      // not yet known to be a video), then re-fetched in full once the upstream
+      // content-type flips it into the transcode branch.
+      expect(mockedComprimaAdapter.getAttachment).toHaveBeenCalledTimes(2);
+      expect(mockedComprimaAdapter.getAttachment).toHaveBeenNthCalledWith(
+        1,
+        expect.anything(),
+        'bytes=0-100'
+      );
+      expect(mockedComprimaAdapter.getAttachment).toHaveBeenNthCalledWith(
+        2,
+        expect.anything(),
+        undefined
+      );
+      // Only the complete second body may reach ffmpeg.
+      expect(partial.destroyed).toBe(true);
+      expect(buffered()).toBe('full-body');
+      expect(mockedSpawn).toHaveBeenCalled();
+      expect(res.status).toBe(200);
+    });
+
+    it('fails closed without transcoding when the re-fetch is still partial', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(makeDocument(''));
+      // Two distinct bodies: sharing one stream would let the second destroy()
+      // pass vacuously and leave the 502 path's socket cleanup unguarded.
+      const first = makeStream('partial-one');
+      const second = makeStream('partial-two');
+      mockedComprimaAdapter.getAttachment
+        .mockResolvedValueOnce(partialVideoResponse(first) as never)
+        .mockResolvedValueOnce(partialVideoResponse(second) as never);
+
+      mockTranscodingFfmpeg();
+
+      const res = await request(app.callback())
+        .get('/document/1337/attachment')
+        .set('Range', 'bytes=0-100');
+
+      expect(mockedComprimaAdapter.getAttachment).toHaveBeenCalledTimes(2);
+      expect(mockedSpawn).not.toHaveBeenCalled();
+      // Both discarded bodies must be destroyed or the upstream sockets leak.
+      expect(first.destroyed).toBe(true);
+      expect(second.destroyed).toBe(true);
+      expect(res.status).toBe(502);
+      expect(res.body.documentId).toBe('1337');
+    });
+
+    it('does not re-fetch when no Range was forwarded and upstream is partial anyway', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(
+        makeDocument('video/mp4')
+      );
+      const partial = makeStream('partial-slice');
+      mockedComprimaAdapter.getAttachment.mockResolvedValue(
+        partialVideoResponse(partial) as never
+      );
+
+      mockTranscodingFfmpeg();
+
+      const res = await request(app.callback()).get('/document/1337/attachment');
+
+      // Range is withheld for a doc already known to be video, so a Range-less
+      // retry is byte-for-byte the same request — it would pull a whole video
+      // again only to fail identically. Fail closed on the first response.
+      expect(mockedComprimaAdapter.getAttachment).toHaveBeenCalledTimes(1);
+      expect(mockedComprimaAdapter.getAttachment).toHaveBeenCalledWith(
+        expect.anything(),
+        undefined
+      );
+      expect(partial.destroyed).toBe(true);
+      expect(mockedSpawn).not.toHaveBeenCalled();
+      expect(res.status).toBe(502);
+    });
+
+    it('treats a content-range on a 200 as a partial body', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(makeDocument(''));
+      const partial = makeStream('partial-slice');
+      mockedComprimaAdapter.getAttachment
+        .mockResolvedValueOnce({
+          ...partialVideoResponse(partial),
+          // A non-compliant upstream can answer 200 while still sending a slice.
+          status: 200,
+        } as never)
+        .mockResolvedValueOnce({
+          data: makeStream('full-body'),
+          status: 200,
+          headers: { 'content-type': 'video/mp4' },
+        } as never);
+
+      mockTranscodingFfmpeg();
+      const buffered = captureBufferedFile();
+
+      const res = await request(app.callback())
+        .get('/document/1337/attachment')
+        .set('Range', 'bytes=0-100');
+
+      expect(mockedComprimaAdapter.getAttachment).toHaveBeenCalledTimes(2);
+      expect(partial.destroyed).toBe(true);
+      expect(buffered()).toBe('full-body');
+      expect(mockedSpawn).toHaveBeenCalled();
+      expect(res.status).toBe(200);
+    });
+
+    it('re-derives the content type from the re-fetched response', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(makeDocument(''));
+      mockedComprimaAdapter.getAttachment
+        .mockResolvedValueOnce(
+          partialVideoResponse(makeStream('partial-slice')) as never
+        )
+        .mockResolvedValueOnce({
+          data: makeStream('audio-body'),
+          status: 200,
+          headers: { 'content-type': 'audio/mp4' },
+        } as never);
+
+      mockTranscodingFfmpeg();
+
+      const res = await request(app.callback())
+        .get('/document/1337/attachment')
+        .set('Range', 'bytes=0-100');
+
+      // The transcode decision must describe the body we are about to serve, not
+      // the discarded one: hop 2 is audio-only, so it passes through untouched
+      // instead of being fed to the mandatory-video ffmpeg map.
       expect(mockedSpawn).not.toHaveBeenCalled();
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toContain('audio/mp4');
