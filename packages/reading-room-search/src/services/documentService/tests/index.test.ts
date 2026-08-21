@@ -390,6 +390,49 @@ describe('documentService', () => {
       })
     })
 
+    it('passes an upstream 5xx status and body through to the client', async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+      const id = '1337'
+      const upstreamBody = {
+        errorMessage:
+          'Upstream returned a partial response for a video attachment; cannot transcode a partial body',
+        documentId: id,
+      }
+      const bodyStream = new Readable()
+      bodyStream.push(JSON.stringify(upstreamBody))
+      bodyStream.push(null)
+
+      mockedAxios.mockRejectedValue(
+        Object.assign(new Error('Request failed with status code 502'), {
+          response: {
+            status: 502,
+            headers: { 'content-type': 'application/json; charset=utf-8' },
+            data: bodyStream,
+          },
+        })
+      )
+
+      const res = await request(app.callback())
+        .get(`/document/${id}/attachment/filename.mp4`)
+        .set('Authorization', 'Bearer ' + token)
+
+      expect(res.status).toEqual(502)
+      expect(res.body).toEqual(upstreamBody)
+    })
+
+    it('returns 500 when the adapter request fails without a response', async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+      const id = '1337'
+      mockedAxios.mockRejectedValue(new Error('ECONNREFUSED'))
+
+      const res = await request(app.callback())
+        .get(`/document/${id}/attachment/filename.mp4`)
+        .set('Authorization', 'Bearer ' + token)
+
+      expect(res.status).toEqual(500)
+      expect(res.text).toEqual('{"results":"error: Error: ECONNREFUSED"}')
+    })
+
     it("returns 404 if user doesn't have access to that document", async () => {
       const id = '1337'
       mockedAxios.mockReturnValue(

@@ -14,6 +14,26 @@ class DocumentNotFoundError extends Error {
   }
 }
 
+// Axios rejects on non-2xx, so an adapter error surfaces here as an error with
+// a `response` property rather than as a return value. The adapter fails closed
+// with shaped 5xx responses (e.g. 502 for a partial upstream video body) that
+// must reach the client instead of being flattened to a generic 500.
+const getUpstream5xxResponse = (err: unknown) => {
+  const response = (
+    err as {
+      response?: {
+        status: number
+        headers: Record<string, string | undefined>
+        data: unknown
+      }
+    }
+  )?.response
+
+  return typeof response?.status === 'number' && response.status >= 500
+    ? response
+    : undefined
+}
+
 const getAttachmentStream = async (id: string, rangeHeader?: string) => {
   const url = `${
     config.comprimaAdapter?.url || 'https://comprima.dev.cfn.iteam.se'
@@ -208,10 +228,22 @@ export const routes = (router: KoaRouter) => {
       if (err instanceof DocumentNotFoundError) {
         ctx.status = 404
         ctx.body = { results: 'error: document not found' }
-      } else {
-        ctx.status = 500
-        ctx.body = { results: 'error: ' + err }
+        return
       }
+
+      const upstream = getUpstream5xxResponse(err)
+      if (upstream) {
+        ctx.status = upstream.status
+        if (upstream.headers['content-type']) {
+          ctx.type = upstream.headers['content-type']
+        }
+        // With responseType 'stream' the error body is a Readable; Koa pipes it.
+        ctx.body = upstream.data
+        return
+      }
+
+      ctx.status = 500
+      ctx.body = { results: 'error: ' + err }
     }
   })
 
