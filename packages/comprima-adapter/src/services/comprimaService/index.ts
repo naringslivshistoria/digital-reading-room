@@ -4,15 +4,18 @@ import { Document } from '../../common/types'
 import comprimaAdapter from './comprimaAdapter'
 
 import { Readable, PassThrough } from 'stream'
+import { pipeline } from 'stream/promises'
 import { spawn } from 'child_process'
-import { createWriteStream, createReadStream, unlink } from 'fs'
+import { createWriteStream, createReadStream, unlink, ReadStream } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { randomBytes } from 'crypto'
 
 const batchSize = 10
 
-// video/mp4 only — never a bare includes('mp4'), which wrongly catches audio/mp4.
+// video/mp4 only — in this archive that means MPEG-4 Part 2, which browsers
+// cannot decode. Never a bare includes('mp4'): that also catches audio/mp4,
+// which despite the name is H.264 video that browsers play natively.
 const isTranscodableVideo = (t: string) => {
   const v = t.toLowerCase()
   return v.startsWith('video/') && v.includes('mp4')
@@ -98,9 +101,13 @@ export const routes = (router: KoaRouter) => {
 
       // The document format is the authoritative content type and is available
       // before fetching the attachment, which lets us decide whether to
-      // transcode. Only a video/mp4 is transcoded — audio/mp4 (and any other
-      // audio type) must pass through untouched, since the ffmpeg branch maps a
-      // mandatory video stream (0:v:0) that audio-only files do not have.
+      // transcode. Only a video/mp4 is transcoded: in this archive video/mp4
+      // means MPEG-4 Part 2, which browsers cannot decode, while audio/mp4 is
+      // (despite the MIME name) H.264 video that browsers play natively.
+      // audio/mp4 therefore passes through untouched — not because ffmpeg
+      // would fail on it, but because re-encoding an already-compatible file
+      // only costs CPU and quality. Genuinely audio-only types (audio/mpeg,
+      // audio/wav) never match the gate either.
       const formatContentType = document.fields.format?.value ?? ''
       let contentType = formatContentType
       let isVideoMp4 = isTranscodableVideo(contentType)
@@ -123,8 +130,9 @@ export const routes = (router: KoaRouter) => {
       // Edge case: format hint missing, fall back to the upstream content type.
       // Comprima returns Content-Type: video/mp4 for these no-MIME docs, so this
       // fallback covers them. The startsWith('video/') guard in
-      // isTranscodableVideo also hardens this path: a stray audio/mp4 response is
-      // correctly rejected here rather than pushed into the ffmpeg branch. Run
+      // isTranscodableVideo also hardens this path: a stray audio/mp4 response
+      // (H.264 video, already browser-playable) is correctly kept out of the
+      // ffmpeg branch rather than being needlessly re-encoded. Run
       // again after a re-fetch, so the decision always describes the body we are
       // about to serve rather than the discarded one.
       const resolveTypeFromUpstream = () => {
@@ -214,22 +222,14 @@ export const routes = (router: KoaRouter) => {
         }
         ctx.req.on('close', onClientClose)
 
-        attachmentStream.pipe(fileWrite)
-        await new Promise<void>((resolve, reject) => {
-          // cleanup() is not wired to the request/ffmpeg lifecycle yet, so a
-          // buffering error would otherwise leak the temp file — and pipe()
-          // does not destroy the sibling stream, which would leak its fd (and
-          // the unlinked file's disk space) too.
-          const fail = (err: Error) => {
-            fileWrite.destroy()
-            attachmentStream.destroy()
-            cleanup()
-            reject(err)
-          }
-          fileWrite.on('finish', resolve)
-          fileWrite.on('error', fail)
-          attachmentStream.on('error', fail)
-        })
+        // pipeline() pipes, propagates errors and destroys both streams on
+        // failure; the temp file is ours, so cleanup() stays explicit.
+        try {
+          await pipeline(attachmentStream, fileWrite)
+        } catch (err) {
+          cleanup()
+          throw err
+        }
 
         ctx.req.off('close', onClientClose)
         if (clientGone || ctx.req.destroyed) {
@@ -246,47 +246,67 @@ export const routes = (router: KoaRouter) => {
           '-c:v', 'libx264',
           '-preset', 'fast',
           '-crf', '23',
-          '-c:a', 'copy',
+          '-c:a', 'aac',
+          '-b:a', '128k',
           '-movflags', 'frag_keyframe+empty_moov',
           '-f', 'mp4',
           'pipe:1',
         ])
         ffmpeg.stderr.on('data', (data) => console.error('[ffmpeg]', data.toString()))
         let useFallback = false
+        let fallbackStream: ReadStream | undefined
         ffmpeg.on('error', (err) => {
           useFallback = true
-          console.warn('ffmpeg unavailable, falling back to direct stream:', err.message)
+          console.error(
+            `ffmpeg unavailable for document ${ctx.params.documentId}, falling back to direct stream: ${err.message}`
+          )
           const fallback = createReadStream(tmpPath)
+          fallbackStream = fallback
           fallback.pipe(output)
-          fallback.on('close', cleanup)
+          // The exit handler returns early for the fallback, so the fallback's
+          // own terminal handlers release the client-disconnect listener.
+          fallback.on('close', () => {
+            ctx.req.off('close', abort)
+            cleanup()
+          })
           fallback.on('error', (e) => {
             output.destroy(e)
+            ctx.req.off('close', abort)
             cleanup()
           })
         })
         // When spawn fails, stdout ends immediately; a plain pipe would end
         // `output` before the fallback's data flows, producing an empty 200
         ffmpeg.stdout.pipe(output, { end: false })
-        ffmpeg.stdout.on('end', () => {
-          if (!useFallback) output.end()
-        })
 
         // Kill ffmpeg and clean up if the client disconnects mid-stream so the
         // CPU-intensive process does not run to completion for an aborted request.
         const abort = () => {
           ffmpeg.kill('SIGKILL')
+          fallbackStream?.destroy()
           output.destroy()
           cleanup()
         }
         ctx.req.on('close', abort)
         ffmpeg.on('close', (code) => {
-          if (code !== 0 && !useFallback) {
+          if (useFallback) return // the fallback owns the response and cleanup
+
+          ctx.req.off('close', abort)
+          cleanup()
+          if (code === 0) {
+            output.end()
+          } else {
             console.error(
               `[ffmpeg] exited with code ${code} for document ${ctx.params.documentId}`
             )
+            // Never end() a failed transcode: a clean terminating chunk presents a
+            // truncated file as complete. Destroying aborts the chunked transfer so
+            // the client sees an error instead of a short video. Koa only turns a
+            // body error into a response before the headers go out, so tear the
+            // response down too — otherwise a mid-stream failure hangs the client.
+            output.destroy(new Error(`ffmpeg exited with code ${code}`))
+            ctx.res.destroy()
           }
-          ctx.req.off('close', abort)
-          if (!useFallback) cleanup()
         })
 
         // The transcoded stream is a fragmented MP4 of a different length than

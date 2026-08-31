@@ -1,13 +1,24 @@
+import { useState } from 'react'
 import { Box, Typography } from '@mui/material'
 
 import { VideoPlayerProps } from '../../../../../common/types'
 
 export const VideoPlayer = ({ file, scale, rotation }: VideoPlayerProps) => {
+  const [playbackFailed, setPlaybackFailed] = useState(false)
+
   if (file.url.endsWith('.flv')) {
     return (
       <Typography variant="h6" sx={{ color: 'white' }}>
         Denna filtyp stöds inte för uppspelning i webbläsaren. Ladda ner filen
         för att se den.
+      </Typography>
+    )
+  }
+
+  if (playbackFailed) {
+    return (
+      <Typography variant="h6" sx={{ color: 'white' }}>
+        Filen kunde inte spelas upp. Ladda ner filen för att se den.
       </Typography>
     )
   }
@@ -35,8 +46,11 @@ export const VideoPlayer = ({ file, scale, rotation }: VideoPlayerProps) => {
           transform: `scale(${scale || 1}) rotate(${rotation || 0}deg)`,
         }}
         controlsList="nodownload"
+        onError={() => setPlaybackFailed(true)}
       >
-        <source src={file.url} />
+        {/* A fetch failure fires 'error' on the <source>, a decode failure on
+            the media element itself, so both need the handler. */}
+        <source src={file.url} onError={() => setPlaybackFailed(true)} />
         Din webbläsare stödjer inte videouppspelning.
       </video>
     </Box>

@@ -94,8 +94,30 @@ const mockTranscodingFfmpeg = () => {
   });
 };
 
+// Wires up a fake ffmpeg child that dies mid-encode: one chunk of transcoded
+// output, then a non-zero exit. Pass 0 chunks for the empty-output variant.
+const mockFailingFfmpeg = (chunk?: string) => {
+  mockedCreateWriteStream.mockReturnValue(new PassThrough() as never);
+  mockedSpawn.mockImplementation((): never => {
+    const child = new EventEmitter() as EventEmitter & {
+      stdout: PassThrough;
+      stderr: EventEmitter;
+      kill: jest.Mock;
+    };
+    child.stdout = new PassThrough();
+    child.stderr = new EventEmitter();
+    child.kill = jest.fn();
+    setImmediate(() => {
+      child.stdout.end(chunk);
+      child.emit('close', 1);
+    });
+    return child as never;
+  });
+};
+
 // Wires up a spawn that fails the way a missing ffmpeg binary does: an 'error'
-// event followed by stdout ending without ever producing data.
+// event followed by stdout ending without ever producing data, and — as the
+// real child does milliseconds later — a 'close' with the failure code.
 const mockMissingFfmpeg = () => {
   mockedCreateWriteStream.mockReturnValue(new PassThrough() as never);
   mockedSpawn.mockImplementation((): never => {
@@ -110,6 +132,7 @@ const mockMissingFfmpeg = () => {
     setImmediate(() => {
       child.emit('error', new Error('spawn ffmpeg ENOENT'));
       child.stdout.end();
+      child.emit('close', -2);
     });
     return child as never;
   });
@@ -127,6 +150,17 @@ const withServer = async (fn: (server: Server) => Promise<void>) => {
   } finally {
     server.closeAllConnections();
     await new Promise((resolve) => server.close(resolve));
+  }
+};
+
+// A destroyed response reaches the client as a torn-down connection, never as a
+// clean end — which is exactly what makes a failed transcode visible.
+const requestTerminatesAbnormally = async (server: Server) => {
+  try {
+    await request(server).get('/document/1337/attachment').buffer(true);
+    return false;
+  } catch {
+    return true;
   }
 };
 
@@ -208,8 +242,9 @@ describe('comprimaService', () => {
 
       const res = await request(app.callback()).get('/document/1337/attachment');
 
-      // The core regression guard: audio-only files must never reach the
-      // mandatory-video ffmpeg branch.
+      // The core regression guard: audio/mp4 is (despite the MIME name) H.264
+      // video that browsers play natively, so it must never be re-encoded by
+      // the ffmpeg branch.
       expect(mockedSpawn).not.toHaveBeenCalled();
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toContain('audio/mp4');
@@ -386,8 +421,8 @@ describe('comprimaService', () => {
         .set('Range', 'bytes=0-100');
 
       // The transcode decision must describe the body we are about to serve, not
-      // the discarded one: hop 2 is audio-only, so it passes through untouched
-      // instead of being fed to the mandatory-video ffmpeg map.
+      // the discarded one: hop 2 is audio/mp4 (H.264, browser-playable), so it
+      // passes through untouched instead of being needlessly re-encoded.
       expect(mockedSpawn).not.toHaveBeenCalled();
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toContain('audio/mp4');
@@ -410,6 +445,47 @@ describe('comprimaService', () => {
       // The buffered file may hold restricted archive content.
       expect(mockedCreateWriteStream).toHaveBeenCalledWith(expect.any(String), {
         mode: 0o600,
+      });
+    });
+
+    it('aborts the transfer when ffmpeg dies after emitting output', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(
+        makeDocument('video/mp4')
+      );
+      mockedComprimaAdapter.getAttachment.mockResolvedValue({
+        data: makeStream(),
+        status: 200,
+        headers: { 'content-type': 'video/mp4' },
+      } as never);
+
+      mockFailingFfmpeg('half-a-video');
+
+      await withServer(async (server) => {
+        // Ending the response here would hand the client a truncated file that
+        // looks complete; the transfer must break instead.
+        expect(await requestTerminatesAbnormally(server)).toBe(true);
+        await flushEvents();
+        expect(mockedUnlink).toHaveBeenCalled();
+      });
+    });
+
+    it('aborts the transfer when ffmpeg exits non-zero without any output', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(
+        makeDocument('video/mp4')
+      );
+      mockedComprimaAdapter.getAttachment.mockResolvedValue({
+        data: makeStream(),
+        status: 200,
+        headers: { 'content-type': 'video/mp4' },
+      } as never);
+
+      mockFailingFfmpeg();
+
+      await withServer(async (server) => {
+        // The empty-200 case: no bytes at all must not look like a valid file.
+        expect(await requestTerminatesAbnormally(server)).toBe(true);
+        await flushEvents();
+        expect(mockedUnlink).toHaveBeenCalled();
       });
     });
 
@@ -493,6 +569,43 @@ describe('comprimaService', () => {
         }
 
         await flushEvents();
+        expect(mockedUnlink).toHaveBeenCalled();
+      });
+    });
+
+    it('destroys the fallback stream and cleans up when the client disconnects', async () => {
+      mockedComprimaAdapter.getDocument.mockResolvedValue(
+        makeDocument('video/mp4')
+      );
+      mockedComprimaAdapter.getAttachment.mockResolvedValue({
+        data: makeStream(),
+        status: 200,
+        headers: { 'content-type': 'video/mp4' },
+      } as never);
+
+      mockMissingFfmpeg();
+      // Delivers a chunk but never ends, so the fallback is still streaming when
+      // the client goes away.
+      let fallback: PassThrough | undefined;
+      mockedCreateReadStream.mockImplementation((): never => {
+        fallback = new PassThrough();
+        fallback.write('fallback-bytes');
+        return fallback as never;
+      });
+
+      await withServer(async (server) => {
+        const req = request(server).get('/document/1337/attachment');
+        setTimeout(() => req.abort(), 50);
+        try {
+          await req;
+        } catch {
+          /* client-side abort */
+        }
+
+        await flushEvents();
+        // ffmpeg's 'close' no longer removes the disconnect handler, so the
+        // fallback's own full-size temp file cannot be left behind.
+        expect(fallback?.destroyed).toBe(true);
         expect(mockedUnlink).toHaveBeenCalled();
       });
     });
