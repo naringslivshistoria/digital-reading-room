@@ -50,6 +50,11 @@ jobs:
           cd ./packages/${{ matrix.context }}
           pnpm run lint
 
+      - name: 🏗 Build ${{ matrix.context }}
+        run: |
+          cd ./packages/${{ matrix.context }}
+          pnpm run --if-present build
+
       # Sorry
       #- name: 🤖 Test ${{ matrix.context }}
       #  run: |
