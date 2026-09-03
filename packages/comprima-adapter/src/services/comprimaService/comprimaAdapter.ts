@@ -354,9 +354,10 @@ const getDocument = async (documentId: number): Promise<Document> => {
   }
 }
 
-const getAttachment = async (document: Document) => {
+const getAttachment = async (document: Document, rangeHeader?: string) => {
   const attachment = await axios.get(document.pages[0].url, {
     responseType: 'stream',
+    ...(rangeHeader ? { headers: { Range: rangeHeader } } : {}),
   })
   return attachment
 }

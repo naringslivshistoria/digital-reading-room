@@ -6,7 +6,9 @@ import react from '@vitejs/plugin-react'
 import eslintPlugin from '@nabla/vite-plugin-eslint'
 
 export default defineConfig({
-  plugins: [react(), eslintPlugin()],
+  // Fast refresh injects a preamble check that fails under Vitest, which
+  // renders components without the index.html runtime.
+  plugins: [react({ fastRefresh: !process.env.VITEST }), eslintPlugin()],
   test: {
     globals: true,
     environment: 'jsdom',

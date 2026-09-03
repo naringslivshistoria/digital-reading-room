@@ -1,13 +1,24 @@
+import { useState } from 'react'
 import { Box, Typography } from '@mui/material'
 
 import { VideoPlayerProps } from '../../../../../common/types'
 
 export const VideoPlayer = ({ file, scale, rotation }: VideoPlayerProps) => {
+  const [playbackFailed, setPlaybackFailed] = useState(false)
+
   if (file.url.endsWith('.flv')) {
     return (
       <Typography variant="h6" sx={{ color: 'white' }}>
         Denna filtyp stöds inte för uppspelning i webbläsaren. Ladda ner filen
         för att se den.
+      </Typography>
+    )
+  }
+
+  if (playbackFailed) {
+    return (
+      <Typography variant="h6" sx={{ color: 'white' }}>
+        Filen kunde inte spelas upp. Ladda ner filen för att se den.
       </Typography>
     )
   }
@@ -22,6 +33,9 @@ export const VideoPlayer = ({ file, scale, rotation }: VideoPlayerProps) => {
         alignItems: 'center',
       }}
     >
+      {/* No caption track: archived videos have no caption resources, and
+          pointing one at the video URL triggers a failing transcode fetch. */}
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <video
         controls
         playsInline
@@ -32,9 +46,11 @@ export const VideoPlayer = ({ file, scale, rotation }: VideoPlayerProps) => {
           transform: `scale(${scale || 1}) rotate(${rotation || 0}deg)`,
         }}
         controlsList="nodownload"
+        onError={() => setPlaybackFailed(true)}
       >
-        <source src={file.url} type="video/mp4" />
-        <track kind="captions" src={file.url} srcLang="en" label="English" />
+        {/* A fetch failure fires 'error' on the <source>, a decode failure on
+            the media element itself, so both need the handler. */}
+        <source src={file.url} onError={() => setPlaybackFailed(true)} />
         Din webbläsare stödjer inte videouppspelning.
       </video>
     </Box>

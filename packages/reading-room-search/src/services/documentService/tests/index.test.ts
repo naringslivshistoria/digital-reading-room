@@ -3,7 +3,7 @@ import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import bodyParser from '@koa/bodyparser'
 import { Client } from '@elastic/elasticsearch'
-import axios from 'axios'
+import axios, { AxiosError, AxiosResponse } from 'axios'
 import { routes } from '../index'
 import documentResultMock from './documentResultMock'
 import config from '../../../common/config'
@@ -369,6 +369,68 @@ describe('documentService', () => {
         responseType: 'stream',
         url: `${config.comprimaAdapter.url}/document/${id}/attachment`,
       })
+    })
+
+    it('forwards the Range header to comprima-adapter when present', async () => {
+      const id = '1337'
+      mockedAxios.mockReturnValue(
+        Promise.resolve('SUCCESS') as Promise<unknown>
+      )
+
+      await request(app.callback())
+        .get(`/document/${id}/attachment/filename.jpg`)
+        .set('Range', 'bytes=0-100')
+        .set('Authorization', 'Bearer ' + token)
+
+      expect(mockedAxios).toBeCalledWith({
+        method: 'get',
+        responseType: 'stream',
+        url: `${config.comprimaAdapter.url}/document/${id}/attachment`,
+        headers: { Range: 'bytes=0-100' },
+      })
+    })
+
+    it('passes an upstream 5xx status and body through to the client', async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+      const id = '1337'
+      const upstreamBody = {
+        errorMessage:
+          'Upstream returned a partial response for a video attachment; cannot transcode a partial body',
+        documentId: id,
+      }
+      const bodyStream = new Readable()
+      bodyStream.push(JSON.stringify(upstreamBody))
+      bodyStream.push(null)
+
+      const upstreamError = new AxiosError(
+        'Request failed with status code 502'
+      )
+      upstreamError.response = {
+        status: 502,
+        headers: { 'content-type': 'application/json; charset=utf-8' },
+        data: bodyStream,
+      } as unknown as AxiosResponse
+      mockedAxios.mockRejectedValue(upstreamError)
+
+      const res = await request(app.callback())
+        .get(`/document/${id}/attachment/filename.mp4`)
+        .set('Authorization', 'Bearer ' + token)
+
+      expect(res.status).toEqual(502)
+      expect(res.body).toEqual(upstreamBody)
+    })
+
+    it('returns 500 when the adapter request fails without a response', async () => {
+      jest.spyOn(Client.prototype, 'get').mockResolvedValue(documentResultMock)
+      const id = '1337'
+      mockedAxios.mockRejectedValue(new Error('ECONNREFUSED'))
+
+      const res = await request(app.callback())
+        .get(`/document/${id}/attachment/filename.mp4`)
+        .set('Authorization', 'Bearer ' + token)
+
+      expect(res.status).toEqual(500)
+      expect(res.text).toEqual('{"results":"error: Error: ECONNREFUSED"}')
     })
 
     it("returns 404 if user doesn't have access to that document", async () => {

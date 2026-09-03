@@ -7,7 +7,7 @@
     "node": "18.14.1"
   },
   "scripts": {
-    "test": "jest --slient=false",
+    "test": "jest --silent=false",
     "test:watch": "jest --watch",
     "start": "ts-node -r dotenv/config ./src/index.ts",
     "dev": "nodemon -e ts,js --exec pnpm start",

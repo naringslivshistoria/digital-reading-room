@@ -10,6 +10,7 @@ FROM node:18.14.1-alpine AS runner
 
 # Install pnpm
 WORKDIR /app
+RUN apk add --no-cache ffmpeg
 RUN corepack enable && corepack prepare pnpm@10.17.0 --activate
 
 COPY . .
