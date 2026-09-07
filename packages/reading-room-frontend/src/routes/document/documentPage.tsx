@@ -166,7 +166,7 @@ export const DocumentPage = () => {
     if (document?.pages[0]?.pageType === 'Image') {
       return ViewerType.IMAGE
     }
-    if (document?.attachmentType?.toLowerCase()?.includes('video')) {
+    if (document?.attachmentType?.toLowerCase()?.includes('video') || document?.pages[0]?.pageType === 'Film') {
       return ViewerType.VIDEO
     }
     if (document?.pages[0]?.pageType === 'Pdf') {
