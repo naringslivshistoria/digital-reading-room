@@ -11,6 +11,7 @@ import {
   updatePassword,
 } from '../../common/adapters/userAdapter'
 import config from '../../common/config'
+import { hasPlatformAccess } from '../../common/platformAccess'
 
 export const createToken = async (username: string, password: string) => {
   try {
@@ -41,6 +42,10 @@ export const createToken = async (username: string, password: string) => {
     }
 
     await updateUserFailedLoginAttempts(user.id, 0)
+
+    if (!hasPlatformAccess(user.platforms)) {
+      throw createHttpError(403, `No access to the reading room: ${username}.`)
+    }
 
     const signOptions: SignOptions = {
       expiresIn: config.auth.expiresIn,

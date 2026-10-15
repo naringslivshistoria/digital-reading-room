@@ -2,6 +2,7 @@ import { Context, Next } from 'koa'
 
 import { fetchUserData } from '../userService'
 import { User } from '../../common/types'
+import { hasPlatformAccess } from '../../common/platformAccess'
 
 export const populateUserState = async (ctx: Context, next: Next) => {
   if (!ctx.state.user?.username) {
@@ -29,6 +30,12 @@ export const populateUserState = async (ctx: Context, next: Next) => {
     ctx.body = {
       error: `User is ${userData.locked ? 'locked' : 'disabled'}`,
     }
+    return
+  }
+
+  if (!hasPlatformAccess(userData.platforms)) {
+    ctx.status = 403
+    ctx.body = { error: 'No access to the reading room' }
     return
   }
 
