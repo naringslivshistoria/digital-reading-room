@@ -17,6 +17,7 @@ jobs:
           - comprima-crawler
           - reading-room-frontend
           - reading-room-search
+          - foretagskallan-api
 
     steps:
       - name: 🛎️ Checkout
@@ -32,18 +33,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version-file: "./packages/${{ matrix.context }}/.nvmrc"
           cache: "pnpm"
           cache-dependency-path: "./packages/${{ matrix.context  }}/pnpm-lock.yaml"
 
       - name: Install dependencies
         working-directory: ./packages/${{ matrix.context }}
         run: pnpm install --frozen-lockfile
-
-      - name: 🔧 Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
 
       - name: 🔎 Lint ${{ matrix.context }}
         run: |
