@@ -137,6 +137,15 @@ const markAsTooLarge = async (documentId: string) => {
   })
 }
 
+const isOcrApiAvailable = async () => {
+  try {
+    await axios.get(`${config.ocrUrl}/health`, { timeout: 10000 })
+    return true
+  } catch {
+    return false
+  }
+}
+
 const processDocument = async (documentId: string) => {
   try {
     log.info(`Processing ${documentId}`)
@@ -165,6 +174,11 @@ const processDocument = async (documentId: string) => {
 }
 
 export const ocrNext = async () => {
+  if (!(await isOcrApiAvailable())) {
+    log.error('OCR API not available, stopping')
+    return null
+  }
+
   const next = await client.search({
     index: config.elasticSearch.indexName,
     from: 0,
