@@ -2,7 +2,7 @@
 
 Backend for Företagskällan, an AI chat where students explore CFN's archives.
 
-The first version contains login against the reading room's user database and a chat endpoint that streams answers from an LLM. Vector search and source citations will be added later.
+Contains login against the reading room's user database and a chat endpoint that streams answers from the agent (RAG). For now the agent is a mock with made-up sources; the real one is built in `src/services/agentService/`.
 
 ## Running locally
 
@@ -26,6 +26,8 @@ Configuration is set via environment variables (`@iteam/config`, double undersco
 | `LLM__BASE_URL` | OpenAI-compatible API (Azure OpenAI v1, Berget, vLLM) | `http://localhost:8000/v1` |
 | `LLM__API_KEY` | API key | – |
 | `LLM__MODEL` | Model name/deployment | – |
+| `AGENT__MODE` | `mock` (made-up answer with sources) or `llm` (the LLM directly, without sources) | `mock` |
+| `AGENT__MOCK_DELAY_MS` | Pause between words in the mock | `40` |
 
 ## API
 
@@ -35,7 +37,7 @@ Configuration is set via environment variables (`@iteam/config`, double undersco
 | `POST` | `/auth/login` | no | `{ username, password }`, sets the `foretagskallan` cookie. Requires the `foretagskallan` platform in `user_platforms` |
 | `POST` | `/auth/logout` | no | Removes the cookie |
 | `GET` | `/auth/me` | yes | The logged-in user and their depositors |
-| `POST` | `/chat` | yes | `{ messages: [{ role, content }] }`, responds with `text/event-stream` (`delta`, `done`, `error`) |
+| `POST` | `/chat` | yes | `{ messages: [{ role, content }] }`, responds with `text/event-stream` (see below) |
 
 Example:
 
@@ -45,6 +47,34 @@ curl -c jar -H 'Content-Type: application/json' \
 curl -N -b jar -H 'Content-Type: application/json' \
   -d '{"messages":[{"role":"user","content":"Vad gjorde ASEA?"}]}' localhost:4010/chat
 ```
+
+## The agent and the `/chat` events
+
+`/chat` calls `askAgent({ userId, messages, signal })` in `src/services/agentService`. `userId` is `sub` from the verified JWT; the agent looks up the student's access rights itself (RLS), so no access rights are passed and nothing in the request body decides what the student may see.
+
+The agent's events are forwarded as SSE. The source fields follow the reading room's ES documents:
+
+```
+event: sources
+data: {"sources":[{"marker":1,"documentId":900001,"page":4,"title":"Styrelseprotokoll 1923","depositor":"Exempeldeponenten","archiveInitiator":"Exempel AB","seriesSignature":"A1","seriesName":"Styrelseprotokoll","volume":"1","snippet":"…"}]}
+
+event: delta
+data: {"section":"sourced","text":"Enligt styrelseprotokollet … [1]."}
+
+event: delta
+data: {"section":"general","text":"…"}
+
+event: citations
+data: {"valid":[1,2],"invalid":[]}
+
+event: followups
+data: {"questions":["Vem satt i styrelsen 1923?"]}
+
+event: done
+data: {"finishReason":"stop"}
+```
+
+If something fails after the stream has started, `event: error` with `{ "message": "…" }` is sent instead of `done`. The types are in `agentService/types.ts`.
 
 ## Platform access
 

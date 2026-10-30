@@ -26,6 +26,10 @@ export interface Config {
     model: string
     systemPrompt: string
   }
+  agent: {
+    mode: 'mock' | 'llm'
+    mockDelayMs: number
+  }
 }
 
 const config = configPackage({
@@ -56,6 +60,11 @@ const config = configPackage({
       systemPrompt:
         'Du är Företagskällan, en assistent som hjälper elever att utforska svensk näringslivshistoria. Svara på svenska.',
     },
+    agent: {
+      // mock = made-up answer with sources, llm = the LLM directly without sources
+      mode: 'mock',
+      mockDelayMs: 40, // pause between words in the mock, so the streaming is visible
+    },
   },
 })
 
@@ -65,4 +74,5 @@ export default {
   postgres: config.get('postgres'),
   auth: config.get('auth'),
   llm: config.get('llm'),
+  agent: config.get('agent'),
 } as Config

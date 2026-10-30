@@ -1,7 +1,7 @@
 import KoaRouter from '@koa/router'
 import { PassThrough } from 'stream'
 
-import { streamChat } from './llmClient'
+import { askAgent } from '../agentService'
 import { ChatMessage } from '../../common/types'
 
 const MAX_MESSAGE_LENGTH = 4000
@@ -31,9 +31,16 @@ export const routes = (router: KoaRouter) => {
   /**
    * POST /chat
    * Body: { messages: [{ role: 'user' | 'assistant', content: string }] }
-   * Response: text/event-stream with the events `delta`, `done` and `error`.
+   * Response: text/event-stream with the agent's events (`sources`, `delta`,
+   * `citations`, `followups`, `done`), or `error` if something goes wrong.
    */
   router.post('/chat', async (ctx) => {
+    const userId = ctx.state.user?.sub
+    if (!userId) {
+      ctx.status = 401
+      return
+    }
+
     const messages = parseMessages(ctx.request.body)
     if (!messages) {
       ctx.status = 400
@@ -59,13 +66,17 @@ export const routes = (router: KoaRouter) => {
 
     void (async () => {
       try {
-        for await (const delta of streamChat(messages, abort.signal)) {
-          stream.write(sseEvent('delta', { text: delta }))
+        const events = askAgent({
+          userId: String(userId),
+          messages,
+          signal: abort.signal,
+        })
+        for await (const { event, data } of events) {
+          stream.write(sseEvent(event, data))
         }
-        stream.write(sseEvent('done', {}))
       } catch (error) {
         if (!abort.signal.aborted) {
-          console.error('LLM error:', error)
+          console.error('Agent error:', error)
           stream.write(
             sseEvent('error', { message: 'Could not generate an answer' })
           )

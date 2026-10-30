@@ -6,11 +6,12 @@ import config from './common/config'
 import hash from './services/authService/hash'
 import * as userAdapter from './common/adapters/userAdapter'
 import * as userService from './services/userService'
-import * as llmClient from './services/chatService/llmClient'
+import * as agentService from './services/agentService'
+import * as llmClient from './services/agentService/llmClient'
 
 jest.mock('./common/adapters/userAdapter')
 jest.mock('./services/userService')
-jest.mock('./services/chatService/llmClient')
+jest.mock('./services/agentService/llmClient')
 
 const adapter = jest.mocked(userAdapter)
 const users = jest.mocked(userService)
@@ -19,6 +20,14 @@ const llm = jest.mocked(llmClient)
 const server = app.callback()
 const cookieFor = (username: string) =>
   `${config.auth.cookieName}=${jwt.sign({ sub: 1, username }, config.auth.secret)}`
+
+beforeAll(() => {
+  config.agent.mockDelayMs = 0
+})
+
+afterEach(() => {
+  jest.restoreAllMocks()
+})
 
 beforeEach(() => {
   jest.resetAllMocks()
@@ -135,12 +144,7 @@ describe('POST /chat', () => {
     expect(res.status).toBe(400)
   })
 
-  it('streams the answer as server-sent events', async () => {
-    llm.streamChat.mockImplementation(async function* () {
-      yield 'ASEA '
-      yield 'tillverkade elmotorer.'
-    })
-
+  it('streams the mock agent answer with sources as server-sent events', async () => {
     const res = await request(server)
       .post('/chat')
       .set('Cookie', cookieFor('elev@skola.se'))
@@ -148,27 +152,84 @@ describe('POST /chat', () => {
 
     expect(res.status).toBe(200)
     expect(res.headers['content-type']).toMatch(/text\/event-stream/)
-    expect(res.text).toContain('event: delta\ndata: {"text":"ASEA "}')
-    expect(res.text).toContain('event: done')
-    expect(llm.streamChat).toHaveBeenCalledWith(
-      body.messages,
-      expect.any(AbortSignal)
-    )
+
+    const events = [...res.text.matchAll(/^event: (\w+)$/gm)].map((m) => m[1])
+    expect(events.filter((e, i) => e !== events[i - 1])).toEqual([
+      'sources',
+      'delta',
+      'citations',
+      'followups',
+      'done',
+    ])
+    expect(res.text).toContain('"documentId":900001')
+    expect(res.text).toContain('"depositor":"Exempeldeponenten"')
+    expect(res.text).toContain('"section":"sourced"')
+    expect(res.text).toContain('"section":"general"')
   })
 
-  it('sends an error event when the LLM fails', async () => {
-    // eslint-disable-next-line require-yield
-    llm.streamChat.mockImplementation(async function* () {
-      throw new Error('LLM down')
-    })
-    jest.spyOn(console, 'error').mockImplementation(() => undefined)
+  it('passes the user id from the verified token to the agent, never from the body', async () => {
+    const ask = jest
+      .spyOn(agentService, 'askAgent')
+      .mockImplementation(async function* () {
+        yield { event: 'done', data: { finishReason: 'stop' } }
+      })
 
-    const res = await request(server)
+    await request(server)
       .post('/chat')
       .set('Cookie', cookieFor('elev@skola.se'))
-      .send(body)
+      .send({ ...body, userId: 'någon-annan' })
 
-    expect(res.text).toContain('event: error')
-    expect(res.text).not.toContain('event: done')
+    expect(ask).toHaveBeenCalledWith({
+      userId: '1',
+      messages: body.messages,
+      signal: expect.any(AbortSignal),
+    })
+  })
+
+  describe('in llm mode', () => {
+    beforeEach(() => {
+      config.agent.mode = 'llm'
+    })
+    afterEach(() => {
+      config.agent.mode = 'mock'
+    })
+
+    it('streams the LLM answer without sources', async () => {
+      llm.streamChat.mockImplementation(async function* () {
+        yield 'ASEA '
+        yield 'tillverkade elmotorer.'
+      })
+
+      const res = await request(server)
+        .post('/chat')
+        .set('Cookie', cookieFor('elev@skola.se'))
+        .send(body)
+
+      expect(res.text).toContain(
+        'event: delta\ndata: {"section":"general","text":"ASEA "}'
+      )
+      expect(res.text).toContain('event: done')
+      expect(res.text).not.toContain('event: sources')
+      expect(llm.streamChat).toHaveBeenCalledWith(
+        body.messages,
+        expect.any(AbortSignal)
+      )
+    })
+
+    it('sends an error event when the LLM fails', async () => {
+      // eslint-disable-next-line require-yield
+      llm.streamChat.mockImplementation(async function* () {
+        throw new Error('LLM down')
+      })
+      jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      const res = await request(server)
+        .post('/chat')
+        .set('Cookie', cookieFor('elev@skola.se'))
+        .send(body)
+
+      expect(res.text).toContain('event: error')
+      expect(res.text).not.toContain('event: done')
+    })
   })
 })
