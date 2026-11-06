@@ -27,6 +27,7 @@ import {
 } from './metaDataFieldConfigs'
 import { useIsLoggedIn } from '../../hooks/useIsLoggedIn'
 import { useSearch } from '../search'
+import { useGetDocument } from './hooks/useGetDocument'
 import { ThumbnailImage } from '../search/components/thumbnailImage'
 import DocumentViewer from '../search/components/documentViewer'
 
@@ -44,6 +45,7 @@ export const DocumentPage = () => {
   const sort = searchParams.get('sort') ?? undefined
   const sortOrder = searchParams.get('sortOrder') ?? undefined
   const position = searchParams.get('position') ?? undefined
+  const docPage = searchParams.get('docPage') ?? undefined
   const [showViewer, setShowViewer] = useState(false)
   const navigate = useNavigate()
   const [showDocumentViewer, setShowDocumentViewer] = useState(false)
@@ -63,10 +65,20 @@ export const DocumentPage = () => {
     sortOrder,
   })
 
+  const isInSearchResults = Boolean(
+    data?.results.some((doc: Document) => doc.id.toString() == id)
+  )
+  const { isLoading: isLoadingDocument, data: documentData } = useGetDocument({
+    id: id ?? '',
+    enabled: Boolean(id) && !isLoading && !isInSearchResults,
+  })
+
   useEffect(() => {
-    let thisDoc = data?.results.find(
+    let thisDoc = (data?.results.find(
       (doc: Document) => doc.id.toString() == id
-    ) as Document
+    ) ??
+      documentData?.results ??
+      undefined) as Document
 
     if (!document && position) {
       if (position) {
@@ -82,7 +94,7 @@ export const DocumentPage = () => {
     }
 
     setDocument(thisDoc)
-  }, [id, data, position, searchParams, document, navigate])
+  }, [id, data, documentData, position, searchParams, document, navigate])
 
   useEffect(() => {
     const getParamsForNavigationByPosition = (
@@ -99,7 +111,7 @@ export const DocumentPage = () => {
     }
 
     const getUrlToPreviousDocument = () => {
-      if (document) {
+      if (document && data?.results.includes(document)) {
         const prevDocument = data?.results[data?.results.indexOf(document) - 1]
         if (prevDocument)
           return `/dokument/${prevDocument.id}?${searchParams.toString()}`
@@ -113,7 +125,7 @@ export const DocumentPage = () => {
     }
 
     const getUrlToNextDocument = () => {
-      if (document) {
+      if (document && data?.results.includes(document)) {
         const nextDocument = data?.results[data?.results.indexOf(document) + 1]
         if (nextDocument)
           return `/dokument/${nextDocument.id}?${searchParams.toString()}`
@@ -174,6 +186,14 @@ export const DocumentPage = () => {
     }
     return ViewerType.IMAGE
   }
+
+  const isPdf = getAttachmentType() === ViewerType.PDF
+
+  useEffect(() => {
+    if (docPage && isPdf) {
+      setShowDocumentViewer(true)
+    }
+  }, [docPage, isPdf])
 
   return (
     <>
@@ -328,6 +348,7 @@ export const DocumentPage = () => {
                   <DocumentViewer
                     file={pdfFile ?? documentAttachment}
                     type={getAttachmentType()}
+                    initialPage={docPage ? +docPage : undefined}
                     onClose={() => setShowDocumentViewer(false)}
                     onPrevious={() =>
                       prevDocumentUrl && navigate(prevDocumentUrl)
@@ -417,7 +438,7 @@ export const DocumentPage = () => {
             </>
           ) : (
             <div style={{ padding: '30px' }}>
-              {!isLoading ? (
+              {!isLoading && !isLoadingDocument ? (
                 <>Dokumentet kunde inte hämtas på grund av ett oväntat fel.</>
               ) : (
                 <>Dokumentet hämtas...</>

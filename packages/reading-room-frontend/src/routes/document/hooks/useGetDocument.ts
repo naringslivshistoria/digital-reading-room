@@ -9,9 +9,15 @@ export interface GetDocumentResponse {
   results: Document | null
 }
 
-export const useGetDocument = ({ id }: { id: string }) =>
+export const useGetDocument = ({
+  id,
+  enabled,
+}: {
+  id: string
+  enabled?: boolean
+}) =>
   useQuery<GetDocumentResponse, AxiosError>({
-    queryKey: ['getDocument'],
+    queryKey: ['getDocument', id],
     queryFn: async () => {
       if (id) {
         const { data } = await axios.get<GetDocumentResponse>(
@@ -31,4 +37,13 @@ export const useGetDocument = ({ id }: { id: string }) =>
         }
       }
     },
+    enabled,
+    retry: (failureCount: number, error: AxiosError) => {
+      if (error.response?.status === 401) {
+        return false
+      } else {
+        return failureCount <= 1
+      }
+    },
+    refetchOnWindowFocus: false,
   })
