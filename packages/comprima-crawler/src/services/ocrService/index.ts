@@ -15,6 +15,13 @@ interface OcrApiResponse {
       image_description: string
     }>
     full_text: string
+    transcription?: {
+      model: string
+      ocr_mode: string
+      ocr_version: string
+      dpi: number | null
+      processed_at: string
+    }
   }
 }
 
@@ -113,6 +120,11 @@ const saveOcrData = async (
       ocrDescription,
       ocrMetadata,
       ocrStatus: 'success',
+      ocrModel: document.transcription?.model,
+      ocrProcessedAt: document.transcription?.processed_at,
+      ocrVersion: document.transcription?.ocr_version,
+      ocrMode: document.transcription?.ocr_mode,
+      ocrDpi: document.transcription?.dpi,
     },
   })
 }
