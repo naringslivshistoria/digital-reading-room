@@ -106,6 +106,41 @@ describe('POST /auth/login', () => {
   })
 })
 
+describe('GET /auth/me', () => {
+  it('returns the user and all access fields', async () => {
+    users.fetchUserData.mockResolvedValue({
+      locked: false,
+      disabled: false,
+      firstName: 'Test',
+      lastName: 'Elev',
+      depositors: ['Testdeponent'],
+      archiveInitiators: ['Testdeponent>Exempel AB'],
+      series: [],
+      volumes: [],
+      documentIds: ['123456'],
+      fileNames: [],
+      platforms: ['foretagskallan'],
+    })
+
+    const res = await request(server)
+      .get('/auth/me')
+      .set('Cookie', cookieFor('elev@skola.se'))
+
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual({
+      username: 'elev@skola.se',
+      firstName: 'Test',
+      lastName: 'Elev',
+      depositors: ['Testdeponent'],
+      archiveInitiators: ['Testdeponent>Exempel AB'],
+      series: [],
+      volumes: [],
+      documentIds: ['123456'],
+      fileNames: [],
+    })
+  })
+})
+
 describe('POST /chat', () => {
   const body = { messages: [{ role: 'user', content: 'Vad gjorde ASEA?' }] }
 

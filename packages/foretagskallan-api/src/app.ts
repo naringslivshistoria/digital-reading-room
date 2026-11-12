@@ -40,6 +40,11 @@ privateRouter.get('/auth/me', async (ctx) => {
     firstName: user.firstName,
     lastName: user.lastName,
     depositors: user.depositors,
+    archiveInitiators: user.archiveInitiators,
+    series: user.series,
+    volumes: user.volumes,
+    documentIds: user.documentIds,
+    fileNames: user.fileNames,
   }
 })
 chatRoutes(privateRouter)

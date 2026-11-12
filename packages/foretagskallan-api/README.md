@@ -36,7 +36,7 @@ Configuration is set via environment variables (`@iteam/config`, double undersco
 | `GET` | `/health` | no | Checks the database connection |
 | `POST` | `/auth/login` | no | `{ username, password }`, sets the `foretagskallan` cookie. Requires the `foretagskallan` platform in `user_platforms` |
 | `POST` | `/auth/logout` | no | Removes the cookie |
-| `GET` | `/auth/me` | yes | The logged-in user and their depositors |
+| `GET` | `/auth/me` | yes | The logged-in user and their access fields (`depositors`, `archiveInitiators`, `series`, `volumes`, `documentIds`, `fileNames`) |
 | `POST` | `/chat` | yes | `{ messages: [{ role, content }] }`, responds with `text/event-stream` (see below) |
 
 Example:
