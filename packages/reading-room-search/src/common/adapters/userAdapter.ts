@@ -15,9 +15,21 @@ const db = knex({
   },
 })
 
+// Platforms the user has access to, as a JSON array (table user_platforms).
+const platformsColumn = () =>
+  db.raw(
+    `coalesce((select json_agg(up.platform order by up.platform) from user_platforms up where up.user_id = users.id), '[]'::json) as platforms`
+  )
+
 export const createUser = async (user: User): Promise<void> => {
   try {
-    await db('users').insert(user)
+    await db.transaction(async (trx) => {
+      const [{ id }] = await trx('users').insert(user).returning('id')
+      await trx('user_platforms').insert({
+        user_id: id,
+        platform: 'readingroom',
+      })
+    })
   } catch (error: unknown) {
     if (!(error instanceof Error)) {
       throw error
@@ -51,7 +63,8 @@ export const getUser = async (username: string) => {
       'reset_token_expires',
       'firstName',
       'lastName',
-      'organization'
+      'organization',
+      platformsColumn()
     )
     .from<User>('users')
     .where('username', username)
@@ -72,7 +85,8 @@ export const getUserData = async (username: string): Promise<Partial<User>> => {
       'series',
       'volumes',
       'locked',
-      'disabled'
+      'disabled',
+      platformsColumn()
     )
     .from<User>('users')
     .where('username', username)

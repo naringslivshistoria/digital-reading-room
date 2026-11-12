@@ -31,6 +31,7 @@ export const fetchUserData = async (
     volumes: parseField(userData.volumes as string | null | undefined),
     documentIds: parseField(userData.documentIds as string | null | undefined),
     fileNames: parseField(userData.fileNames as string | null | undefined),
+    platforms: Array.isArray(userData.platforms) ? userData.platforms : [],
   }
 
   userCache.set(username, {
