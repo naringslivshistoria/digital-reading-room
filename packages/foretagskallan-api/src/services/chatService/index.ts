@@ -51,7 +51,8 @@ export const routes = (router: KoaRouter) => {
     }
 
     const abort = new AbortController()
-    ctx.req.on('close', () => abort.abort())
+    // res, not req: req's 'close' never fires here once the body has been read
+    ctx.res.on('close', () => abort.abort())
 
     const stream = new PassThrough()
     ctx.request.socket.setTimeout(0)
