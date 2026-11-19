@@ -151,9 +151,13 @@ const markAsTooLarge = async (documentId: string) => {
 
 const isOcrApiAvailable = async () => {
   try {
-    await axios.get(`${config.ocrUrl}/health`, { timeout: 10000 })
+    await axios.get(`${config.ocrUrl}/ready`, { timeout: 10000 })
     return true
-  } catch {
+  } catch (error) {
+    const reason = axios.isAxiosError(error)
+      ? (error.response?.data?.detail ?? error.message)
+      : String(error)
+    log.error(`OCR API not ready: ${reason}`)
     return false
   }
 }
