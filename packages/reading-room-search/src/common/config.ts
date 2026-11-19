@@ -15,6 +15,7 @@ export interface Config {
     secret: string
     expiresIn: number
     maxFailedLoginAttempts: number
+    requirePlatformAccess: boolean
   }
   elasticSearch: {
     url: string
@@ -53,6 +54,8 @@ const config = configPackage({
         'Kungen, Drottningen, Kronprinsessan och Prins Daniel höll i dag ett videomöte med Kungl. Vetenskapsakademien.',
       expiresIn: 10800, // format allowed by https://github.com/zeit/ms
       maxFailedLoginAttempts: 3,
+      // Turn on only once backoffice writes to user_platforms (see the migration).
+      requirePlatformAccess: false,
     },
     elasticSearch: {
       url: 'http://localhost:9200',

@@ -38,6 +38,7 @@ interface User {
   firstName: string | null
   lastName: string | null
   organization: string | null
+  platforms: string[]
 }
 
 enum FilterType {

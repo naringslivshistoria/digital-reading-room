@@ -44,6 +44,7 @@ jobs:
           - comprima-crawler
           - reading-room-frontend
           - reading-room-search
+          - foretagskallan-api
 
     steps:
       - name: 🛎️ Checkout
