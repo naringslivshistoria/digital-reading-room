@@ -25,6 +25,7 @@ export default function DocumentViewer({
   name,
   download,
   thumbnailUrl,
+  initialPage = 1,
 }: DocumentViewerProps) {
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -301,6 +302,12 @@ export default function DocumentViewer({
               currentPdfPage={currentPdfPage}
               onPdfLoad={(pdf) => {
                 setNumPages(pdf.numPages)
+                setCurrentPdfPage(
+                  Math.min(
+                    Math.max(Math.floor(initialPage) || 1, 1),
+                    pdf.numPages
+                  )
+                )
                 pdfInstanceRef.current = pdf
               }}
               thumbnailUrl={thumbnailUrl}

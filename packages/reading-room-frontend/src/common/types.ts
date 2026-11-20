@@ -67,6 +67,7 @@ interface DocumentViewerProps {
   name: string
   download: () => void
   thumbnailUrl?: string
+  initialPage?: number
 }
 
 interface ViewerContentProps {
