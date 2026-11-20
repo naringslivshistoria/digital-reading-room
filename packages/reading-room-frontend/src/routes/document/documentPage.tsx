@@ -59,7 +59,7 @@ export const DocumentPage = () => {
   const pageSize = 20
   const { isLoading, data } = useSearch({
     query,
-    startIndex: (+(page == undefined ? 2 : page) - 1) * pageSize,
+    startIndex: (+(page == undefined ? 1 : page) - 1) * pageSize,
     filter: filter == undefined ? '' : filter,
     sort,
     sortOrder,
