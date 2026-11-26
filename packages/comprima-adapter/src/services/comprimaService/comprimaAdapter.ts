@@ -59,7 +59,12 @@ const ensureLogin = async (options: SoapOptions, relogin = false) => {
       return
     } else {
       loginInProgress = true
-      sessionId = await login(user, password)
+
+      try {
+        sessionId = await login(user, password)
+      } finally {
+        loginInProgress = false
+      }
 
       console.log('Login complete, new session id', sessionId)
 
@@ -67,7 +72,6 @@ const ensureLogin = async (options: SoapOptions, relogin = false) => {
         /<ns:sessionId>.*?<\/ns:sessionId>/,
         '<ns:sessionId>' + sessionId + '</ns:sessionId>'
       )
-      loginInProgress = false
     }
   }
 }
@@ -88,9 +92,11 @@ const makeSoapRequest = async (options: SoapOptions) => {
 
     return result
   } catch (error) {
+    // Comprima answers one of these when the session is no longer valid.
     if (
       typeof error === 'string' &&
-      error.indexOf('Session has expired') !== -1
+      (error.includes('Session has expired') ||
+        error.includes('Sessionen är inte aktiv'))
     ) {
       // Check for auth error, which is returned as a 500
       console.info('No valid login session')
