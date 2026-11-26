@@ -54,6 +54,10 @@ const getExtension = (mimeType: string): string => {
   return map[mimeType.toLowerCase()] || 'bin'
 }
 
+const delay = async (time: number) => {
+  return new Promise((resolve) => setTimeout(resolve, time))
+}
+
 const getAttachment = async (documentId: string) => {
   const url = `${config.comprimaUrl}/document/${documentId}/attachment`
   const response = await axios({
@@ -162,10 +166,24 @@ const isOcrApiAvailable = async () => {
   }
 }
 
+const isAdapterAvailable = async () => {
+  try {
+    await axios.get(`${config.comprimaUrl}/healthz`, { timeout: 60000 })
+    return true
+  } catch (error) {
+    const reason = axios.isAxiosError(error) ? error.message : String(error)
+    log.error(`Comprima adapter not available: ${reason}`)
+    return false
+  }
+}
+
 const processDocument = async (documentId: string) => {
+  let attachmentRetrieved = false
+
   try {
     log.info(`Processing ${documentId}`)
     const attachment = await getAttachment(documentId)
+    attachmentRetrieved = true
     log.info(`Retrieved attachment, size: ${attachment.data.length}`)
 
     if (attachment.data.length >= MAX_ATTACHMENT_SIZE) {
@@ -184,6 +202,12 @@ const processDocument = async (documentId: string) => {
     return true
   } catch (error) {
     log.error('OCR failed', error as object)
+
+    // The document is not the problem when the adapter is down, so leave it for a later attempt.
+    if (!attachmentRetrieved && !(await isAdapterAvailable())) {
+      return null
+    }
+
     await markAsFailed(documentId)
     return false
   }
@@ -255,7 +279,12 @@ export const ocrNext = async () => {
     return processDocument(document._id as string)
   })
 
-  await Promise.all(ocrTasks)
+  const results = await Promise.all(ocrTasks)
+
+  if (results.includes(null)) {
+    log.error('Comprima adapter not available, waiting a minute')
+    await delay(60 * 1000)
+  }
 
   log.info('Batch done')
 
